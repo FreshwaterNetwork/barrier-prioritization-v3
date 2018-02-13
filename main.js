@@ -605,7 +605,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 
                  $('#' + this.id + 'dlStats').on('click',lang.hitch(this,function(e) {
                     //download summary stats table
-                    require(["jquery", "plugins/barrier-prioritization-proto2/js/jquery.tabletoCSV"],lang.hitch(this,function($) {
+                    require(["jquery", "plugins/barrier-prioritization-v3/js/jquery.tabletoCSV"],lang.hitch(this,function($) {
                          $("#" + this.id + "gpSumStatsTable").tableToCSV(this.customResultBaseName + "_SumStats");
                     }));           
                 }));   
@@ -784,7 +784,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 $("#" + this.id + "selectSeverity").chosen({allow_single_deselect:true, width:"220px"}).change(lang.hitch(this, function(c){
                     var v = c.target.value;
                     // check for a deselect
-                    if (v.length == 0){v = "none";}
+                    if (v.length === 0){v = "none";}
                     console.log(v);    
                     $("#" + this.id +"stateStatsExpander").show();
                     
@@ -807,7 +807,6 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 var v = c.target.value;
                 // check for a deselect
                 if (v.length === 0){v = "none";}
-                
                 //analytics event tracking
                 ga('send', 'event', {
                    eventCategory:this.config.analyticsEventTrackingCategory,        
@@ -873,10 +872,12 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
         
         zoomToStates: function(v, bool){
             //build zoom-to chosen
+            console.log(v);
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
             this.map.setExtent(zoomExt);
-            lang.hitch(this,this.refreshBarChart()); 
+            lang.hitch(this,this.refreshBarChart());
+            lang.hitch(this, this.glanceStats());
             if (bool === "yes" && this.toggleBarriers !== false){
                 $("#" + this.id +"barriers").trigger("click");
                 $('#' + this.id + 'clickInstructions').show(); 
@@ -891,6 +892,10 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             if (this.config.includeStratifiedRegions === true){
                 lang.hitch(this, this.selectStratification());
             }
+        },
+        
+        glanceStats: function(v){
+            console.log("glance stats")
         },
         
         scenarioSelection: function(v, bool){
@@ -922,10 +927,11 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
         },
 
         refreshBarChart: function(v){
+            console.log("bar chart");
             var v = $("#" + this.id + "zoomState").val();
-            $("#" + this.id + "damSpan").text(this.config.zoomTo[v][1]["dams"]);    
-            $("#" + this.id + "roadCrossingSpan").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
-            $("#" + this.id + "avgNetSpan").text(this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2));
+            $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
+            $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
+            $("#" + this.id + "glanceNetworks").text(this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2));
             var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);    
 
             if (this.currentSeverity != "6"){
@@ -1559,7 +1565,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 $("#" + this.id + "gpSumStatsTable > tbody:last-child").append(dStr2); 
                 console.log(dStr2);
                 //Set up tablesorter           
-                // require(["jquery", "plugins/barrier-prioritization-proto2/js/jquery.tablesorter.combined.js"],lang.hitch(this,function($) {
+                // require(["jquery", "plugins/barrier-prioritization-v3/js/jquery.tablesorter.combined.js"],lang.hitch(this,function($) {
                             // $("#" + this.id + "gpSumStatsTable").tablesorter({
                             // widthFixed : true,
                             // headerTemplate : '{content} {icon}', // Add icon for various themes
@@ -2135,7 +2141,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             }                   
             
             if (this.config.includeFactSheets === true){
-            	this.clickHeader += "<br/><a target='_blank' href='plugins/barrier-prioritization-proto2/factSheets/" + this.allClickData[this.config.uniqueID] + ".pdf'>Fact Sheet</a>";
+            	this.clickHeader += "<br/><a target='_blank' href='plugins/barrier-prioritization-v3/factSheets/" + this.allClickData[this.config.uniqueID] + ".pdf'>Fact Sheet</a>";
             }
                         
             //show iteration being used if including barrier severity, it's not the average value, and it's not a GP service result

@@ -1,6 +1,6 @@
 {
     "css": [
-		"plugins/barrier-prioritization-proto2/css/main.css"
+		"plugins/barrier-prioritization-v3/css/main.css"
 
     ],
     "use": {

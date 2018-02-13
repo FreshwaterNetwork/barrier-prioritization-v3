@@ -74,7 +74,7 @@
 	"summStatsParamName" : "Summary_Stats",
 	"zippedResultParamName" : "ZipResult",
 	"includeZippedConsensusDownload" : true,
-	"zippedConsensusResultURL" : "plugins/barrier-prioritization-proto2/images/PenobscotHabitatFocusArea.zip",
+	"zippedConsensusResultURL" : "plugins/barrier-prioritization-v3/images/PenobscotHabitatFocusArea.zip",
 	"gpServIncludesLogTransform" : false,
 	"includeExploreConsensus":true,
 	"includeSeverityFilter":true,
