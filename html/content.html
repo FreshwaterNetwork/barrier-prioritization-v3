@@ -22,20 +22,20 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 <h3>Select a watershed</h3>
                 <div class="bp_flexColHCenter">
                         <div class="chosen-wrap" style="margin-bottom:10px;">
-                                <select data-placeholder="Penobscot" id="zoomState" class="chosen">
-                                        <option value="Region">Penobscot Basin</option>
-                                        <option value="West Branch">West Branch</option>
-                                        <option value="East Branch">East Branch</option>
+                                <select data-placeholder="Penobscot" id="glanceZoom" class="chosen">
+                                        <option value="Penobscot">Penobscot Basin</option>
+                                        <option value="West Branch Penobscot">West Branch</option>
+                                        <option value="East Branch Penobscot">East Branch</option>
                                         <option value="Mattawamkeag">Mattawamkeag</option>
                                         <option value="Piscataquis">Piscataquis</option>
                                         <option value="Lower Penobscot">Lower Penobscot</option>
-                                        <option value="Coastal">Coastal</option>
+                                        <option value="Maine Coastal">Coastal</option>
                                 </select>
                         </div>
                 </div>
             </section>
             <section>
-                <div class="bp_glanceStats">
+                <div class="bp_glanceStats" id="glanceDamDiv">
                     <img src="plugins/barrier-prioritization-v3/images/damStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Number of dams">   
                     <div class="bp_glanceStatsContainer">    
                         <h2 id="glanceDams">152</h2>
@@ -48,7 +48,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 </div>
             </section>
             <section>
-                <div class="bp_glanceStats">
+                <div class="bp_glanceStats" id="glanceXingDiv">
                     <img src="plugins/barrier-prioritization-v3/images/xingStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Number of crossings">
                     <div class="bp_glanceStatsContainer">    
                         <h2 id="glanceXings">1,955</h2>
@@ -60,7 +60,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 </div>
             </section>
             <section>
-                <div class="bp_glanceStats">
+                <div class="bp_glanceStats" id="glanceNetworkDiv">
                     <img src="plugins/barrier-prioritization-v3/images/netStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Connected network length">
                     <div class="bp_glanceStatsContainer">    
                         <h2 id="glanceNetworks">4.86 Miles</h2>

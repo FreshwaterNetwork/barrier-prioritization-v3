@@ -13,10 +13,11 @@ function (     ArcGISDynamicMapServiceLayer, Extent, SpatialReference, Query, Qu
                 // Add dynamic map service
                 t.dynamicLayer = new ArcGISDynamicMapServiceLayer(t.url, {opacity:0.8});
                 if (t.obj.startingVisibleLayers.length >0){    
+                    console.log("starting vis = " + t.obj.startingVisibleLayers)
                     t.dynamicLayer.setVisibleLayers(t.obj.startingVisibleLayers);
                 }
                 else{t.dynamicLayer.setVisibleLayers[-1];}
-                //t.map.addLayer(t.dynamicLayer);
+                t.map.addLayer(t.dynamicLayer);
                 t.dynamicLayer.on("load", function () {             
                     t.layersArray = t.dynamicLayer.layerInfos;
                     console.log(t.layersArray);

@@ -30,7 +30,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             this.config = dojo.eval("[" + config + "]")[0];
             this.filters = dojo.eval("[" + filters + "]")[0]; 
             this.url = this.config.url;
-            this.layerDefs = [0];
+            this.layerDefs = this.obj.startingVisibleLayers;
             this.gp = new esri.tasks.Geoprocessor(this.config.gpURL);
             this.gp.setUpdateDelay(200); //status check in milliseconds;
             
@@ -54,7 +54,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             }else{
                 
                 $('#' + this.id).parent().parent().css('display', 'flex');
-                this.clicks.updateAccord(this);
+//                this.clicks.updateAccord(this);
             }    
             
             this.open = "yes";
@@ -175,7 +175,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             this.mapScale  = this.map.getScale();
             // BRING IN OTHER JS FILES
             this.esriapi = new Esriapi();
-            this.clicks = new Clicks();
+            //this.clicks = new Clicks();
             this.RadarChart = new RadarChart();
             
             
@@ -197,17 +197,15 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             //make overflow hidden on content pane to avoid having two vertical scrollbars
             $("#" + this.id).css({overflow: "hidden"});
 
-            // Click listeners
-            this.clicks.appSetup(this);
-            // Create ESRI objects and event listeners    
-            this.esriapi.esriApiFunctions(this);
+
             
             
             //set varaibles
             this.severityDict = this.config.severitySliderDict;
             this.activateIdentify = true;
             this.uniqueID = this.config.uniqueID;
-            this.barriers2RemoveCount = 0;       
+            this.barriers2RemoveCount = 0;   
+            this.glanceExtentCount = 0;
             this.workingRemoveBarriers = [];
             this.workingRemoveBarriersString = "";
             this.useRadar = true;
@@ -217,7 +215,13 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             this.activateIdentify = true;
             lang.hitch(this, this.refreshIdentify(this.url));
 
-            
+             // Click listeners
+//            this.clicks.appSetup(this);
+            // Create ESRI objects and event listeners    
+//            this.esriapi.esriApiFunctions(this);         
+//
+            //set up initial layers for display
+            lang.hitch(this, this.setupLayers());
                
             //hide elements until they're needed 
             $('#' + this.id + 'gpSumStatsTableDivContainer').hide(); 
@@ -517,7 +521,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 }));
                  
                  
-                // //show sum stats tabs if yes is selected
+                // show sum stats tabs if yes is selected
                 $('#'+ this.id +"sumStatsInputContainer").hide();
                 $("input[name='runSumStats']").on('change',lang.hitch(this,function(){
                     $('#'+ this.id +"sumStatsInputContainer").animate({height:"toggle"}, 500);
@@ -613,16 +617,17 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             
             
             //apply starting barrier severity
-            if (this.obj.startingDisplayBarrierSeverity !== ""){
-                lang.hitch(this, this.selectBarrSeverity(this.obj.startingDisplayBarrierSeverity))
+            if (this.config.includeBarrierSeverity === true && this.obj.startingDisplayBarrierSeverity !== ""){
+                lang.hitch(this, this.selectBarrSeverity(this.obj.startingDisplayBarrierSeverity));
             }
                     
             //apply starting zoom state 
+            this.regionName = $("#" + this.id + "glanceZoom option:first").val();
             if (this.obj.startingZoomState !== ""){
                 $("#" + this.id + "zoomState").val(this.obj.startingZoomState).trigger("chosen:updated");
                 lang.hitch(this, this.zoomToStates(this.obj.startingZoomState, "no"));
             }
-            else{lang.hitch(this, this.zoomToStates("Region", "no"));}
+            else{lang.hitch(this, this.zoomToStates(this.regionName, "no"));}
             
             //apply starting sceanrio
             if (this.stateSet === "yes" && this.config.includeMultipleScenarios === true){
@@ -762,7 +767,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                 }
             }));
             //download buttons
-            lang.hitch(this, this.radarChartSetup());
+//            lang.hitch(this, this.radarChartSetup());
             $('#' + this.id + 'dlConsensus').on('click',lang.hitch(this,function(e) { 
                 //download zipped result
                 e.preventDefault();
@@ -794,8 +799,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                        eventAction: 'Select Severity', 
                        eventLabel: v + ' selected'
                     });
-                    
-                    
+  
                     lang.hitch(this, this.selectBarrSeverity(v));
                 }));
             }
@@ -803,7 +807,7 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             
 
             //build zoom-to chosen
-            $("#" + this.id + "zoomState").chosen({allow_single_deselect:true, width:"130px"}).change(lang.hitch(this, function(c){
+            $("#" + this.id + "glanceZoom").chosen({allow_single_deselect:true, width:"130px"}).change(lang.hitch(this, function(c){
                 var v = c.target.value;
                 // check for a deselect
                 if (v.length === 0){v = "none";}
@@ -835,16 +839,28 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             
             this.map.on("mouse-move", lang.hitch(this, function(evt){this.getCursorLatLong(evt);}));
             
-            this.rendered = true;    
+            //handle click when at-a-glance divs are clicked for more info on dams, xings, etc
+//            $("#" + this.id + "glanceDamDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Dam"));}));
+//            $("#" + this.id + "glanceXingDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Crossing"));}));
+//            $("#" + this.id + "glanceNetworkDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Network"));}));
+            
+            this.rendered = true;
 
         },    
         
+        setupLayers: function(){
+            this.glanceBarriers = new ArcGISDynamicMapServiceLayer(this.url);
+            this.glanceBarriers.setVisibleLayers([this.config.glanceBarriersLayerID])
+            this.map.addLayer(this.glanceBarriers)
+            
+            this.prioritizedBarriers = new ArcGISDynamicMapServiceLayer(this.url);
+            this.prioritizedBarriers.setVisibleLayers([this.obj.startingPrioritizedLayerID])
+        },
         
         selectBarrSeverity:function(v){
             if (this.selectSeverityCounter === 0){
                 $("#" + this.id + "stateStatsExpander").trigger("click");
             }
-            this.visibleLayers = [];
             this.visibleLayers.push(parseInt(v));
             this.dynamicLayer.setVisibleLayers(this.visibleLayers);    
             if (this.config.includeBarrierSeverity === true){this.currentSeverity = v;}
@@ -876,18 +892,10 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
             this.map.setExtent(zoomExt);
-            lang.hitch(this,this.refreshBarChart());
-            lang.hitch(this, this.glanceStats());
-            if (bool === "yes" && this.toggleBarriers !== false){
-                $("#" + this.id +"barriers").trigger("click");
-                $('#' + this.id + 'clickInstructions').show(); 
-                $("#" + this.id +"consensusResultFiltersExpander").show();
-                this.toggleBarriers = false;
-            }
             
-            
-            lang.hitch(this, this.refreshIdentify(this.config.url));
-            
+            lang.hitch(this, this.glanceStats(v));
+
+//            lang.hitch(this, this.refreshIdentify(this.config.url));
             
             if (this.config.includeStratifiedRegions === true){
                 lang.hitch(this, this.selectStratification());
@@ -895,7 +903,54 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
         },
         
         glanceStats: function(v){
-            console.log("glance stats")
+            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);  
+            $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
+            $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
+            $("#" + this.id + "glanceNetworks").text(avgNetRound);
+            
+            //only display the subExtent (e.g. watershed or state outline) being zoomed to
+            if (this.subExtents === undefined){
+                this.subExtents = new FeatureLayer(this.url +"/" + this.config.subExtentLayerID);
+            }
+            this.subExtentLayerDef = this.config.subExtentNameField + " = '" + v + "'";
+            this.subExtents.setDefinitionExpression(this.subExtentLayerDef);
+            this.map.addLayer(this.subExtents);
+            
+            //subset out the barriers in the active subextent
+            if (this.glanceExtentCount >=1){
+                //make all barriers semi transparent
+                this.map.removeLayer(this.glanceBarriers);
+                this.glanceBarriers.opacity = 0.5;
+                this.map.addLayer(this.glanceBarriers);
+                
+                //make a new Feature Layer for subset barriers & apply definition query
+                if (this.subsetBarriers === undefined){
+                    this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
+                }
+                if (v !== this.regionName){
+                    this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+                }
+                else{this.subsetBarriersLayerDef = "1 = 1"}
+                this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef)
+                this.map.addLayer(this.subsetBarriers);   
+            }
+            this.glanceExtentCount ++;
+        
+        },
+        
+        glanceStatClick: function(features){
+            console.log(features)
+            var v = $("#" + this.id + "glanceZoom").val()
+            //add a feature layer of the barriers in that extent
+            if (this.subsetBarriers === undefined){
+                this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
+            }
+            this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "' and Type ='" + features + "'";
+            this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef)
+            var symbol = new SimpleMarkerSymbol().setColor(new Color([255,0,0,0.5]));
+            var renderer = new SimpleRenderer(symbol);
+            this.subsetBarriers.setRenderer(renderer);
+            this.map.addLayer(this.subsetBarriers);
         },
         
         scenarioSelection: function(v, bool){
@@ -927,46 +982,48 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
         },
 
         refreshBarChart: function(v){
-            console.log("bar chart");
+            
             var v = $("#" + this.id + "zoomState").val();
+            console.log(v);
+            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);  
             $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
             $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
-            $("#" + this.id + "glanceNetworks").text(this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2));
-            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);    
+            $("#" + this.id + "glanceNetworks").text(avgNetRound);
+              
 
-            if (this.currentSeverity != "6"){
-                if (this.currentSeverity ==="0"){
-                    $("#" + this.id + "xingBarChartLabel").text("# Total Crossings");
-                }
-                else{
-                    if (this.config.includeBarrierSeverity === true){
-                        $("#" + this.id + "xingBarChartLabel").text("# " + this.config.severityNumDict[this.currentSeverity] + " (+) Crossings");
-                    }
-                    else{$("#" + this.id + "xingBarChartLabel").text("# Crossings");}
-                }
-                $("#" + this.id + "barChartCrossings").show();
-                //$("#" + this.id + "xingBarChartLabel").show();
-            }
-            else{
-                $("#" + this.id + "barChartCrossings").hide();
-                //$("#" + this.id + "xingBarChartLabel").hide();
-            }
-            if (v != "Region"){
-                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo[v][1]["dams"], this.config.zoomToMax.MaxSubRegion.dams, '#0000b4'));
-                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxSubRegion.crossings, '#0082ca'));
-                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxSubRegion.avgNetwork*0.000621371, '#0094ff'));    
-            }
-            //use different max values for the whole region
-            if (v == "Region"){
-                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo["Region"][1]["dams"], this.config.zoomToMax.MaxRegion.dams, '#0000b4'));
-                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo["Region"][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxRegion.crossings, '#0082ca'));
-                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxRegion.avgNetwork*0.000621371, '#0094ff'));    
-            }            
-            
-            if (this.config.includeBarrierSeverity === false && this.refreshBarChartCounter <2){
-                $("#" + this.id + "barriers").trigger("click");
-            }
-            this.refreshBarChartCounter ++;
+//            if (this.currentSeverity !== "6"){
+//                if (this.currentSeverity ==="0"){
+//                    $("#" + this.id + "xingBarChartLabel").text("# Total Crossings");
+//                }
+//                else{
+//                    if (this.config.includeBarrierSeverity === true){
+//                        $("#" + this.id + "xingBarChartLabel").text("# " + this.config.severityNumDict[this.currentSeverity] + " (+) Crossings");
+//                    }
+//                    else{$("#" + this.id + "xingBarChartLabel").text("# Crossings");}
+//                }
+//                $("#" + this.id + "barChartCrossings").show();
+//                //$("#" + this.id + "xingBarChartLabel").show();
+//            }
+//            else{
+//                $("#" + this.id + "barChartCrossings").hide();
+//                //$("#" + this.id + "xingBarChartLabel").hide();
+//            }
+//            if (v !== "Region"){
+//                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo[v][1]["dams"], this.config.zoomToMax.MaxSubRegion.dams, '#0000b4'));
+//                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxSubRegion.crossings, '#0082ca'));
+//                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxSubRegion.avgNetwork*0.000621371, '#0094ff'));    
+//            }
+//            //use different max values for the whole region
+//            if (v === "Region"){
+//                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo["Region"][1]["dams"], this.config.zoomToMax.MaxRegion.dams, '#0000b4'));
+//                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo["Region"][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxRegion.crossings, '#0082ca'));
+//                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxRegion.avgNetwork*0.000621371, '#0094ff'));    
+//            }            
+//            
+//            if (this.config.includeBarrierSeverity === false && this.refreshBarChartCounter <2){
+//                $("#" + this.id + "barriers").trigger("click");
+//            }
+//            this.refreshBarChartCounter ++;
         },
         
         //calculate current metric weights
@@ -1118,17 +1175,17 @@ function (     declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, d
                     this.removeFeatureLayer.setRenderer(renderer);
                     this.removeFeatureLayer.MODE_SNAPSHOT;
         
-        			if (this.config.includeBarrierSeverity === true){
-	                    // Set layer definition so barriers to remove layer only shows passability level of barriers being analyzed (e.g. Dams only)
-	                    this.severityQueryDict = this.config.severityDict;
-	        
-	                    this.severityField = this.severityQueryDict[$('#'+ this.id + 'passability').val()];
-	                    this.severityQuery = this.severityField +' = 1';
-	                    console.log(this.severityQuery);
-	                    this.removeFeatureLayer.setDefinitionExpression(this.severityQuery); 
-	                    this.removeFeatureLayer.dataAttributes = [this.uniqueID, this.severityField];
-                   }
-                   else{this.removeFeatureLayer.dataAttributes = [this.uniqueID];}
+                    if (this.config.includeBarrierSeverity === true){
+                        // Set layer definition so barriers to remove layer only shows passability level of barriers being analyzed (e.g. Dams only)
+                        this.severityQueryDict = this.config.severityDict;
+
+                        this.severityField = this.severityQueryDict[$('#'+ this.id + 'passability').val()];
+                        this.severityQuery = this.severityField +' = 1';
+                        console.log(this.severityQuery);
+                        this.removeFeatureLayer.setDefinitionExpression(this.severityQuery); 
+                        this.removeFeatureLayer.dataAttributes = [this.uniqueID, this.severityField];
+                    }
+                    else{this.removeFeatureLayer.dataAttributes = [this.uniqueID];}
                     
                     this.selectedBarriers = new GraphicsLayer();
                     

@@ -1,5 +1,4 @@
 {
-	"visibleLayers": [0],
 	"accordVisible": "",
 	"accordHidden": "",
 	"accordActive": 0,
@@ -14,7 +13,7 @@
 		"salmonCH":"off",
 		"rivers":"off"
 	},
-	"startingVisibleLayers":[0],
+	"startingPrioritizedLayerID":[0],
 	"startingMapLayers" : false,
 	"startingFilter" : "",
 	"startingPassability" : "Dams",
