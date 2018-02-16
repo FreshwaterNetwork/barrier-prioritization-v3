@@ -8,7 +8,7 @@
 	"includeFERC": false,
 	"includeFactSheets" : false,
 	"includeStratifiedRegions" : false,
-	"includeMultipleScenarios" : false,
+	"includeMultipleScenarios" : true,
     	"includeExploreConsensus":true,
 	"includeSeverityFilter":true,
     	"includePassabilityOption" : true,

@@ -6,32 +6,34 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
 
 <div class="sidebar-content claro">
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#dijit_layout_ContentPane_0glance" aria-controls="glance" role="tab" data-toggle="tab">At a Glance</a></li>
-        <li role="presentation"><a href="#dijit_layout_ContentPane_0explore" aria-controls="explore" role="tab" data-toggle="tab">Explore</a></li>
-        <li role="presentation"><a href="#dijit_layout_ContentPane_0custom" aria-controls="custom" role="tab" data-toggle="tab">Custom Analysis</a></li>
+        <li role="presentation" class="active"><a href="#dijit_layout_ContentPane_0glance" aria-controls="glance" role="tab" data-toggle="tab" id="glanceTab">At a Glance</a></li>
+        <li role="presentation"><a href="#dijit_layout_ContentPane_0explore" aria-controls="explore" role="tab" data-toggle="tab" id="exploreTab">Explore</a></li>
+        <li role="presentation"><a href="#dijit_layout_ContentPane_0custom" aria-controls="custom" role="tab" data-toggle="tab" id="customTab">Custom Analysis</a></li>
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="glance">
             <h2 class="sidebar-content-heading">At a Glance</h2>
-            <section>
+            <div>
                 <p>Select a watershed to get some quick facts about the state of aquatic connectivity in that watershed.</p>
-            </section>
+            </div>
             <section>
-                <h3>Select a watershed</h3>
-                <div class="bp_flexColHCenter">
-                        <div class="chosen-wrap" style="margin-bottom:10px;">
-                                <select data-placeholder="Penobscot" id="glanceZoom" class="chosen">
-                                        <option value="Penobscot">Penobscot Basin</option>
-                                        <option value="West Branch Penobscot">West Branch</option>
-                                        <option value="East Branch Penobscot">East Branch</option>
-                                        <option value="Mattawamkeag">Mattawamkeag</option>
-                                        <option value="Piscataquis">Piscataquis</option>
-                                        <option value="Lower Penobscot">Lower Penobscot</option>
-                                        <option value="Maine Coastal">Coastal</option>
-                                </select>
-                        </div>
+                <div class="bp_lightGrayDiv1">
+                    <h3 style="text-align:center; margin:5px;">Select a Watershed</h3>
+                    <div class="bp_flexColHCenter">
+                            <div class="chosen-wrap" style="margin-bottom:10px;">
+                                    <select data-placeholder="Penobscot" id="glanceZoom" class="chosen">
+                                            <option value="Penobscot">Penobscot Basin</option>
+                                            <option value="West Branch Penobscot">West Branch</option>
+                                            <option value="East Branch Penobscot">East Branch</option>
+                                            <option value="Mattawamkeag">Mattawamkeag</option>
+                                            <option value="Piscataquis">Piscataquis</option>
+                                            <option value="Lower Penobscot">Lower Penobscot</option>
+                                            <option value="Maine Coastal">Coastal</option>
+                                    </select>
+                            </div>
+                    </div>
                 </div>
             </section>
             <section>
@@ -73,126 +75,118 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
             </section>
         </div>
         <div role="tabpanel" class="tab-pane" id="explore">
-            <h2 class="sidebar-content-heading">Explore the Data</h2>
             <section>
-                <h3>Dropdown</h3>
-                <div class="dropdown">
-                  <button class="button dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    Philadelphia, PA
-                    <i class="icon-down-open-mini caret"></i>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a href="#">Action</a></li>
-                    <li><a href="#">Another action</a></li>
-                    <li class="active"><a href="#">Something else here</a></li>
-                    <li><a href="#">Separated link</a></li>
-                  </ul>
-                </div>
-            </section>
-            <section>
-                <h3>Tooltip</h3>
-                <button class="button" data-toggle="tooltip" title="This is a tooltip example">Tool tip top</button>
-                <button class="button" data-toggle="tooltip" data-placement="bottom" title="This is a tooltip example">Tool tip bottom</button>
-                <i data-toggle="tooltip" data-placement="top" title="This is a tooltip example" class="icon icon-help-circled"></i>
-            </section>
-            <section>
-                <h3>Buttons</h3>
-                <button class="button button-default">Default Button</button>
-                <button class="button button-primary">Primary Button</button>
-                <button class="button button-secondary">Secondary Button</button>
-                <button class="button button-danger">Danger Button</button>
-                <button class="button button-warning">Warning Button</button>
-                <button class="button button-link">Link Button</button>
-                <h3>Disabled Buttons</h3>
-                <button disabled class="button button-default">Default Button</button>
-                <button disabled class="button button-primary">Primary Button</button>
-                <button disabled class="button button-secondary">Secondary Button</button>
-                <button disabled class="button button-danger">Danger Button</button>
-                <button disabled class="button button-warning">Warning Button</button>
-                <button disabled class="button button-link">Link Button</button>
-            </section>
-            <section>
-                <h3>Slider</h3>
-                <div class="slider-container">
-                    <div class="slider"></div>
-                </div>
-            </section>
-            <section>
-                <h3>Range slider</h3>
-                <div>
-                    <div class="slider-container">
-                        <div id="rsldr"></div>
-                        <div style="text-align: center; margin-top: 5px;" id="slider-values">Selected values: <span class="blueFont">25</span> - <span class="blueFont">75</span></div>
+                <h2 class="sidebar-content-heading">Explore Prioritized Barriers</h2>
+                <div class="bp_lightGrayDiv2">
+                    <h3 style="text-align:center; margin:5px;">Select a Watershed & Prioritization Scenario</h3>
+                    <div class="bp_flexRowHCenter" >
+                        <div class="bp_flexColHCenter">
+                            <div class="chosen-wrap" style="margin:5px;">
+                                    <select data-placeholder="Penobscot" id="exploreZoom" class="chosen">
+                                            <option value="Penobscot">Penobscot Basin</option>
+                                            <option value="West Branch Penobscot">West Branch</option>
+                                            <option value="East Branch Penobscot">East Branch</option>
+                                            <option value="Mattawamkeag">Mattawamkeag</option>
+                                            <option value="Piscataquis">Piscataquis</option>
+                                            <option value="Lower Penobscot">Lower Penobscot</option>
+                                            <option value="Maine Coastal">Coastal</option>
+                                    </select>
+                            </div>
+                        </div>
+
+                        <div class="bp_flexColHCenter">
+                            <div class="chosen-wrap" style="margin:5px;">
+                                <select data-placeholder="Scenario" id="exploreScenario" class="chosen">
+                                        <option value="Diadromous">Diadromous</option>
+                                        <option value="Resident">Resident</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>    
+                <div class="bp_lightGrayDiv1">
+                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the entire watershed or the selected subwatershed.</p>
+                    <div class="bp_flexRowHCenter">
+                        <div class="bp_flexColHCenter">
+                            <label class="form-component" for="statify-region">
+                                    <input checked type="radio" id="statify-region" name="stratify">
+                                    <div class="check"></div>
+                                    <span class="form-text">Watershed</span>
+                            </label>
+                        </div>
+                        <div class="bp_flexColHCenter">
+                            <label class="form-component" for="statify-subregion">
+                                    <input type="radio" id="statify-subregion" name="stratify">
+                                    <div class="check"></div>
+                                    <span class="form-text">Subwatershed</span>
+                            </label>
+                        </div>    
                     </div>
                 </div>
-            </section>
-            <section>
-                <h3>Accordian</h3>
-                <div class="accord">
-                    <div id='accord'>
-                    <h3>First Panel</h3>
+                <div class="accord" style="margin-top:5px;">
+     
+                    <div id="mainAccord" style="height: calc(100vh - 400px);">
+                    <h3>Assess a Barrier</h3>
+                    <div class="bp_flexColumn">
+                        <div class="bp_flexColumn" style="width: 100%">
+                            <div id="consensusResultContainer" class="bp_flex">
+                                <div  style="flex: 1;">
+                                    <div class="bp_flexRow"><p style="font-weight: 700">Name:  &nbsp</p><p id="clickBarrierName">Crossing 2253</p></div>
+                                </div>
+                                <div  style="width: 100px;" >
+                                    <div class="bp_flexRow"><p style="font-weight: 700">ID: &nbsp</p><p id="clickBarrierID">2253</p></div>                            
+                                </div>
+
+                            </div>
+                            <div id="consensusResultContainer" class="bp_flex">
+                                <div  style="flex: 1;">
+                                    <div class="bp_flexRow"><p style="font-weight: 700">Type:  &nbsp</p><p id="clickBarrierType">Crossing</p></div>
+                                </div>
+                                <div  style="width: 100px;" >
+                                    <div class="bp_flexRow"><p style="font-weight: 700">Result Tier: &nbsp</p><p id="clickBarrierTier">5</p></div>                            
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="bp_lightGrayDiv1" >
+                            <div class="bp_flexRightAlignContents">
+                                <button class="button button-default" id="expandSelectMetrics">Edit Metrics <i class="fa fa-gear"></i></button>
+                            </div>           
+                            <div id="selectClickMetricsContainer">
+                                <div class="chosen-wrap" style="margin-bottom:10px">
+                                    <select data-placeholder="Metrics" id="selectClickMetrics" multiple="true" class="chosen">
+                                        <option value=""></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="bp_flexRowHCenter">
+                                <div class="slider-container" style="width:250px;">
+                                    <div class="slider metricSlider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Filter the Results</h3>
                     <div>
-                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                        <p>Ut enim ad minim veniam, quis nostrud...</p>
-                        <p>Duis aute irure dolor in reprehenderit...</p>
-                        <p>Lorem ipsum dolor sit amet, consectetur...</p>
-                        <p>Ut enim ad minim veniam, quis nostrud...</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                            <p>Ut enim ad minim veniam, quis nostrud...</p>
+                            <p>Duis aute irure dolor in reprehenderit...</p>
+                            <p>Lorem ipsum dolor sit amet, consectetur...</p>
+                            <p>Ut enim ad minim veniam, quis nostrud...</p>
                     </div>
-                    <h3>Second Panel</h3>
+                    <h3>Layers</h3>
                     <div>
-                        <p>Sed ut perspiciatis unde omnis iste natus...</p>
+                            <p>At vero eos et accusamus et iusto odio...</p>
                     </div>
-                    <h3>Third Panel</h3>
+                    <h3>Documentation</h3>
                     <div>
-                        <p>At vero eos et accusamus et iusto odio...</p>
-                    </div>
+                            <p>At vero eos et accusamus et iusto odio...</p>
+                    </div>  
                 </div>
             </section>
-            <section>
-                <h3>Chosen select</h3>
-                <div class="choWrap">
-                    <select data-placeholder="Pick One Number" id="chosenSingle" class="chosen">
-                        <option></option>
-                        <option value="one">One</option>
-                        <option value="two">Two</option>
-                        <option value="three">Three</option>
-                        <option value="four">Four</option>
-                        <option value="five">Five</option>
-                    </select>
-                </div>
-                <p>Selected value: <span class="blueFont">none</span></p>
-            </section>
-            <section>
-                <h3>Chosen multiselect</h3>
-                <div class="choWrap">
-                    <select data-placeholder="Pick Multiple Numbers" id="chosenMultiple" multiple="true" class="chosen">
-                        <option value="one">One</option>
-                        <option value="two">Two</option>
-                        <option value="three">Three</option>
-                        <option value="four">Four</option>
-                        <option value="five">Five</option>
-                    </select>
-                </div>
-                <p>Array of selected values: <span class="blueFont">[]</span></p>
-            </section>
-            <section>
-                <h3>Toggle Buttons</h3>
-                <div class="toggle-btn">
-                    <input type="radio" id="ch1" name="ch" value="first"/>
-                    <label for="ch1">First Choice</label>
-                    <input type="radio" id="ch2" name="ch" value="second"/>
-                    <label for="ch2">Second Choice</label>
-                    <input type="radio" id="ch3" name="ch" value="third" checked/>
-                    <label for="ch3">Third Choice</label>
-                    <input type="radio" id="ch4" name="ch" value="fourth"/>
-                    <label for="ch4">Fourth Choice</label>
-                    <input type="radio" id="ch5" name="ch" value="fifth"/>
-                    <label for="ch5">Fifth Choice</label>
-                </div>
-                <p>Selected value: <span class="blueFont"></span></p>
-            </section>
-        </div>
-        <div role="tabpanel" class="tab-pane" id="custom">
+            </div>
+            <div role="tabpanel" class="tab-pane" id="custom">
             <h2 class="sidebar-content-heading">Custom Analysis</h2>
             <section>
                 <h3>Radios</h3>
@@ -250,6 +244,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 </div>
             </section>
         </div>
+       
     </div>
 
 <!--<div id="mainAccord" class="flex1 hide">
