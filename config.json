@@ -34,8 +34,8 @@
 	"zippedConsensusResultURL" : "plugins/barrier-prioritization-v3/images/PenobscotHabitatFocusArea.zip",
 	"gpServIncludesLogTransform" : false,
         "stratifiedLayers":{
-            "Region_diad" : 0,
-            "Region_res" : 6
+            "Penobscot_Diadromous" : 0,
+            "Penobscot_Resident" : 6
         },
 	"analyticsEventTrackingCategory":"Penobscot Habitat Focus Area Prioritization",
             "additionalLayers":{	
