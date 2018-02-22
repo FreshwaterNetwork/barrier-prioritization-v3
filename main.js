@@ -178,7 +178,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             // BRING IN OTHER JS FILES
             this.esriapi = new Esriapi();
             this.clicks = new Clicks();
-            this.RadarChart = new RadarChart();
+
             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
@@ -208,14 +208,16 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.useRadar = true;
             this.visibleLayers = this.obj.startingVisibleLayers;
             this.selectSeverityCounter = 0;
-            this.refreshBarChartCounter = 0;
+
             this.activateIdentify = true;
             lang.hitch(this, this.refreshIdentify(this.url));
 
             // Click listeners
             this.clicks.appSetup(this);
-            // update the accords to resize them on explore click  
-            $("#" + this.id + "exploreTab").click(lang.hitch(this, function(){lang.hitch(this, this.fireResize());}));
+            // fire functions when tabs are clicked
+            $("#" + this.id + "glanceTab").click(lang.hitch(this, function(){lang.hitch(this, this.glanceTabClick());}));
+            $("#" + this.id + "exploreTab").click(lang.hitch(this, function(){lang.hitch(this, this.exploreTabClick());}));
+            $("#" + this.id + "customTab").click(lang.hitch(this, function(){lang.hitch(this, this.customTabClick());}));
             
             // Create ESRI objects and event listeners    
 //            this.esriapi.esriApiFunctions(this);         
@@ -613,10 +615,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //apply starting zoom state 
             this.regionName = $("#" + this.id + "glanceZoom option:first").val();
             if (this.obj.startingZoomState !== ""){
-                $("#" + this.id + "zoomState").val(this.obj.startingZoomState).trigger("chosen:updated");
-                lang.hitch(this, this.zoomToStates(this.obj.startingZoomState, "no"));
+                $("#" + this.id + "glanceZoom").val(this.obj.startingZoomState).trigger("chosen:updated");
+                lang.hitch(this, this.glanceZoom(this.obj.startingZoomState, "no"));
             }
-            else{lang.hitch(this, this.zoomToStates(this.regionName, "no"));}
+            else{lang.hitch(this, this.glanceZoom(this.regionName));}
             
             //apply starting sceanrio
             if (this.stateSet === "yes" && this.config.includeMultipleScenarios === true){
@@ -663,56 +665,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 lang.hitch(this, this.zeroAllWeights());
             }));
             
-            //Set up the +/- expanders 
-            this.expandContainers = ["consensusRadarBlock", "barrierSeverity", "customFilter","consensusResultFilters", "customMetric", 
-            "barrierRemoval", "sumStats", "additionalLayers", "stateStats", "severitySelection", "takeAverage"];
-            //Hide all expansion containers & set cursor to pointer        
-            for (var i=0; i<this.expandContainers.length; i++){
-                $("#" + this.id + this.expandContainers[i] + "Container").hide();
-                $("#" + this.id + "-" +  this.expandContainers[i] + "Info").hide();
-                $("#" + this.id + this.expandContainers[i] + "Expander").css( 'cursor', 'pointer' );
-                if (this.config.includeBarrierSeverity === true){
-                    if (this.expandContainers[i] === "severitySelection"){
-                        $("#" + this.id + this.expandContainers[i] + "Container").animate({height:"toggle"}, 500);
-                        $("#" + this.id + "-severitySelectionInfo").show();
-                        
-                    }
-                }
-                else{
-                    if (this.expandContainers[i] === "stateStats"){
-                        $("#" + this.id + this.expandContainers[i] + "Container").animate({height:"toggle"}, 500);
-                        $("#" + this.id + "-stateStatsInfo").show();  
-                    }
-                }
-            }
             
-            //on expander click loop through all expanders -- open this one and close all the others.  Also switch +/- 
-            $('.bp_expander').on("click", lang.hitch(this, function(e){
-                //show the assess a barrier expander if it's hidden, which it is by default
-                if ($("#" + this.id +"severitySelectionExpander").is(":visible") === false){$("#" + this.id +"severitySelectionExpander").animate({height:"toggle"}, 500);}
-                var expander = e.currentTarget.id;
-                var container = e.currentTarget.id.replace("Expander", "Container");
-                for (var i=0; i<this.expandContainers.length; i++){
-                                                            
-                    if (this.id + this.expandContainers[i]+"Expander" === expander && $("#" + this.id + this.expandContainers[i]+"Container").is(":visible")===false){
-                        if (this.expandContainers[i]+"Container" === "additionalLayersContainer"){
-                            this.activateIdentify = false;
-                            lang.hitch(this, this.refreshIdentify(this.config.url)); 
-                        }
-                        lang.hitch(this, this.selectorTextReplace(e.currentTarget, "+", "-"));
-                        $("#" + this.id + this.expandContainers[i]+"Container").animate({height:"toggle"}, 500);
-                        $("#" + this.id + "-" +  this.expandContainers[i] + "Info").animate({height:"toggle"}, 500);                    	
-                    }
-                    else if ($("#" + this.id + this.expandContainers[i]+"Container").is(":visible")===true){
-                        if (this.expandContainers[i]+"Container" === "additionalLayersContainer"){
-                            this.activateIdentify = true;
-                            lang.hitch(this, this.refreshIdentify(this.config.url)); 
-                        }
-                        $("#" + this.id + this.expandContainers[i]+"Container").animate({height:"toggle"}, 500);
-                        $("#" + this.id + "-" + this.expandContainers[i] + "Info").animate({height:"toggle"}, 500);
-                        lang.hitch(this, this.selectorTextReplace("#" + this.id + this.expandContainers[i]+"Expander", "-", "+"));
-                    }                  
-                }
 //                //use framework identify if the "Layers" section is open, otherwise use app identify      
 //                if ($("#" + this.id +"additionalLayersContainer").is(":visible")===false){
 //                    console.log("true");
@@ -724,7 +677,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 //                    this.activateIdentify = false;
 //                    lang.hitch(this, this.refreshIdentify(this.config.url));               	
 //                }
-            }));
+//            }));
 
             //handle exapnder separately for those div to keep open if another div is clicked
             this.expandContainersOpen = ["radarMetricChangerOpen", "consensusResultFilterSliderTierOpen", 
@@ -734,27 +687,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $("#" + this.id + this.expandContainersOpen[i] + "Expander").css( 'cursor', 'pointer' );
             }
 
-            //on expander click loop through all expanders -- open this one and close all the others.  Also switch +/- 
-            $('.bp_expanderOpen').on("click", lang.hitch(this, function(e){
-                console.log("expander");
-                var expander = e.currentTarget.id;
-                var container = e.currentTarget.id.replace("Expander", "Container");
-                for (var i=0; i<this.expandContainersOpen.length; i++){
-                    if (this.id + this.expandContainersOpen[i]+"Expander" === expander){
-                        if ($("#" + this.id + this.expandContainersOpen[i]+"Container").is(":visible")===false){
-                        	
-                            lang.hitch(this, this.selectorTextReplace(e.currentTarget, "+", "-"));
-                    	
-                        }
-                        if ($("#" + this.id + this.expandContainersOpen[i]+"Container").is(":visible")===true){
-                            lang.hitch(this, this.selectorTextReplace(e.currentTarget, "-", "+"));
-                        }
-                        $("#" + this.id + this.expandContainersOpen[i]+"Container").animate({height:"toggle"}, 500);
-                    }
-                }
-            }));
+
             //download buttons
-            lang.hitch(this, this.radarChartSetup());
+            lang.hitch(this, this.metricBarsSetup());
             $('#' + this.id + 'dlConsensus').on('click',lang.hitch(this,function(e) { 
                 //download zipped result
                 e.preventDefault();
@@ -779,11 +714,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     $("#" + this.id +"stateStatsExpander").show();
                     
                     //analytics event tracking
-//                    ga('send', 'event', {
-//                       eventCategory:this.config.analyticsEventTrackingCategory,        
-//                       eventAction: 'Select Severity', 
-//                       eventLabel: v + ' selected'
-//                    });
+                    ga('send', 'event', {
+                       eventCategory:this.config.analyticsEventTrackingCategory,        
+                       eventAction: 'Select Severity', 
+                       eventLabel: v + ' selected'
+                    });
   
                     lang.hitch(this, this.selectBarrSeverity(v));
                 }));
@@ -795,12 +730,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 // check for a deselect
                 if (v.length === 0){v = "none";}
                 //analytics event tracking
-//                ga('send', 'event', {
-//                   eventCategory:this.config.analyticsEventTrackingCategory,        
-//                   eventAction: 'Zoom to state', 
-//                   eventLabel: v + ' selected for zoom'
-//                });   
-            	lang.hitch(this, this.zoomToStates(v, "yes"));
+                ga('send', 'event', {
+                   eventCategory:this.config.analyticsEventTrackingCategory,        
+                   eventAction: 'Glance - zoom', 
+                   eventLabel: v + ' selected for zoom'
+                });   
+            	lang.hitch(this, this.glanceZoom(v));
             }));
             
             //build explore zoom-to chosen
@@ -809,13 +744,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 // check for a deselect
                 if (v.length === 0){v = "none";}
                 //analytics event tracking
-//                ga('send', 'event', {
-//                   eventCategory:this.config.analyticsEventTrackingCategory,        
-//                   eventAction: 'Zoom to state', 
-//                   eventLabel: v + ' selected for zoom'
-//                });   
-            	lang.hitch(this, this.zoomToStates(v, "yes"));
+                ga('send', 'event', {
+                   eventCategory:this.config.analyticsEventTrackingCategory,        
+                   eventAction: 'Explore - Zoom', 
+                   eventLabel: v + ' selected for zoom'
+                });   
+            	lang.hitch(this, this.exploreZoom());
             }));            
+            
             //build scenario selection
             if (this.config.includeMultipleScenarios === true){
                 $("#" + this.id + "exploreScenario").chosen({allow_single_deselect:true, width:"130px"}).change(lang.hitch(this, function(c){
@@ -824,11 +760,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     if (v.length === 0){v = "none";}
 
                     //analytics event tracking
-//                    ga('send', 'event', {
-//                       eventCategory:this.config.analyticsEventTrackingCategory,        
-//                       eventAction: 'Consensus scenario selection', 
-//                       eventLabel: v + ' consensus selected'
-//                    });   
+                    ga('send', 'event', {
+                       eventCategory:this.config.analyticsEventTrackingCategory,        
+                       eventAction: 'Consensus scenario selection', 
+                       eventLabel: v + ' consensus selected'
+                    });   
                     lang.hitch(this, this.scenarioSelection(v, "yes"));
                 }));
             }
@@ -860,7 +796,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         updateMetricSliders: function(){
             console.log("updating sliders");
-            $(".metricSlider").slider({min: 0, max: 5, range: false, values: [1] });
+            $(".metricSlider").slider({min: 0, max: 100, range: false, values: [1] });
             $(".metricSlider").each(function(){
                 this.style.setProperty("background-color", "white" , "important");
             });
@@ -891,7 +827,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $("#" + this.id + "consensusRadarNoUse").hide();
             }
             console.log(this.visibleLayers);
-            this.refreshBarChart();
+
             if (this.selectSeverityCounter >0){            
                 lang.hitch(this, this.clearConsensusFilterMapService()); 
                 lang.hitch(this, this.refreshIdentify(this.config.url));
@@ -902,8 +838,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
         
         
-        zoomToStates: function(v, bool){
-            //build zoom-to chosen
+        glanceZoom: function(v, bool){
+            if (v === undefined){var v = $("#" + this.id + "glanceZoom").val();}
             console.log(v);
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
@@ -913,9 +849,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
 //            lang.hitch(this, this.refreshIdentify(this.config.url));
             
-            if (this.config.includeStratifiedRegions === true){
-                lang.hitch(this, this.selectStratification());
-            }
+
         },
         
         glanceStats: function(v){
@@ -969,78 +903,56 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.addLayer(this.subsetBarriers);
         },
         
+        exploreZoom: function(){
+            var v = $("#" + this.id + "exploreZoom").val();
+            console.log(v);
+            var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
+                  new SpatialReference({ wkid:3857 }));
+            this.map.setExtent(zoomExt);
+            
+
+
+//            lang.hitch(this, this.refreshIdentify(this.config.url));
+            
+            if (this.config.includeStratifiedRegions === true){
+                lang.hitch(this, this.selectStratification());
+            }
+        },
+        
         scenarioSelection: function(v, bool){
             //change the radar metrics displayed when sceanrio is changed
             if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousRadarMetrics;}
             if (v === "res"){var scenarioRadarMetrics = this.config.residentRadarMetrics;}
             if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutRadarMetrics;}
-            lang.hitch(this, this.updateDefaultRadarMetrics(scenarioRadarMetrics));
-            lang.hitch(this,this.refreshBarChart());
+//            lang.hitch(this, this.updateDefaultRadarMetrics(scenarioRadarMetrics));
+   
             lang.hitch(this, this.selectStratification());
             
             if (this.identifyIterator >0){
-               lang.hitch(this, this.radarChart());
+               lang.hitch(this, this.metricBars());
             }
             lang.hitch(this, this.refreshIdentify(this.config.url));
         },
 
         selectStratification: function(){
-            var stratExtent = $("#" + this.id + "zoomState").val();
-            var scenario = $("#" + this.id + "scenario").val();
+            console.log("select strt")
+            var stratExtent = $("#" + this.id + "exploreZoom").val();
+            var scenario = $("#" + this.id + "exploreScenario").val();
             var primaryLayerKey = stratExtent + "_" + scenario;
             var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
-            console.log("primary layer key = " + primaryLayerKey);
+            console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
+            
             
             this.visibleLayers = [primaryLayer];
-            this.refreshBarChart();
-            lang.hitch(this, this.clearConsensusFilterMapService());
-            lang.hitch(this, this.refreshIdentify(this.config.url));
-        },
-
-        refreshBarChart: function(v){
+            this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
+                  
+//            lang.hitch(this, this.clearConsensusFilterMapService());
             
-            var v = $("#" + this.id + "zoomState").val();
-            console.log(v);
-            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);  
-            $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
-            $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
-            $("#" + this.id + "glanceNetworks").text(avgNetRound);
-              
+            lang.hitch(this, this.refreshIdentify(this.config.url));
 
-//            if (this.currentSeverity !== "6"){
-//                if (this.currentSeverity ==="0"){
-//                    $("#" + this.id + "xingBarChartLabel").text("# Total Crossings");
-//                }
-//                else{
-//                    if (this.config.includeBarrierSeverity === true){
-//                        $("#" + this.id + "xingBarChartLabel").text("# " + this.config.severityNumDict[this.currentSeverity] + " (+) Crossings");
-//                    }
-//                    else{$("#" + this.id + "xingBarChartLabel").text("# Crossings");}
-//                }
-//                $("#" + this.id + "barChartCrossings").show();
-//                //$("#" + this.id + "xingBarChartLabel").show();
-//            }
-//            else{
-//                $("#" + this.id + "barChartCrossings").hide();
-//                //$("#" + this.id + "xingBarChartLabel").hide();
-//            }
-//            if (v !== "Region"){
-//                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo[v][1]["dams"], this.config.zoomToMax.MaxSubRegion.dams, '#0000b4'));
-//                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxSubRegion.crossings, '#0082ca'));
-//                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxSubRegion.avgNetwork*0.000621371, '#0094ff'));    
-//            }
-//            //use different max values for the whole region
-//            if (v === "Region"){
-//                lang.hitch(this, this.barChart("Dams", this.id + "barChartDams",  this.config.zoomTo["Region"][1]["dams"], this.config.zoomToMax.MaxRegion.dams, '#0000b4'));
-//                lang.hitch(this, this.barChart("Crossings", this.id + "barChartCrossings", this.config.zoomTo["Region"][1]["crossings"+String(this.currentSeverity)], this.config.zoomToMax.MaxRegion.crossings, '#0082ca'));
-//                lang.hitch(this, this.barChart("Avg Network (miles)", this.id + "barChartAvgNetwork", avgNetRound, this.config.zoomToMax.MaxRegion.avgNetwork*0.000621371, '#0094ff'));    
-//            }            
-//            
-//            if (this.config.includeBarrierSeverity === false && this.refreshBarChartCounter <2){
-//                $("#" + this.id + "barriers").trigger("click");
-//            }
-//            this.refreshBarChartCounter ++;
         },
+
+ 
         
         //calculate current metric weights
         metricWeightCalculator: function (gpVals){
@@ -1056,6 +968,31 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         round: function (value, decimals) {
           return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+        },
+        
+        glanceTabClick: function(){
+            console.log("glance tab click");
+            this.map.removeLayer(this.prioritizedBarriers);
+            if (this.subsetBarriers){this.map.addLayer(this.subsetBarriers);} 
+            if (this.subExtents){this.map.addLayer(this.subExtents);}
+            if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
+            lang.hitch(this, this.glanceZoom());
+        },
+        
+        exploreTabClick: function(){
+            console.log("explore tab click");
+            lang.hitch(this, this.fireResize());
+            if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
+            if (this.subExtents){this.map.removeLayer(this.subExtents);}
+            if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
+            this.map.addLayer(this.prioritizedBarriers);
+            
+            lang.hitch(this, this.exploreZoom());
+        },
+        
+        
+        customTabClick: function(){
+            console.log("custim tab click");
         },
         
         fireResize: function(){
@@ -1400,11 +1337,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 alert("Metric weights must sum to 100");
             }
             else{
-//                ga('send', 'event', {
-//                    eventCategory:this.config.analyticsEventTrackingCategory,        
-//                    eventAction: 'submit click', 
-//                    eventLabel: "Custom analysis on " + this.passability
-//                 });   
+                ga('send', 'event', {
+                    eventCategory:this.config.analyticsEventTrackingCategory,        
+                    eventAction: 'submit click', 
+                    eventLabel: "Custom analysis on " + this.passability
+                 });   
                  
                 //clear old map graphics and results table
                 this.map.graphics.clear();
@@ -1681,8 +1618,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             });
         },
         
-        radarChartSetup: function(){
-            $("#"+ this.id + "selectClickMetrics").chosen({allow_single_deselect:true, width:"300px"});
+        metricBarsSetup: function(){
+            $("#"+ this.id + "selectClickMetrics").chosen({allow_single_deselect:true, width:"250px"});
             this.radarAttrs = "";
             for (var key in this.config.metricShortNames) {
                 if (this.config.metricShortNames.hasOwnProperty(key)) {
@@ -1693,7 +1630,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "selectClickMetrics").html(this.radarAttrs);
             
             //this sets the starting radar metrics to be shown via config array
-            lang.hitch(this, this.updateDefaultRadarMetrics(this.obj.startingRadarMetrics));
+//            lang.hitch(this, this.updateDefaultRadarMetrics(this.obj.startingRadarMetrics));
             
 //            this.startingRadarMetrics = []; //array from obj 
 //            for (var i=0; i<this.obj.startingRadarMetrics.length; i++){ 
@@ -1712,14 +1649,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //listen for changes to selected radar metrics
             $("#"+ this.id + "selectClickMetrics").on("change", lang.hitch(this, function(){
                 if (this.identifyIterator >0){
-                    lang.hitch(this, this.radarChart());
+                    lang.hitch(this, this.metricBars());
                     
                     //analytics event tracking
-//                    ga('send', 'event', {
-//                       eventCategory:this.config.analyticsEventTrackingCategory,        
-//                       eventAction: 'changing radar metrics', 
-//                       eventLabel: 'changing radar metrics'
-//                    });
+                    ga('send', 'event', {
+                       eventCategory:this.config.analyticsEventTrackingCategory,        
+                       eventAction: 'changing radar metrics', 
+                       eventLabel: 'changing radar metrics'
+                    });
                 }
             }));
         },
@@ -1733,28 +1670,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "selectClickMetrics").val(this.currentRadarMetrics).trigger('chosen:updated');
         },
         
-        radarChart: function(){
-            var margin = {top: 45, right: 45, bottom: 45, left: 45},
-                width = Math.min(300, window.innerWidth - 10) - margin.left - margin.right,
-                height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-                    
-            ////////////////////////////////////////////////////////////// 
-            //////////////////// Draw the Chart ////////////////////////// 
-            ////////////////////////////////////////////////////////////// 
-
-            var color = d3.scaleOrdinal(d3.schemeCategory10)
-                .range(["#CC333F","#00A0B0"]);
-                //.range(["#EDC951","#CC333F","#00A0B0"]);
-                
-            var radarChartOptions = {
-              w: width,
-              h: height,
-              margin: margin,
-              maxValue: 1,
-              levels: 5,
-              roundStrokes: true,
-              color: color
-            };
+        metricBars: function(){
+            console.log("metric bars")
 
             //only show those attributes selected by user - take the text labels, not the values since the radar
             //axis use the labels
@@ -1763,11 +1680,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             for (var i=0; i< userFilterArray.length; i++){
                 this.userFilterArray.push(this.config.metricShortNames[userFilterArray[i]]);
             }
-            this.radarDataFiltered = this.grepFilterbyArray(this.radarData, this.userFilterArray);
+            this.metricBarDataFiltered = this.grepFilterbyArray(this.metricBarData, this.userFilterArray);
             this.temp = [];
-            this.temp.push(this.radarDataFiltered);
-            this.radarDataFiltered = this.temp;
-            this.RadarChart.draw("#" + this.id + "consensusRadarContainer", this.radarDataFiltered, radarChartOptions, this);
+            this.temp.push(this.metricBarDataFiltered);
+            this.metricBarDataFiltered = this.temp;
+            console.log("metric bars")
+            console.log(this.metricBarDataFiltered)
+            
         },        
 
         barChart: function(theme, chartSelector, d, maxVal, color){
@@ -2051,9 +1970,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.identifyParams.geometry = evt.mapPoint;
                 this.identifyParams.mapExtent = this.map.extent;
                 this.identifyIterator = 0; 
-                
-//                this.identifyRes.execute(this.identifyParams, function(idResults){console.log(idResults)})
-                
+                              
                 this.identifyRes        
                     .execute(this.identifyParams)
                     .addCallback(lang.hitch(this, function (response) {
@@ -2071,7 +1988,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         displayIDResult: function(idResult, point){
             this.idContent="";
-            this.radarData =[];
+            this.metricBarData =[];
             this.allClickData = {}; //build an object to get the all real values.  Used in RadarChart.js to make tooltip labels
 
             $.each(idResult.attributes, lang.hitch(this, function(k, v){ 
@@ -2146,7 +2063,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         this.radarItem["unit"]= this.config.metricUnits[basename];
                         this.radarItem["value"] =parseFloat(v)/100;
                         this.radarItem["valDisp"]=vDisplay;
-                        this.radarData.push(this.radarItem);
+                        this.metricBarData.push(this.radarItem);
                     }
                                         
                 } 
@@ -2229,9 +2146,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }
             
             if (this.useRadar === true){
-                console.log(this.radarData);
+                console.log(this.metricBarData);
                 console.log(this.identifyParams.layerDefinitions);
-                lang.hitch(this, this.radarChart());
+                lang.hitch(this, this.metricBars());
                 $("#" + this.id +"radarHeader").html(this.clickHeader);
                 //hide the click instructions and show the "Assess a barrier" div if not visible - on first click
                 $('#' + this.id + 'clickInstructions').hide();  

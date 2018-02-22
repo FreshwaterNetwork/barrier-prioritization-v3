@@ -134,6 +134,11 @@
     justify-content: flex-end;
     padding-right:5px;
 }
+.bp_flexLeftAlignContents{
+    display: flex; 
+    justify-content: flex-start;
+    padding-right:5px;
+}
 
 .bp_flexFillVerticalContainer{
     display: flex;
@@ -147,6 +152,14 @@
 .bp_lightGrayDiv2{
     background-color: #e1e8e8;
     padding-top: 5px;
+}
+
+.bp_greenText{
+    color: green;
+}
+
+.bp_redText{
+    color: red;
 }
 
 .bp_clickHeaderText{
