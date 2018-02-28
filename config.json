@@ -35,7 +35,19 @@
 	"gpServIncludesLogTransform" : false,
         "stratifiedLayers":{
             "Penobscot_Diadromous" : 0,
-            "Penobscot_Resident" : 6
+            "Penobscot_Resident" : 6,
+            "West Branch Penobscot_Diadromous" : 0,
+            "West Branch Penobscot_Resident" : 6,
+            "East Branch Penobscot_Diadromous" : 0,
+            "East Branch Penobscot_Resident" : 6,
+            "Mattawamkeag_Diadromous" : 0,
+            "Mattawamkeag_Resident" : 6,
+            "Piscataquis_Diadromous" : 0,
+            "Piscataquis_Resident" : 6,
+            "Lower Penobscot_Diadromous" : 0,
+            "Lower Penobscot_Resident" : 6,
+            "Maine Coastal_Diadromous" : 0,
+            "Maine Coastal_Resident" : 6
         },
 	"analyticsEventTrackingCategory":"Penobscot Habitat Focus Area Prioritization",
             "additionalLayers":{	

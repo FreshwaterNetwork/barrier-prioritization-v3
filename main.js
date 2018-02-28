@@ -688,8 +688,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }
 
 
-            //download buttons
+            
             lang.hitch(this, this.metricBarsSetup());
+            //download buttons
             $('#' + this.id + 'dlConsensus').on('click',lang.hitch(this,function(e) { 
                 //download zipped result
                 e.preventDefault();
@@ -931,11 +932,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.identifyIterator >0){
                lang.hitch(this, this.metricBars());
             }
-            lang.hitch(this, this.refreshIdentify(this.config.url));
+//            lang.hitch(this, this.refreshIdentify(this.config.url));
         },
 
         selectStratification: function(){
-            console.log("select strt")
+            console.log("select strt");
             var stratExtent = $("#" + this.id + "exploreZoom").val();
             var scenario = $("#" + this.id + "exploreScenario").val();
             var primaryLayerKey = stratExtent + "_" + scenario;
@@ -1630,12 +1631,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "selectClickMetrics").html(this.radarAttrs);
             
             //this sets the starting radar metrics to be shown via config array
-//            lang.hitch(this, this.updateDefaultRadarMetrics(this.obj.startingRadarMetrics));
+            lang.hitch(this, this.updateDefaultRadarMetrics(this.obj.startingRadarMetrics));
             
-//            this.startingRadarMetrics = []; //array from obj 
-//            for (var i=0; i<this.obj.startingRadarMetrics.length; i++){ 
-//                this.startingRadarMetrics.push(this.obj.startingRadarMetrics[i]);
-//            };
+            this.startingRadarMetrics = []; //array from obj 
+            for (var i=0; i<this.obj.startingRadarMetrics.length; i++){ 
+                this.startingRadarMetrics.push(this.obj.startingRadarMetrics[i]);
+            };
             
 //            //This set the weighted anadromous metrics to show in the radar by default 
 //            $.each(this.config.diadromous, lang.hitch(this, function(k, v){
@@ -1659,6 +1660,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     });
                 }
             }));
+            
         },
 
         updateDefaultRadarMetrics: function(defaultRadarMetrics) {
@@ -1671,11 +1673,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
         
         metricBars: function(){
-            console.log("metric bars")
+            console.log("metric bars");
 
             //only show those attributes selected by user - take the text labels, not the values since the radar
             //axis use the labels
             var userFilterArray = $("#" + this.id + "selectClickMetrics").val();
+            console.log(userFilterArray);
             this.userFilterArray=[];
             for (var i=0; i< userFilterArray.length; i++){
                 this.userFilterArray.push(this.config.metricShortNames[userFilterArray[i]]);
@@ -1684,8 +1687,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.temp = [];
             this.temp.push(this.metricBarDataFiltered);
             this.metricBarDataFiltered = this.temp;
-            console.log("metric bars")
-            console.log(this.metricBarDataFiltered)
+            console.log("metric bars");
+            console.log(this.metricBarDataFiltered);
             
         },        
 
