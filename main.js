@@ -784,6 +784,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }));
             
             lang.hitch(this, this.updateMetricSliders());
+            $("#" + this.id + "selectClickMetrics").on('change', lang.hitch(this, function(){
+                lang.hitch(this, this.updateMetricSliders());
+            }));
             
             this.map.on("mouse-move", lang.hitch(this, function(evt){this.getCursorLatLong(evt);}));
             
@@ -801,13 +804,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.rendered = true;
         },    
         
+
+        
         updateMetricSliders: function(){
-            console.log("updating sliders");
-            $(".metricSlider").slider({min: 0, max: 100, range: false, values: [1] });
-            $(".metricSlider").each(function(){
-                this.style.setProperty("background-color", "white" , "important");
-            });
+            
+                
         },
+        
         setupLayers: function(){
             this.glanceBarriers = new ArcGISDynamicMapServiceLayer(this.url);
             this.glanceBarriers.setVisibleLayers([this.config.glanceBarriersLayerID]);
@@ -1700,23 +1703,36 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             console.log("metric bars");
             console.log(this.metricBarDataFiltered);
             
+            $("#" + this.id + "metricSliderParent").children().remove();
+
             $.each(this.metricBarDataFiltered[0], lang.hitch(this, function(i, v){
                 console.log(v.axis);
                 console.log(v.coreName);
                 console.log(v.unit);
                 console.log(v.value);
                 console.log(v.valDisp);
+                console.log(v.realVal);
                
-                //TODO -- metric slider values not updating!
-              
-                $("#" + this.id + "metricSliderParent").append('<div class="slider-container" style="width:250px;"><div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div></div>');
-                lang.hitch(this, this.updateMetricSliders());
-                $("#" + this.id + v.coreName).slider("value", v.value);
+                //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
+                var sliderVal = Math.round(v.value*100);
+                var sliderHead = $("<p></p>").text(v.axis + " " + v.realVal);
+                var sliderContainer = $('<div class="slider-container" id="#' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
+                var slider = $('<div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div>');
+               
+               //Append the jquery objects
+                $("#" + this.id + "metricSliderParent").append(sliderHead).append(sliderContainer);
+                $(sliderContainer).append(slider);            
+                $(".metricSlider").slider({min: 0, max: 100, range: false});
+                $(".metricSlider").each(function(){
+                    this.style.setProperty("background-color", "white" , "important");
+                });
                 
-            }));
+                $(slider).slider("value", sliderVal);
+           }));
 
         },        
 
+        
         barChart: function(theme, chartSelector, d, maxVal, color){
             var categories = [];
             var values = [];
@@ -2032,11 +2048,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                            var basename = k.replace(metricSev, "");
                        }
                        else{var basename = k;}
-                       // console.log(k);
-                       // console.log(basename);
-                       // console.log(k + "=" + v);
+//                        console.log(k);
+//                        console.log(basename);
+//                        console.log(k + "=" + v);
                     if ($.inArray(k, this.config.idBlacklist) === -1){
-                        
                         //don't show indivudal metric values if consensus (average result)
                         if (this.currentSeverity !== "0"){
 
@@ -2066,14 +2081,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         
                     }
                 }    
-        
+           
                 if (this.useRadar === true){
                     if (this.config.includeBarrierSeverity === true){
                         var PRsev = "PR" + String(this.currentSeverity);
                     }
                     else{var PRsev = "PR";}
                     basename = k.replace(PRsev, "");
-                        
+                   
                     //convert meter results to miles, round if a number, take value as is if not a number, use yes or no if unit is yes/no
                     if (this.config.metricMetersToMiles.indexOf(basename)!== -1){
                         var vDisplay = String(this.round(v * 0.000621371, 2)) + " miles";
@@ -2091,6 +2106,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         this.radarItem["unit"]= this.config.metricUnits[basename];
                         this.radarItem["value"] =parseFloat(v)/100;
                         this.radarItem["valDisp"]=vDisplay;
+                        this.radarItem["realVal"] =this.allClickData[basename];
                         this.metricBarData.push(this.radarItem);
                     }
                                         
