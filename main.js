@@ -787,6 +787,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
             this.map.on("mouse-move", lang.hitch(this, function(evt){this.getCursorLatLong(evt);}));
             
+            //listen for startify radio button change
+            $("input[name='stratify']").on('change',lang.hitch(this,function(){
+                var v = $("#" + this.id + "exploreScenario").val();
+                lang.hitch(this, this.scenarioSelection(v));
+            }));  
+            
             //handle click when at-a-glance divs are clicked for more info on dams, xings, etc
 //            $("#" + this.id + "glanceDamDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Dam"));}));
 //            $("#" + this.id + "glanceXingDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Crossing"));}));
@@ -910,9 +916,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
             this.map.setExtent(zoomExt);
-            
-
-
 //            lang.hitch(this, this.refreshIdentify(this.config.url));
             
             if (this.config.includeStratifiedRegions === true){
@@ -936,13 +939,21 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
 
         selectStratification: function(){
-            console.log("select strt");
             var stratExtent = $("#" + this.id + "exploreZoom").val();
-            var scenario = $("#" + this.id + "exploreScenario").val();
-            var primaryLayerKey = stratExtent + "_" + scenario;
-            var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
-            console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
+            var scenario = $("#" + this.id + "exploreScenario").val();    
+            var stratify = $('input[name="stratify"]:checked').val();
+ 
             
+            if (stratify === "stratify-subregion"){
+                var primaryLayerKey = stratExtent + "_" + scenario;
+                var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
+            }
+            if (stratify === "stratify-region"){
+                var primaryLayerKey = this.config.stratifiedLayers["Region"] + "_" + scenario;
+                var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
+            }
+            console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
+       
             
             this.visibleLayers = [primaryLayer];
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
@@ -953,7 +964,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
         },
 
- 
         
         //calculate current metric weights
         metricWeightCalculator: function (gpVals){
@@ -1690,6 +1700,21 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             console.log("metric bars");
             console.log(this.metricBarDataFiltered);
             
+            $.each(this.metricBarDataFiltered[0], lang.hitch(this, function(i, v){
+                console.log(v.axis);
+                console.log(v.coreName);
+                console.log(v.unit);
+                console.log(v.value);
+                console.log(v.valDisp);
+               
+                //TODO -- metric slider values not updating!
+              
+                $("#" + this.id + "metricSliderParent").append('<div class="slider-container" style="width:250px;"><div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div></div>');
+                lang.hitch(this, this.updateMetricSliders());
+                $("#" + this.id + v.coreName).slider("value", v.value);
+                
+            }));
+
         },        
 
         barChart: function(theme, chartSelector, d, maxVal, color){
@@ -2170,8 +2195,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         // $("#" + this.id +"consensusRadarBlockExpander").trigger("click");
                     // }
                     
-                       $("#" + this.id +"radarMetricChangerOpenExpander").show();
-                       $("#" + this.id +"consensusResultFiltersExpander").show();
+                    $("#" + this.id +"radarMetricChangerOpenExpander").show();
+                    $("#" + this.id +"consensusResultFiltersExpander").show();
                 }
             }    
 
