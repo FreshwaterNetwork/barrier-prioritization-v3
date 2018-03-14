@@ -2,7 +2,7 @@
     "url": "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer",
 	"removeSelectionURL" : "",
 	"gpURL":"",
-	"includeCustomAnalysis" : false,
+	"includeCustomAnalysis" : true,
 	"includeBarrierSeverity" : false,
 	"includeSurveyPageLink" : false,
 	"includeFERC": false,
@@ -53,7 +53,6 @@
 	"analyticsEventTrackingCategory":"Penobscot Habitat Focus Area Prioritization",
             "additionalLayers":{	
             "Barriers by Type":["barrType", "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer", "1", "View the barriers by type (dam, crossing, natural barrier)", "off"],
-            "Resident Prioritization":["barrRes", "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer", "6", "View the barriers prioritized for resident fish (brook trout)", "off"],
             "Rivers" : ["rivers", "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer", "2", "Zoom in to the scale of a city or town to view the rivers in the region.", "off"],
             "Subwatersheds (HUC 12)" :["huc12s", "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer", "3", "View the USGS 12-digit Hydrologic Units", "off"],
             "Salmon Critical Habitat" : ["salmonCH", "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer", "5", "View the Citical Salmon Habitat in the Penobscot Basin.", "off"]
@@ -103,7 +102,7 @@
             "batFuncUS" : "US functional network length (m)",
             "batCountDS" : "​Count of DS barriers ",
             "batAbs" : "​Absolute Gain (m)",
-            "DSNatBar" : "​Count of natural barriers downstream",
+            "DSFalls" : "​Count of natural barriers downstream",
             "usNatBar" : "One or more of next US barriers is natural (1=yes, 0=no)",
             "batLenUS" : "​Upstream total network length (m)",
             "NESZCL_Int" : "Stream size class",
@@ -114,7 +113,7 @@
             "BT_1_4_VH" : "Very High quality brook trout habitat US or DS (1=yes, 0=no)",
             "EBTJV_Patch" : "​EBTJV Wild Brook Trout Patch (1=yes, 0=no) ",
             "HeritagePondBarrier" : "​Heritage Fish Pond Barrier (1=yes, 0=no)",
-            "usSmeltPriority" : "​Smelt spawning rank in US Network (unitless class)",
+            "usSmeltPriority" : "​Smelt spawning rank in US Network ( index)",
             "SeaRunBT": "Sea Run Brook Trout Barrier (1=yes, 0=no)",
             "alewifeAcres" : "​Upstream acres of alewife ponds",
             "AquiferOrCoarseSed" : "​Aquifer OR coarse sediments in adjacent networks (1=yes, 0=no)",
@@ -125,14 +124,23 @@
             "US_SalmParrProd" : "​Summed salmon parr productivity in US network",
             "InvasiveBarrier" : "Invasive species barrier (1=yes, 0=no)",
             "InvasiveBarrierConfirmed" : "Invasive species barrier - Confirmed (1=yes, 0=no)",
-            "InvasiveBarrierConfNumSpp" : "# of Invasive species blocked - Confirmed"
+            "InvasiveBarrierConfNumSpp" : "# of Invasive species blocked - Confirmed",
+            "maxTemp_0_3" : "Threshold Temp (C) for 30% Occupancy",
+            "usRestPot" : "Upstream Restoration Potential",
+            "meanSummTemp" : "Mean Summer Temperature",
+            "cumulativeSalmHabUnits" : "Cumulatiuve Upstream Salmon Habitat Units",
+            "US_SalmHabUnitsWeighted" : "Salmon Habitat Units (Probability Weighted) in Upstream Functional Network",
+            "dsPassabilityProduct" : "Product of downstream passability scores",
+            "HUC10_Habitat_Units" : "Salmon Habitat Units in HUC10",
+            "cumulativeUSNet" : "Cumulative Upstream Functional Network"
+            
 	},
 	"metricShortNames":{
             "batFuncUS" : "US Functional Network",
-            "batCountDS" : "​# DS Barriers",
+            "batCountDS" : "​# Downstream Barriers",
             "batAbs" : "​Absolute Gain",
-            "DSNatBar" : "​​# DS Nat Barriers",
-            "usNatBar" : "US Nat Barriers",
+            "DSFalls" : "​​# Downstream Natural Barriers",
+            "usNatBar" : "# Upstream Natural Barriers",
             "batLenUS" : "​US Total Network",
             "NESZCL_Int" : "Stream size",
             "MilesBT_MHVH_USonly" : "US Brook Trout Hab",
@@ -152,14 +160,23 @@
             "US_SalmHabUnits" : "US Salmon Hab Units",
             "US_SalmParrProd" : "US Parr Productivity",
             "InvasiveBarrier" : "Invasives barrier",
-            "InvasiveBarrierConfirmed" : "Invasives barrier-Conf",
-            "InvasiveBarrierConfNumSpp" : "# Invasive sp blocked-Conf"
+            "InvasiveBarrierConfirmed" : "Invasives barrier (Confirmed)",
+            "InvasiveBarrierConfNumSpp" : "# Invasive sp blocked  (Confirmed)",
+            "maxTemp_0_3" : "Threshold Temp (C) for 30% Occupancy",
+            "usRestPot" : "Upstream Restoration Potential",
+            "meanSummTemp" : "Mean Summer Temperature",
+            "cumulativeSalmHabUnits" : "Cumulatiuve Upstream Salmon Habitat Units",
+            "US_SalmHabUnitsWeighted" : "Salmon Habitat Units (Weighted) in US Network",
+            "dsPassabilityProduct" : "Downstream Passability Product",
+            "HUC10_Habitat_Units" : "Salmon Habitat Units in HUC10",
+            "cumulativeUSNet" : "Cumulative Upstream Functional Network"
+        
 	},
 	"metricUnits":{
             "batFuncUS" : "m",
             "batCountDS" : "#",
             "batAbs" : "m",
-            "DSNatBar" : "#",
+            "DSFalls" : "#",
             "usNatBar" : "yes/no",
             "batLenUS" : "m",
             "NESZCL_Int" : " (index)",
@@ -181,7 +198,15 @@
             "US_SalmParrProd" : "#",
             "InvasiveBarrier" : "yes/no",
             "InvasiveBarrierConfirmed" : "yes/no",
-            "InvasiveBarrierConfNumSpp" : "#"
+            "InvasiveBarrierConfNumSpp" : "#",
+            "maxTemp_0_3" : "(C)",
+            "usRestPot" : " (index)",
+            "meanSummTemp" : "(C)",
+            "cumulativeSalmHabUnits" : " (index)",
+            "US_SalmHabUnitsWeighted" : " (index)",
+            "dsPassabilityProduct" : " (index)",
+            "HUC10_Habitat_Units" : " (index)",
+            "cumulativeUSNet" : " (index)"
 	},	
 	
 	"idBlacklist" : ["OBJECTID_1", "Shape", "OBJECTID", "Use_Dams", "Use_Dams_ExclPassage", "Use_Severe", "Use_Severe_ExclPassage", "Use_Significant", "Use_Moderate", "Use_Minor", "Use_Insignificant"],
@@ -191,7 +216,7 @@
             "batFuncUS" : "D",
             "batCountDS" : "A",
             "batAbs" : "D",
-            "DSNatBar" : "A",
+            "DSFalls" : "A",
             "usNatBar" : "A",
             "batLenUS" : "D",
             "NESZCL_Int" : "A",
@@ -213,13 +238,21 @@
             "US_SalmParrProd" : "D",
             "InvasiveBarrier" : "A",
             "InvasiveBarrierConfirmed" : "A",
-            "InvasiveBarrierConfNumSpp" : "A"       
+            "InvasiveBarrierConfNumSpp" : "A",
+            "maxTemp_0_3" : "D",
+            "usRestPot" : "D",
+            "meanSummTemp" : "A",
+            "cumulativeSalmHabUnits" : "D",
+            "US_SalmHabUnitsWeighted" : "D",
+            "dsPassabilityProduct" : "D",
+            "HUC10_Habitat_Units" : "D",
+            "cumulativeUSNet" : "D"
 	},
 	"diadromous":{
             "batFuncUS" : 15,
             "batCountDS" : 10,
             "batAbs" : 0,
-            "DSNatBar" : 0,
+            "DSFalls" : 0,
             "usNatBar" : 0,
             "batLenUS" : 0,
             "NESZCL_Int" : 0,
@@ -241,13 +274,21 @@
             "US_SalmParrProd" : 0,
             "InvasiveBarrier" : 0,
             "InvasiveBarrierConfirmed" : 10,
-            "InvasiveBarrierConfNumSpp" : 0
+            "InvasiveBarrierConfNumSpp" : 0,
+            "maxTemp_0_3" : 0,
+            "usRestPot" : 0,
+            "meanSummTemp" : 0,
+            "cumulativeSalmHabUnits" : 0,
+            "US_SalmHabUnitsWeighted" : 0,
+            "dsPassabilityProduct" : 0,
+            "HUC10_Habitat_Units" : 0,
+            "cumulativeUSNet" :0
 	},
 	"resident":{
             "batFuncUS" : 0,
             "batCountDS" : 0,
             "batAbs" : 20,
-            "DSNatBar" : 0,
+            "DSFalls" : 0,
             "usNatBar" : 0,
             "batLenUS" : 0,
             "NESZCL_Int" : 0,
@@ -269,7 +310,15 @@
             "US_SalmParrProd" : 0,
             "InvasiveBarrier" : 0,
             "InvasiveBarrierConfirmed" : 10,
-            "InvasiveBarrierConfNumSpp" : 0
+            "InvasiveBarrierConfNumSpp" : 0,
+            "maxTemp_0_3" : 0,
+            "usRestPot" : 0,
+            "meanSummTemp" : 0,
+            "cumulativeSalmHabUnits" : 0,
+            "US_SalmHabUnitsWeighted" : 0,
+            "dsPassabilityProduct" : 0,
+            "HUC10_Habitat_Units" : 0,
+            "cumulativeUSNet" : 0
 	},
 
 	"maxValues":{
@@ -310,7 +359,16 @@
             "usNumSzCl" : 8,
             "usSzClGn" : 8,
             "totMiCold" : 20,
-            "totMiCC" : 20
+            "totMiCC" : 20,
+            "maxTemp_0_3" : 6,
+            "usRestPot" : 861889,
+            "meanSummTemp" : 23.5,
+            "cumulativeSalmHabUnits" : 45000,
+            "US_SalmHabUnitsWeighted" : 23000,
+            "dsPassabilityProduct" : 1,
+            "HUC10_Habitat_Units" : 22345,
+            "cumulativeUSNet" : 2575250
+        
 	},
 	
 	"Tier1Sym" : {

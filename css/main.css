@@ -204,6 +204,16 @@
     margin: 0 0 0 auto;
 }
 
+.bp_exploreMetricBarP{
+    margin-bottom: 0px;
+    font-size: 8pt;
+}
+
+.bp_exploreMetricBarContainer{
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+}
+
 .bp_sumStatsTable{
 	width: 300px;
 }
