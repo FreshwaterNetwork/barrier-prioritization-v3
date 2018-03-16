@@ -1,7 +1,7 @@
 {
     "url": "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer",
-	"removeSelectionURL" : "",
-	"gpURL":"",
+	"removeSelectionURL" : "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer/20",
+	"gpURL":"https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotPrioritize6/GPServer/Prioritize",
 	"includeCustomAnalysis" : true,
 	"includeBarrierSeverity" : false,
 	"includeSurveyPageLink" : false,
@@ -11,7 +11,8 @@
 	"includeMultipleScenarios" : true,
     	"includeExploreConsensus":true,
 	"includeSeverityFilter":true,
-    	"includePassabilityOption" : true,
+    	"includePassabilityOption" : false,
+        "includeExportCSVOption" : false,
 	"residentTierName" : "",
 	"bktTierName" : "",
 	"anadTierName" : "",
@@ -32,7 +33,7 @@
 	"zippedResultParamName" : "ZipResult",
 	"includeZippedConsensusDownload" : true,
 	"zippedConsensusResultURL" : "plugins/barrier-prioritization-v3/images/PenobscotHabitatFocusArea.zip",
-	"gpServIncludesLogTransform" : false,
+	"gpServIncludesLogTransform" : true,
         "stratifiedLayers":{
             "Region" : "Penobscot",
             "Penobscot_Diadromous" : 0,
@@ -61,9 +62,9 @@
             "West Branch Penobscot" : [[-7839228.746869136,5677559.995138506,-7609000.417674097,5843122.59840426],{"dams":21, "crossings":100, "avgNetwork":31902}],
             "East Branch Penobscot": [[-7769365.303016467,5707523.310226316,-7539136.973821428,5873085.9134920705],{"dams":4, "crossings":180, "avgNetwork":5486}],
             "Mattawamkeag": [[-7690329.415769573,5634449.511185677,-7460101.086574534,5800012.114451432],{"dams":14, "crossings":386, "avgNetwork":4856}],
-            "Piscataquis" :  [[-7769288.865988058,5616028.187369019,-7632160.837244637,5698809.489001753],{"dams":30, "crossings":406, "avgNetwork":7941}],
-            "Lower Penobscot" :  [[-7718152.49406543,5566955.615209777,-7563291.0747596035,5732518.218475533],{"dams":57, "crossings":638, "avgNetwork":7637}],
-            "Maine Coastal" :  [[ -7702635.777323451,5465752.989760335,-7625205.067670671,5548534.291393069],{"dams":26, "crossings":243, "avgNetwork":2574}],
+            "Piscataquis" :  [[-7801698.165981095,5590803.968034845,-7629103.3561131,5727167.626495652],{"dams":30, "crossings":406, "avgNetwork":7941}],
+            "Lower Penobscot" :  [[ -7822871.222816019,5535845.744697835,-7477681.6030803295,5763322.34087441],{"dams":57, "crossings":638, "avgNetwork":7637}],
+            "Maine Coastal" :  [[ -7751173.290284642,5435407.489531087,-7578578.480416647,5549145.787619473],{"dams":26, "crossings":243, "avgNetwork":2574}],
             "Penobscot": [[ -8057380.025594977,5411406.262649558,-7330311.012546415,5878589.379528531],{"dams":152, "crossings":1955, "avgNetwork":7818}]
 	},
 	"zoomToMax" : {
@@ -79,7 +80,7 @@
             "Moderate":"Use_Moderate",
             "Minor":"Use_Minor",
             "Insignificant":"Use_Insignificant"
-     },
+        },
         "severitySliderDict":{
             5:"Severe", 
             4:"Significant", 

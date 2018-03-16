@@ -178,7 +178,21 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             // BRING IN OTHER JS FILES
             this.esriapi = new Esriapi();
             this.clicks = new Clicks();
-
+            
+            
+            ////set up window popup for metric defintiions        
+            window.windowPopup = function(mylink, windowname, size){
+                console.log("window popup")
+            if (! window.focus)return true;
+                var href;
+            if (typeof(mylink) == 'string')
+               href=mylink;
+            else
+               href=mylink.href;
+            winPop = window.open(href, windowname, size);
+            winPop.moveTo(400, 200);
+            return false;
+            };
             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
@@ -577,9 +591,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
                 //Start custom analysis 
                 $('#' + this.id +"submitButton").on('click',lang.hitch(this,function(e){
-                    console.log("clicked gp button");            
-                                        
+                    console.log("clicked gp button");                     
                     this.submit();
+                }));
+                //Canel custom analysis
+                $('#' + this.id +"cancelButton").on('click',lang.hitch(this,function(e){
+                    console.log("clicked cancel button");                     
+                    lang.hitch(this, this.cancelGPServ());
                 }));
             
                 //download input parameters 
@@ -1062,10 +1080,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         glanceTabClick: function(){
             console.log("glance tab click");
-            this.map.removeLayer(this.prioritizedBarriers);
+            if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.subsetBarriers){this.map.addLayer(this.subsetBarriers);} 
             if (this.subExtents){this.map.addLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
+            if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             lang.hitch(this, this.glanceZoom());
         },
         
@@ -1075,6 +1094,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
+            if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.map.addLayer(this.prioritizedBarriers);
             
             lang.hitch(this, this.exploreZoom());
@@ -1082,7 +1102,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         
         customTabClick: function(){
-            console.log("custim tab click");
+            lang.hitch(this, this.fireResize());
+            if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
+            if (this.subExtents){this.map.removeLayer(this.subExtents);}
+            if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
+            if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
+            if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
+         
         },
         
         fireResize: function(){
@@ -1423,6 +1449,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
 //prepare and pass the GP request object to gpURL
         submit: function(){
+            $("#" +this.id + "cancelButton").show();
             this.getCurrentWeights();
             if (this.sumWeights !== 100){
                 alert("Metric weights must sum to 100");
@@ -1490,6 +1517,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 	                this.requestObject["Passability"] = this.passability;
 	                this.requestObject["Take_Average_Value"] = this.takeAverage;
                 }
+                if (this.config.includeExportCSVOption === true){
+	                this.requestObject["ExportCSV"] = this.exportCSV;
+                }
+                
                 this.requestObject["FilterBarriers"] = this.filterBarr;
                 this.requestObject["UserFilter"] = this.filter;
                 this.requestObject["ModelRemoval"] = this.removeBarr;
@@ -1497,7 +1528,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.requestObject["Run_Watershed_Summary_Stats"] = this.runSumStats;
                 this.requestObject["Summarize_By"] = this.summarizeBy;
                 this.requestObject["Summary_Stat_Field"] = this.sumStatField;
-                this.requestObject["ExportCSV"] = this.exportCSV;
+                this.requestObject["Exclude_Features_with_Null_Metric_Values"] = false;
                 this.weightIterator = 1;
                 $.each(this.gpVals, lang.hitch(this, function(metric, weight){
                     if (weight >0){
@@ -1538,7 +1569,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         //GP status
         statusCallback: function(jobInfo) {
             this.status = jobInfo.jobStatus;
-            
+            this.jobInfo = jobInfo;
             if(this.status === "esriJobFailed"){
                 alert("There was a problem running the analysis.  Please try again. " + this.status);
                 //re-enable Submit button for subsequent analyses
@@ -1583,7 +1614,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.map.removeLayer(this.prioritizedBarriers);
                 this.map.addLayer(this.gpResLayer);
                 console.log("callback complete");
-                 this.jobInfo = jobInfo;
+                this.jobInfo = jobInfo;
                 // Get result JSON for graphics and linked table
                 if (this.runSumStats === true){
                     console.log("stats");
@@ -1599,6 +1630,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $( "#" + this.id + "customAnalysisResultsAccord" ).trigger( "click" );
        
                 this.statusCallbackIterator = 0;
+        },
+
+        cancelGPServ: function(){
+            window.location = this.config.gpURL +"/jobs/" + this.jobInfo.jobID + "/cancel";
         },
 
         getZippedResultURL: function (result, messages){
