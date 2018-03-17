@@ -1,7 +1,7 @@
 {
     "url": "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer",
 	"removeSelectionURL" : "https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotBarriers/MapServer/20",
-	"gpURL":"https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotPrioritize6/GPServer/Prioritize",
+	"gpURL":"https://cumulus.tnc.org/arcgis/rest/services/easterndiv/PenobscotPrioritize7/GPServer/Prioritize",
 	"includeCustomAnalysis" : true,
 	"includeBarrierSeverity" : false,
 	"includeSurveyPageLink" : false,

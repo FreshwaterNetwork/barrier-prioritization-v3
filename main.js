@@ -1556,8 +1556,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 
                 this.gp.submitJob(this.requestObject, lang.hitch(this, this.completeCallback), lang.hitch(this, this.statusCallback), lang.hitch(this, function(error){
                         alert(error);
-                        $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
+                        //re-enable Submit button for subsequent analyses
+                        $('#' + this.id +"submitButton").removeClass('bp_submitButtonRunning');
                         $('#' + this.id +"submitButton").prop('disabled', false);
+
                 }));
                 
                 //disable Submit button so a second analyiss can't be run until the first is finished
@@ -1605,7 +1607,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         //GP complete            
         completeCallback: function (jobInfo){
-                $("#" + this.id +"gpStatusReport").html("Transferring data from server.");
+                $("#" + this.id +"gpStatusReport").html("Analysis complete.");
                 // Get result as map service -- needed for larger datasets and easy way to get legend
                 this.resMapServURLRoot = this.config.gpURL.replace("GPServer/Prioritize", "MapServer/jobs/");
                 this.resMapServ =  (this.resMapServURLRoot + jobInfo.jobId);
@@ -1630,10 +1632,21 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $( "#" + this.id + "customAnalysisResultsAccord" ).trigger( "click" );
        
                 this.statusCallbackIterator = 0;
+                //Re-enable submit button
+                $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
+                $('#' + this.id +"submitButton").prop('disabled', false);
         },
 
         cancelGPServ: function(){
-            window.location = this.config.gpURL +"/jobs/" + this.jobInfo.jobID + "/cancel";
+            console.log(this.jobInfo);
+            console.log(this.jobInfo.jobId);
+            var cancelURL = this.config.gpURL +"/jobs/" + this.jobInfo.jobId + "/cancel";
+            console.log(cancelURL)
+            $.get(cancelURL);
+            //window.location = this.config.gpURL +"/jobs/" + this.jobInfo.jobID + "/cancel";
+            //Re-enable submit button
+            $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
+            $('#' + this.id +"submitButton").prop('disabled', false);
         },
 
         getZippedResultURL: function (result, messages){
@@ -1664,9 +1677,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         displayResultMapServ: function (result, messages){
             this.gpIterator ++;
             
-            //re-enable Submit button for subsequent analyses
-            $('#' + this.id +"submitButton").removeClass('bp_submitButtonRunning');
-            $('#' + this.id +"submitButton").prop('disabled', false);
             
             //set identify to GP service
             //this.identifyRes = new IdentifyTask(this.resMapServ);
