@@ -223,7 +223,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.visibleLayers = this.obj.startingVisibleLayers;
             this.selectSeverityCounter = 0;
 
-            this.activateIdentify = true;
+            this.firstIdentify = 0;
             lang.hitch(this, this.refreshIdentify(this.url));
 
             // Click listeners
@@ -522,8 +522,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     $("#" + this.id + "userFilter").val('"' + this.filterField + '" ' + this.filterOperator + " (" + this.filterValue + ")");
                 }));      
                 $("#"+ this.id + "passability").chosen({allow_single_deselect:true, width:"130px"});
-                $("#"+ this.id + "filterBuildField").chosen({allow_single_deselect:true, width:"125px"});
-                $("#"+ this.id + "filterBuildValue").chosen({allow_single_deselect:true, width:"125px"});
+                $("#"+ this.id + "filterBuildField").chosen({allow_single_deselect:true, width:"115px"});
+                $("#"+ this.id + "filterBuildValue").chosen({allow_single_deselect:true, width:"115px"});
                 $("#"+ this.id + "filterBuildOperator").chosen({allow_single_deselect:true, width:"55px"});
                 $("#"+ this.id + "summarizeBy").chosen({allow_single_deselect:true, width:"150px"});
                 $("#"+ this.id + "summaryStatField").chosen({allow_single_deselect:true, width:"150px"});
@@ -701,22 +701,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 lang.hitch(this, this.zeroAllWeights());
             }));
             
-            
-//                //use framework identify if the "Layers" section is open, otherwise use app identify      
-//                if ($("#" + this.id +"additionalLayersContainer").is(":visible")===false){
-//                    console.log("true");
-//                    this.activateIdentify = true;
-//                    lang.hitch(this, this.refreshIdentify(this.config.url));
-//                }
-//                else{                   
-//                    console.log("false");	                    	
-//                    this.activateIdentify = false;
-//                    lang.hitch(this, this.refreshIdentify(this.config.url));               	
-//                }
-//            }));
-
-
-
+            //use framework identify if the "Layers" section is open, otherwise use app identify      
+            $('#' + this.id + 'mainAccord').on('click',lang.hitch(this,function(e) { 
+                console.log("h3 click")
+                setTimeout(lang.hitch(this, this.exploreTabAccordClicks),500); 
+            }));
 
             
             lang.hitch(this, this.metricBarsSetup());
@@ -819,6 +808,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }));
             
             this.map.on("mouse-move", lang.hitch(this, function(evt){this.getCursorLatLong(evt);}));
+            
+            //apply the starting metrics for metric bar clicks
+            lang.hitch(this, this.updateDefaultMetricBars(this.obj.startingBarMetrics));
             
             //listen for startify radio button change
             $("input[name='stratify']").on('change',lang.hitch(this,function(){
@@ -1023,9 +1015,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         scenarioSelection: function(v, bool){
             //change the radar metrics displayed when sceanrio is changed
             if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousRadarMetrics;}
-            if (v === "res"){var scenarioRadarMetrics = this.config.residentRadarMetrics;}
             if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutRadarMetrics;}
-//            lang.hitch(this, this.updateDefaultRadarMetrics(scenarioRadarMetrics));
+            lang.hitch(this, this.updateDefaultMetricBars(scenarioRadarMetrics));
    
             lang.hitch(this, this.selectStratification());
             
@@ -1110,6 +1101,20 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
          
         },
+        
+        exploreTabAccordClicks: function(){
+            if ($("#" + this.id +"additionalLayersContainer").is(":visible")===false){
+                console.log("true");
+                this.activateIdentify = true;
+                lang.hitch(this, this.refreshIdentify(this.config.url));   
+            }
+            else{                   
+                console.log("false");	                    	
+                this.activateIdentify = false;
+                lang.hitch(this, this.refreshIdentify(this.config.url));              	
+            }    
+        },
+        
         
         fireResize: function(){
             var evt = window.document.createEvent('UIEvents'); 
@@ -1766,18 +1771,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "selectClickMetrics").html(this.radarAttrs);
             
             //this sets the starting radar metrics to be shown via config array
-            lang.hitch(this, this.updateDefaultRadarMetrics(this.obj.startingRadarMetrics));
+            lang.hitch(this, this.updateDefaultMetricBars(this.obj.startingBarMetrics));
             
-            this.startingRadarMetrics = []; //array from obj 
-            for (var i=0; i<this.obj.startingRadarMetrics.length; i++){ 
-                this.startingRadarMetrics.push(this.obj.startingRadarMetrics[i]);
+            this.startingBarMetrics = []; //array from obj 
+            for (var i=0; i<this.obj.startingBarMetrics.length; i++){ 
+                this.startingBarMetrics.push(this.obj.startingBarMetrics[i]);
             };
             
 //            //This set the weighted anadromous metrics to show in the radar by default 
 //            $.each(this.config.diadromous, lang.hitch(this, function(k, v){
 //                console
 //                if (v >0){
-//                    this.startingRadarMetrics.push("PR" + k);
+//                    this.startingBarMetrics.push("PR" + k);
 //                }
 //             }));
                          
@@ -1798,22 +1803,20 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
         },
 
-        updateDefaultRadarMetrics: function(defaultRadarMetrics) {
-            console.log(defaultRadarMetrics);
-            this.currentRadarMetrics = []; //array from config 
-            for (var i=0; i< defaultRadarMetrics.length; i++){ 
-                this.currentRadarMetrics.push(defaultRadarMetrics[i]);
+        updateDefaultMetricBars: function(defaultBarMetrics) {
+            console.log(defaultBarMetrics);
+            this.currentBarMetrics = []; //array from config 
+            for (var i=0; i< defaultBarMetrics.length; i++){ 
+                this.currentBarMetrics.push(defaultBarMetrics[i]);
             };
-            $("#" + this.id + "selectClickMetrics").val(this.currentRadarMetrics).trigger('chosen:updated');
+            $("#" + this.id + "selectClickMetrics").val(this.currentBarMetrics).trigger('chosen:updated');
         },
         
         metricBars: function(){
-            console.log("metric bars");
-
             //only show those attributes selected by user - take the text labels, not the values since the radar
             //axis use the labels
             var userFilterArray = $("#" + this.id + "selectClickMetrics").val();
-            console.log(userFilterArray);
+            console.log(userFilterArray)
             this.userFilterArray=[];
             for (var i=0; i< userFilterArray.length; i++){
                 this.userFilterArray.push(this.config.metricShortNames[userFilterArray[i]]);
@@ -1822,8 +1825,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.temp = [];
             this.temp.push(this.metricBarDataFiltered);
             this.metricBarDataFiltered = this.temp;
-            console.log("metric bars");
-            console.log(this.metricBarDataFiltered);
+//            console.log(this.metricBarDataFiltered);
             
             $("#" + this.id + "metricSliderParent").children().remove();
             $("#" + this.id + "metricSliderGoodBad").show();
@@ -1831,7 +1833,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
 
             this.metricBarDataFilteredSorted = this.metricBarDataFiltered[0].sort(this.compareValues('axis'));
-            console.log(this.metricBarDataFilteredSorted)
+  
             $.each(this.metricBarDataFilteredSorted, lang.hitch(this, function(i, v){
 //                console.log(v.axis);
 //                console.log(v.coreName);
@@ -1841,7 +1843,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
      
                 //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
                 var sliderVal = Math.round(v.value*100);
-                var sliderHead = $('<p class="bp_exploreMetricBarP"></p>').text(v.axis + ": " + v.valDisp);
+                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" target="_blank" class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
                 var sliderContainer = $('<div class="slider-container bp_exploreMetricBarContainer" id="#' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
                 var slider = $('<div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div>');
                
@@ -2134,6 +2136,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
         doIdentify: function(evt){
             console.log(evt);
+            if (this.firstIdentify === 0){
+                $("#" + this.id + "clickMetricsContainer").show();
+                $("#" + this.id + "clickInstructions").hide();
+            }
             if (this.activateIdentify === true){
                 console.log("LayerDefs = " + this.identifyParams.layerDefinitions);
                 console.log("Layer IDs = " + this.identifyParams.layerIds);
@@ -2153,7 +2159,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         this.identifyIterator ++;    
                         this.idContent = "";
                 }));
-             }        
+             } 
+             this.firstIdentify ++;
              
         },
         
@@ -2166,10 +2173,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.allClickData[k] = v; 
             }));
             //Set click result header info
-            $("#" + this.id + "clickBarrierName").text(this.allClickData[this.config.barrierNameField])
-            $("#" + this.id + "clickBarrierID").text(this.allClickData[this.config.uniqueID])
-            $("#" + this.id + "clickBarrierType").text(this.allClickData[this.config.barrierTypeField])
-            $("#" + this.id + "clickBarrierTier").text(this.allClickData[this.config.resultTier])
+            $("#" + this.id + "clickBarrierName").text(this.allClickData[this.config.barrierNameField]);
+            $("#" + this.id + "clickBarrierID").text(this.allClickData[this.config.uniqueID]);
+            $("#" + this.id + "clickBarrierType").text(this.allClickData[this.config.barrierTypeField]);
+            if (this.allClickData[this.config.resultTier] !== "Null"){
+                $("#" + this.id + "notPrioritizedHeader").hide();
+                $("#" + this.id + "clickBarrierTier").text(this.allClickData[this.config.resultTier]);
+            }
+            else{
+                $("#" + this.id + "notPrioritizedHeader").show();
+                $("#" + this.id + "clickBarrierTier").text("Presumed Passable - Not Prioritized");
+            }
+            $("#" + this.id + "clickBarrierPassability").text(this.round(this.allClickData[this.config.barrierPassabilityField],2));
             
             $.each(this.allClickData, lang.hitch(this, function(k, v){ 
                 if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){

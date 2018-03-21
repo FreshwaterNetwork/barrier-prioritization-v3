@@ -113,7 +113,6 @@
 }
 .bp_flex{
     display: flex;
-    
 }
 .bp_flexCol{
     /*height: 100%;*/
@@ -152,6 +151,10 @@
 .bp_lightGrayDiv2{
     background-color: #e1e8e8;
     padding-top: 5px;
+}
+
+.nav>li>a.bp_tabs{
+    padding:3px !important;
 }
 
 .bp_greenText{
@@ -208,6 +211,12 @@
     margin-bottom: 0px;
     font-size: 8pt;
 }
+.bp_exploreMetricBarLink{
+    margin-bottom: 0px;
+    font-size: 8pt;
+    padding-left: 3px;
+    color: #113CBF !important;
+}
 
 .bp_exploreMetricBarContainer{
     margin-top: 10px !important;
@@ -242,7 +251,7 @@
 
 .bp_footerContainer{
 	padding-top:10px;
-	height:60%;
+	height:80%;
  	flex:1 1 auto;	
  	margin-top:0px;
  	margin-bottom: 0px;

@@ -96,8 +96,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                         <div class="bp_flexColHCenter">
                             <div class="chosen-wrap" style="margin:5px;">
                                 <select data-placeholder="Scenario" id="exploreScenario" class="chosen">
-                                    <option value="Diadromous">Diadromous</option>
-                                    <option value="Resident">Brook Trout</option>
+                                    <option value="diad">Diadromous</option>
+                                    <option value="bkt">Brook Trout</option>
                                 </select>
                             </div>
                         </div>
@@ -126,47 +126,68 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     <div id="mainAccord" style="height: calc(100vh - 350px);">
                     <h3>Assess a Barrier</h3>
                     <div class="bp_flexColumn">
-                        <div class="bp_flexColumn" style="width: 100%">
-                            <div id="consensusResultContainer" class="bp_flex">
-                                <div  style="flex: 1;">
-                                    <div class="bp_flexRow"><p style="font-weight: 700">Name:  &nbsp</p><p id="clickBarrierName">Crossing 2253</p></div>
-                                </div>
-                                <div  style="width: 100px;" >
-                                    <div class="bp_flexRow"><p style="font-weight: 700">ID: &nbsp</p><p id="clickBarrierID">2253</p></div>                            
-                                </div>
+                        <div id="clickInstructions">
+                            <h4>Click on a barrier to expose information about that barrier and additional functionality.</h4>
+                        </div>
+                        <div  id="clickMetricsContainer" style="display: none;">
+                            <div class="bp_flexColumn" style="width: 100%">
+                                <div class="bp_flex">
+                                    <div  style="flex: 1;">
+                                        <div class="bp_flexRow"><p style="font-weight: 700">Name:  &nbsp</p><p id="clickBarrierName"></p></div>
+                                    </div>
+                                    <div  style="width: 120px;" >
+                                        <div class="bp_flexRow"><p style="font-weight: 700">ID: &nbsp</p><p id="clickBarrierID"></p></div>                            
+                                    </div>
 
+                                </div>
+                                <div class="bp_flex">
+                                    <div  style="flex: 1;">
+                                        <div class="bp_flexRow"><p style="font-weight: 700">Type:  &nbsp</p><p id="clickBarrierType"></p></div>
+                                    </div>
+                                    <div  style="width: 120px;">
+                                        <div class="bp_flexRow"><p style="font-weight: 700">Passability:  &nbsp</p><p id="clickBarrierPassability"></p></div>                         
+                                    </div>
+                                </div>
+                                <div class="bp_flex">
+                                    <div  style="flex: 1;">
+                                        <div class="bp_flexRow"><p style="font-weight: 700">Result Tier: &nbsp</p><p id="clickBarrierTier"></p></div>
+                                    </div>
+                                    <div>
+                                        <div class="bp_flexRow"></div>                            
+                                    </div>
+                                </div>
                             </div>
-                            <div id="consensusResultContainer" class="bp_flex">
-                                <div  style="flex: 1;">
-                                    <div class="bp_flexRow"><p style="font-weight: 700">Type:  &nbsp</p><p id="clickBarrierType">Crossing</p></div>
+                            <div class="bp_lightGrayDiv1">
+                                <div class="bp_flexRightAlignContents">
+                                    <button class="button button-default" id="expandSelectMetrics" style="padding: 2px;">Edit Metrics <i class="fa fa-gear"></i></button>
+                                </div>           
+                                <div id="selectClickMetricsContainer">
+                                    <div class="chosen-wrap" style="margin-bottom:10px">
+                                        <select data-placeholder=" " id="selectClickMetrics" multiple="true" class="chosen">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div  style="width: 100px;" >
-                                    <div class="bp_flexRow"><p style="font-weight: 700">Result Tier: &nbsp</p><p id="clickBarrierTier">5</p></div>                            
+                                <div id="metricSliderContainer">
+                                    <div id="notPrioritizedHeader" style="display:none;">
+                                        <h4 style="padding-left: 3px;">This barrier was not prioritized. It was initially classified as a 'Potential Barrier', without a significant outlet perch.  Further work to refine its passability indicate that it is not likely to be a velocity barrier (Passability >0.66). See the 'Documentation' pane below for more information on how this passability score was calculated. If you would like to prioritize this barrier, you can run a custom analysis that does not include a filter on Passability.  The metric values can still be evaluated below, but the bars will all remain at 0 since the barrier was not assessed relative to other barriers.</h4>
+                                    </div>
+                                    <div class="bp_flex" style="width:100%; display: none" id="metricSliderGoodBad">
+                                        <div style="flex: 1; padding-left:10px;"><p style="color:#5e90e0; width:50px;">Lower Priority</p></div>
+                                        <div style="width:50px"><p style="color:#e05d5d; width:50px;">Higher Priority</p></div>
+                                    </div>
+                                    <div id="metricSliderParent" class="bp_flexColHCenter">
+    <!--                                    <div class="slider-container" style="width:250px;">
+                                            <div class="slider metricSlider"></div>
+                                        </div>-->
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
-                        <div class="bp_lightGrayDiv1" >
-                            <div class="bp_flexRightAlignContents">
-                                <button class="button button-default" id="expandSelectMetrics" style="padding: 2px;">Edit Metrics <i class="fa fa-gear"></i></button>
-                            </div>           
-                            <div id="selectClickMetricsContainer">
-                                <div class="chosen-wrap" style="margin-bottom:10px">
-                                    <select data-placeholder=" " id="selectClickMetrics" multiple="true" class="chosen">
-                                        <option value=""></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="metricSliderContainer">
-                                <div class="bp_flex" style="width:100%; display: none" id="metricSliderGoodBad">
-                                    <div style="flex: 1; padding-left:10px;"><p style="color:#5e90e0; width:50px;">Lower Priority</p></div>
-                                    <div style="width:50px"><p style="color:#e05d5d; width:50px;">Higher Priority</p></div>
-                                </div>
-                                <div id="metricSliderParent" class="bp_flexColHCenter">
-<!--                                    <div class="slider-container" style="width:250px;">
-                                        <div class="slider metricSlider"></div>
-                                    </div>-->
-                                </div>
+                        <div class="bp_flexColHCenter bp_footerContainer">
+                            <div class="bp_flexColHCenter bp_footerButtonDiv">
+                                <button class="button button-primary" id="dlConsensus" title="Download the consensus results as a file geodatabase">Download Prioritization Results: GIS</button>
+                                <button class="button button-primary" id="dlConsensusExcel" title="Download the anadromous prioritization result spatial data as an Excel spreadsheet">Download Prioritization Results: Excel</button>
                             </div>
                         </div>
                     </div>
@@ -209,18 +230,18 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                                 <option value=""></option>
                                             </select>
                                             <div class="bp_flexRowHCenter">
-                                                <input  id="resultsConsensusFilter" class="bp_textInput" type="text" placeholder="e.g. "AvgTier" = 1" value=""  title="Enter an ArcGIS-compliant definition query to filter the results of the analysis."/>​
+                                                <input  id="resultsConsensusFilter" style="width: 200px;" class="bp_textInput" type="text" placeholder="e.g. County = ('Penobscot')"  value=""  title="Enter an ArcGIS-compliant definition query to filter the results of the analysis."/>​
                                                 </div>
-                                                <div class="bp_flexRowHCenter bp_flexNoWrap">
-                                                    <button class="button button-primary bp_button" type="button" id="applyResultConsensusFilterButton"  title="Click to filter the results of the analysis">Apply Filter</button>
+                                                <div class="bp_flexColumn">
+                                                    <div class="bp_flexRowHCenter">
+                                                        <button class="button button-primary bp_button" type="button" id="applyResultConsensusFilterButton"  title="Click to filter the results of the analysis">Apply Filter</button>
+                                                        <button class="button button-primary bp_button" type="button" id="clearResultConsensusFilterButton" title="Click to clear the filter">Clear Filters</button>
+                                                    </div>
                                                 </div>
-
                                             </div>
                                         </div>  
                                     </div>
-                                    <div class="bp_flexColHCenter">
-                                        <button class="button button-primary bp_button" type="button" id="clearResultConsensusFilterButton" title="Click to clear the filter">Clear Filters</button>
-                                    </div>
+
                                 </div>
                         </div>      
                     </div>
@@ -228,7 +249,11 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     <div>
 			<div id="additionalLayersContainer" class="bp_flexColHCenter">
                             <div class="additionalLayers" id="additionalLayers">
-                                <div class="description" id="additionalLayersDesc">Learn more about your area of interest by selecting from these additional information layers.<br><br>
+                                <div class="description" id="additionalLayersDesc">
+                                    <p>Learn more about your area of interest by selecting from these additional information layers.</p>
+                                    <p style="font-style: italic;">This window must be open to identify map layers other than the prioritized barriers.</p>
+                                    <br>
+                                    
                                 </div>
                                 <div class="layer" id="toggleBarriers">
                                     <label class="form-component">
@@ -359,11 +384,15 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                                 <div role="tabpanel" class="tab-pane active" id="weightIn-Tab1Div">
                                                     <div><p class="bp_metricLabel" >​<input id="weightIn-batFuncUS"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=4" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">Upstream functional network length</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-batCountDS"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100" value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=5" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Count of downstream barriers</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-dsPassabilityProduct"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=10" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">Product of Downstream Passability Scores (0-1)</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-cumulativeUSNet"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=10" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">Cumulative Upstream Functional Network</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-NESZCL_Int"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=10" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">Stream size class (raise headwaters in importance)</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-batAbs"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=6" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Absolute Gain (min of US &amp; DS Func Networks)</a></p></div>
-                                                    <div><p class="bp_metricLabel"><input id="weightIn-DSNatBar"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=7" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Count of natural barriers downstream</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-DSFalls"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=7" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Count of natural barriers downstream</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-usNatBar"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=8" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​One or more of the next upstream barriers is a natural barrier</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-batLenUS"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=9" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Upstream network length</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-NESZCL_Int"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=10" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">Stream size class (raise headwaters in importance)</a></p></div>
+                                                
                                                 </div>
                                                 <div  id="weightIn-Tab2Div" role="tabpanel" class="tab-pane" >
                                                     <div><p class="bp_metricLabel"><input id="weightIn-MilesBT_MHVH_USonly"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=11" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​# miles of brook trout habitat in US network (medium, high, very high)</a></p></div>
@@ -375,6 +404,9 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                                     <div><p class="bp_metricLabel"><input id="weightIn-EBTJV_Patch"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=17" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​EBTJV Wild Brook Trout Patch</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-AquiferOrCoarseSed"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=21" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Aquifer OR coarse sediments in U/S or D/S functional networks or both</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-CalcModCalc"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=22" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Calcareous / moderately calcareous geology in U/S or D/S networks or both</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-maxTemp_0_3"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=22" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Threshold Temp (C) for 30% Occupancy</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-meanSummTemp"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=22" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Mean Summer Temperature (C)</a></p></div>
+
                                                 </div>
 
                                                 <div id="weightIn-Tab3Div" role="tabpanel" class="tab-pane">
@@ -382,9 +414,12 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                                     <div><p class="bp_metricLabel"><input id="weightIn-SeaRunBT"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=19" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Barrier falls SeaRunBrookTrout lines</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-alewifeAcres"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=20" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Upstream acres of alewife ponds</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-HUC10_CritSalmHab"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=23" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Barrier is in a Salmon Critical Habitat HUC10</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-HUC10_Habitat_Units"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=23" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Summed Salmon Habitat Units within HUC10</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-DMRSalmonPriority"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=24" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​DMR Salmon Priority (Tier 1, 2, 3) from HUC12</a></p></div>
-                                                    <div><p class="bp_metricLabel"><input id="weightIn-US_SalmHabUnits"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=25" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Summed salmon habitat units  in US Functional network</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-US_SalmHabUnitsWeighted"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=25" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Salmon Habitat Units (Probability Weighted) in Upstream Functional Network</a></p></div>
                                                     <div><p class="bp_metricLabel"><input id="weightIn-US_SalmParrProd"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=26" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Summed salmon parr productivity  in US Functional network</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-cumulativeSalmHabUnits"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=26" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Cumulatiuve Upstream Salmon Habitat Units</a></p></div>
+                                                    <div><p class="bp_metricLabel"><input id="weightIn-usRestPot"  size="2" maxlength="3" class="bp_weightInput" type="text" title="Enter a value between 0-100 to indicate the relative importance of this metyric for your objectives.  The sum of all weights must = 100"  value="0"/><a target="blank" href="plugins/barrier-prioritization-v3/images/Metric_Glossary.pdf#page=26" title="Click the metric name for a description of this metric" onClick="return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")">​Upstream Restoration Potential</a></p></div>
                                                 </div>
 
                                                 <div id="weightIn-Tab4Div" role="tabpanel" class="tab-pane">
@@ -461,8 +496,34 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <button class="button button-link" id="cancelButton" style="display:none;">Cancel</button>
                                     </div>
                                 </div>
+                                <label class="form-component" for="exportCustomCSV">
+                                    <input type="checkbox" id="exportCustomCSV">
+                                    <div class="check"></div>
+                                    <span class="form-text">Export results as .csv? (Increases process time)</span>
+				</label>
                                 <div id="gpStatusReportHead" style="display: none;">Analysis status:</div>
                                 <div><p class = "gpStatusReport" id="gpStatusReport"></p></div>
+                            </div>
+                        </div>
+                        <h3>Custom Analysis Results</h3>
+                        <div>
+                            <div id="gpSumStatsTableDivContainer" class="gpSumStatsTableDivContainer">
+                                <div id="gpSumStatsTableDiv" class="gpSumStatsTableDiv">
+                                    <table  id="gpSumStatsTable" class="tablesorter" > 
+                                        <thead> 
+                                            <tr></tr>
+                                        </thead>
+                                        <tbody >
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="downloadCustomContainer" class="bp_flexColHCenter bp_footerContainer">
+                                    <button class="button button-primary bp_footerButton" id="dlCustom" title="Click to download an ArcGIS Geodatabase with the results of the current custom analysis.">Download Custom Results (GIS)</button>
+                                    <button class="button button-primary bp_footerButton" id="dlCustomCSV" title="Click to download a CSV (Excel) spreadsheet with the results of the current custom analysis.">Download Custom Results (CSV)</button>
+                                    <button class="button button-primary bp_footerButton" id="dlStats" title="Click to download a CSV file with the summary statistics results for the current custom analysis.">Download Summary Statistics (CSV)</button>
+                                    <button class="button button-primary bp_footerButton" id="dlInputs" title="Click to download a CSV file with the input parameters for the current custom analysis.">Download Input Parameters (CSV)</button>
                             </div>
                         </div>
                         <h3>Custom Analysis Documentation</h3>

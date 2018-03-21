@@ -3,6 +3,8 @@
         "resultFilterFields":[
             {"resultGISName" : "", "resultPrettyName" : "Filter by..."},
             {"resultGISName" : "Town", "resultPrettyName" : "Town"},
+            {"resultGISName" : "Type", "resultPrettyName" : "Barrier Type"},
+            {"resultGISName" : "Passability", "resultPrettyName" : "Passability"},
             {"resultGISName" : "County", "resultPrettyName" : "County"},
             {"resultGISName" : "HUC8", "resultPrettyName" : "HUC8"},
             {"resultGISName" : "HUC8_Name", "resultPrettyName" : "HUC8 Name"},
@@ -244,6 +246,24 @@
                     {"resultValue" : "&#39;Winn&#39;"},
                     {"resultValue" : "&#39;Winterport&#39;"},
                     {"resultValue" : "&#39;Woodville&#39;"}
+                ],
+            "Type" :
+                [
+                    {"resultValue" : "Dam"},
+                    {"resultValue" : "Crossing"}
+                ],
+            "Passability" :
+                [
+                    {"resultValue" : "0.1"},
+                    {"resultValue" : "0.2"},
+                    {"resultValue" : "0.3"},
+                    {"resultValue" : "0.4"},
+                    {"resultValue" : "0.5"},
+                    {"resultValue" : "0.6"},
+                    {"resultValue" : "0.7"},
+                    {"resultValue" : "0.8"},
+                    {"resultValue" : "0.9"},
+                    {"resultValue" : "1.0"}
                 ],
             "County" : 
                 [
@@ -874,6 +894,8 @@
             {"metricGISName" : "", "metricPrettyName" : "Filter by..."},
             {"metricGISName" : "Town", "metricPrettyName" : "Town"},
             {"metricGISName" : "County", "metricPrettyName" : "County"},
+            {"metricGISName" : "Type", "metricPrettyName" : "Barrier Type"},
+            {"metricGISName" : "Passability", "metricPrettyName" : "Passability"},
             {"metricGISName" : "HUC8", "metricPrettyName" : "HUC8"},
             {"metricGISName" : "HUC8_Name", "metricPrettyName" : "HUC8 Name"},
             {"metricGISName" : "HUC10", "metricPrettyName" : "HUC10"},
@@ -1116,6 +1138,24 @@
                     {"metricValue" : "&#39;Winn&#39;"},
                     {"metricValue" : "&#39;Winterport&#39;"},
                     {"metricValue" : "&#39;Woodville&#39;"}
+                ],
+            "Type" :
+                [
+                    {"metricValue" : "Dam"},
+                    {"metricValue" : "Crossing"}
+                ],
+            "Passability" :
+                [
+                    {"metricValue" : "0.1"},
+                    {"metricValue" : "0.2"},
+                    {"metricValue" : "0.3"},
+                    {"metricValue" : "0.4"},
+                    {"metricValue" : "0.5"},
+                    {"metricValue" : "0.6"},
+                    {"metricValue" : "0.7"},
+                    {"metricValue" : "0.8"},
+                    {"metricValue" : "0.9"},
+                    {"metricValue" : "1.0"}
                 ],
             "County" : 
                 [
