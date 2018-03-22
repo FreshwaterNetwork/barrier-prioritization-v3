@@ -20,6 +20,7 @@
     "subExtentNameField" : "Name",
     "subExtentLayerID" : 7,
     "glanceBarriersLayerID" : 1,
+    "consensusFilterPassabilityThreshold" :"0.66",
     "subExtentNameFieldInBarrierLayer" : "HUC8_Name",
     "metricMetersToMiles":["batFuncUS", "batLenUS", "batAbs"],
     "resultTier" : "Tier",

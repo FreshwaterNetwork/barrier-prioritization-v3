@@ -367,10 +367,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     this.consensusSelectedField = $("#" + this.id + "filterConsensusResultsField option:selected").text();
                     this.updateConsensusResultValues(this.consensusSelectedField);
                     this.consensusResultFilterField = $("#" + this.id + "filterConsensusResultsField").val();
-                    if (this.currentSeverity !== 0 && this.consensusResultFilterField.startsWith("DS") && this.config.includeBarrierSeverity === true){
+                    if (this.currentSeverity !== 0 && this.consensusResultFilterField.indexOf("DS") ===0 && this.config.includeBarrierSeverity === true){
                         this.consensusResultFilterField= "s" + this.currentSeverity + this.consensusResultFilterField;
                     }
-                    else if (this.currentSeverity === 0 && this.consensusResultFilterField.startsWith("DS")&& this.config.includeBarrierSeverity === true){
+                    else if (this.currentSeverity === 0 && this.consensusResultFilterField.indexOf("DS") ===0&& this.config.includeBarrierSeverity === true){
                         this.consensusResultFilterField= "s1" + this.consensusResultFilterField;
                     }
 		    else{this.consensusResultFilterField =  this.consensusResultFilterField;}
@@ -1624,10 +1624,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         $("#" + this.id +"gpStatusReport").html(this.message);
                         this.updateMessage = this.message;
                     }
-                    if (this.message.startsWith("Succeeded at")){
+                    if (this.message.indexOf("Succeeded at")===0){
                         $("#" + this.id +"gpStatusReport").html("Analysis completed successfully.  One moment, please...");
                     }
-                    if (this.message.startsWith("Result exceeded transfer limit of")){
+                    if (this.message.indexOf("Result exceeded transfer limit of")===0){
                         $("#" + this.id +"gpStatusReport").html("Analysis completed successfully.  One moment, please...");
                     }
                 }
@@ -2196,7 +2196,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }
             else{
                 $("#" + this.id + "notPrioritizedHeader").show();
-                $("#" + this.id + "clickBarrierTier").text("Presumed Passable - Not Prioritized");
+                
+
+                if (this.allClickData[this.config.barrierPassabilityField] < this.config.consensusFilterPassabilityThreshold){
+                    var Text = "This barrier was not prioritized because one of the input datasets did not cover the extent of this barrier. This barrier can be prioritized by running a custom analysis that excludes any of the metrics below that have 'Null' values.";
+                    $("#" + this.id + "notPrioritizedText").text(Text);
+                    $("#" + this.id + "clickBarrierTier").text("Not Prioritized - Missings Metric(s)");
+                }
+                else{
+                    var Text = "This barrier was not prioritized. It was initially classified as a 'Potential Barrier', without a significant outlet perch.  Further work to refine its passability indicate that it is not likely to be a velocity barrier because it has a Froude number less than 1 (eqautes to Passability >0.66). See the 'Documentation' pane below for more information on how this passability score was calculated. This barrier can be prioritized by running a custom analysis that does not include a filter on Passability.";
+                    $("#" + this.id + "notPrioritizedText").text(Text);
+                    $("#" + this.id + "clickBarrierTier").text("Not Prioritized - Presumed Passable");
+                }
             }
             $("#" + this.id + "clickBarrierPassability").text(this.round(this.allClickData[this.config.barrierPassabilityField],2));
             
@@ -2206,7 +2217,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 }
                 else{var metricSev = k;}
 
-                if (k.startsWith(metricSev)===true){
+                if (k.indexOf(metricSev)===0){
                     if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){
                            var basename = k.replace(metricSev, "");
                     }
@@ -2220,7 +2231,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                             }
                             else{var PRsev = "PR";}
                             basename = k.replace(PRsev, "");
-                            if (k.startsWith(PRsev)){    
+                            if (k.indexOf(PRsev)===0){ 
+                                
                                 //convert meter results to miles, round if a number, take value as is if not a number, use yes or no if unit is yes/no
                                 var realVal = this.allClickData[basename];
                                 if (this.config.metricUnits[basename] === "yes/no"){
@@ -2233,7 +2245,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                                 else if(isNaN(parseFloat(realVal)) === false){var vDisplay = this.round(realVal, 2);}
                                 else{var vDisplay = realVal;}
 
-                                if (k.startsWith(PRsev) === true){
+                                if (k.indexOf(PRsev) === 0){
                                     this.radarItem = {};
                                     this.radarItem["axis"] = this.config.metricShortNames[basename];
                                     this.radarItem["coreName"] = basename;
@@ -2370,7 +2382,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $("#" + this.id + "customClickBarrierTier").text(this.customAllClickData[this.config.resultTier]);
             }
             else{
-                $("#" + this.id + "customNotPrioritizedHeader").show();
+                $("#" + this.id + "customNotPrioritizedHeader").show();     
                 $("#" + this.id + "customClickBarrierTier").text("Not Prioritized - User Filter");
             }
             $("#" + this.id + "customClickBarrierPassability").text(this.round(this.customAllClickData[this.config.barrierPassabilityField],2));
@@ -2381,7 +2393,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 }
                 else{var metricSev = k;}
 
-                if (k.startsWith(metricSev)===true){
+                if (k.indexOf(metricSev)===0){
                     if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){
                            var basename = k.replace(metricSev, "");
                     }
@@ -2396,7 +2408,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                             }
                             else{var PRsev = "PR";}
                             basename = k.replace(PRsev, "");
-                            if (k.startsWith(PRsev)){
+                            if (k.indexOf(PRsev) === 0){
                                 this.customMetricsUsed.push(basename);
                                 //convert meter results to miles, round if a number, take value as is if not a number, use yes or no if unit is yes/no
                                 var realVal = this.customAllClickData[basename];
@@ -2410,7 +2422,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                                 else if(isNaN(parseFloat(realVal)) === false){var vDisplay = this.round(realVal, 2);}
                                 else{var vDisplay = realVal;}
 
-                                if (k.startsWith(PRsev) === true){
+                                if (k.indexOf(PRsev) === 0){
                                     this.customBarItem = {};
                                     this.customBarItem["axis"] = this.config.metricShortNames[basename];
                                     this.customBarItem["coreName"] = basename;
