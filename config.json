@@ -29,7 +29,7 @@
     "uniqueID" : "SiteID",
     "barrierNameField" : "Name",
     "tableResults" : false,
-    "resultsParamName" : "Result",
+    "resultsParamName" : "CustomResult",
     "summStatsParamName" : "Summary_Stats",
     "zippedResultParamName" : "ZipResult",
     "csvResultParamName" : "CSVResult",
@@ -58,7 +58,9 @@
     "additionalLayers":{	
         "Barriers by Type":["barrType", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "1", "View the barriers by type (dam, crossing, natural barrier)", "off"],
         "Rivers" : ["rivers", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "2", "Zoom in to the scale of a city or town to view the rivers in the region.", "off"],
-        "Subwatersheds (HUC 12)" :["huc12s", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "3", "View the USGS 12-digit Hydrologic Units", "off"],
+        "HUC 8" :["huc8s", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "7", "View the USGS 8-digit Hydrologic Units", "off"],
+        "HUC 10" :["huc10s", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "3", "View the USGS 10-digit Hydrologic Units", "off"],
+        "HUC 12" :["huc12s", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "4", "View the USGS 12-digit Hydrologic Units", "off"],
         "Salmon Critical Habitat" : ["salmonCH", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "5", "View the Citical Salmon Habitat in the Penobscot Basin.", "off"],
         "Natural Barriers" : ["falls", "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "21", "View the natural barriers (waterfalls) in the Penobscot Basin.", "off"]
     },
@@ -115,7 +117,7 @@
             "HUC10_Habitat_Units",
             "cumulativeUSNet"
     ],
-    "brookTroutRadarMetrics" : [
+    "brookTroutMetricBars" : [
             "batAbs",
             "MilesBT_MHVH",
             "BT_1_4_VH",

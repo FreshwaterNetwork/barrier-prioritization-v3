@@ -5,12 +5,12 @@ require({
 // Bring in dojo and javascript api classes as well as varObject.json, js files, and content.html
 define([
     "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/Color",  "dojo/_base/array", "framework/PluginBase", "dijit/layout/ContentPane", "dojo/dom", 
-    "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html", './js/esriapi', './js/clicks', './js/RadarChart',
-    './js/d3.min', 'dojo/text!./config.json', 'dojo/text!./filters.json', "esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
+    "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html", './js/esriapi', './js/clicks', 
+    'dojo/text!./config.json', 'dojo/text!./filters.json', "esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
      "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask"
 ],
-function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content, Esriapi, Clicks, RadarChart, d3, config, 
+function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content, Esriapi, Clicks,  config, 
     filters, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
     IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask) {
     return declare(PluginBase, {
@@ -180,19 +180,36 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.clicks = new Clicks();
             
             
-            ////set up window popup for metric defintiions        
-            window.windowPopup = function(mylink, windowname, size){
+//            ////set up window popup for metric defintiions        
+//            window.windowPopup = function(mylink, windowname, size){
+//                console.log("window popup")
+//            if (! window.focus)return true;
+//                var href;
+//            if (typeof(mylink) == 'string')
+//               href=mylink;
+//            else
+//               href=mylink.href;
+//            winPop = window.open(href, windowname, size);
+//            winPop.moveTo(400, 200);
+//            return false;
+//            };
+            
+            // window popup for metric definition
+            window.windowPopup = function(mylink, windowname){
                 console.log("window popup")
-            if (! window.focus)return true;
-                var href;
-            if (typeof(mylink) == 'string')
-               href=mylink;
-            else
-               href=mylink.href;
-            winPop = window.open(href, windowname, size);
-            winPop.moveTo(400, 200);
-            return false;
+                if (! window.focus)return true;
+                    var href;
+                if (typeof(mylink) === 'string')
+                    href=mylink;
+                else
+                    href=mylink.href;
+                winPop = window.open(href, windowname, 'width=650,height=590,scrollbars=yes');
+                winPop.moveTo(400, 200);
+                return false;
             };
+            
+            
+            
             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
@@ -213,13 +230,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
             //set varaibles
             this.severityDict = this.config.severitySliderDict;
-            this.activateIdentify = true;
+            this.activateIdentify = "framework";
             this.uniqueID = this.config.uniqueID;
             this.barriers2RemoveCount = 0;   
             this.glanceExtentCount = 0;
             this.workingRemoveBarriers = [];
             this.workingRemoveBarriersString = "";
-            this.useRadar = true;
             this.visibleLayers = this.obj.startingVisibleLayers;
             this.selectSeverityCounter = 0;
 
@@ -258,7 +274,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 var expander = e.currentTarget.id;
                 var container = e.currentTarget.id.replace("Expander", "Container");
                 for (var i=0; i<this.expandContainers.length; i++){
-                    if (this.id + this.expandContainers[i]+"Expander" == expander && $("#" + this.id + this.expandContainers[i]+"Container").is(":visible")===false){
+                    if (this.id + this.expandContainers[i]+"Expander" === expander && $("#" + this.id + this.expandContainers[i]+"Container").is(":visible")===false){
                         lang.hitch(this, this.selectorTextReplace(e.currentTarget, "+", "-"));
                         $("#" + this.id + this.expandContainers[i]+"Container").animate({height:"toggle"}, 500);
                         $("#" + this.id + "-" +  this.expandContainers[i] + "Info").animate({height:"toggle"}, 500);                    	
@@ -405,8 +421,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 if (this.gpResLayer){
                     this.map.removeLayer(this.prioritizedBarriers);
                     this.map.addLayer(this.gpResLayer);
-                    this.useRadar = false;
-                    this.activateIdentify=true;
+                    this.activateIdentify="consensus";
                     lang.hitch(this, this.refreshIdentify(this.resMapServ));
                     if (this.map.infoWindow){this.map.infoWindow.hide();}
                 }
@@ -417,8 +432,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 }
                 if (this.prioritizedBarriers === true){this.map.removeLayer(this.prioritizedBarriers);}
                 this.map.addLayer(this.prioritizedBarriers);
-                this.useRadar = true;
-                this.activateIdentify=true;
+
+                this.activateIdentify="consensus";
                 lang.hitch(this, this.refreshIdentify(this.config.url));
                 if (this.config.includeBarrierSeverity === true){
                     $('#' + this.id +'selectSeverity').trigger("updated");
@@ -539,7 +554,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         this.barriers2RemoveCount = 0;       
                         this.workingRemoveBarriers = [];
                         this.workingRemoveBarriersString = "";
-                        this.activateIdentify=true;
+                        this.activateIdentify="consensus";
                     }    
                 }));
                  
@@ -703,7 +718,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
             //use framework identify if the "Layers" section is open, otherwise use app identify      
             $('#' + this.id + 'mainAccord').on('click',lang.hitch(this,function(e) { 
-                console.log("h3 click")
                 setTimeout(lang.hitch(this, this.exploreTabAccordClicks),500); 
             }));
 
@@ -994,7 +1008,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             subsetBarriers = new ArcGISDynamicMapServiceLayer(this.url);
             subsetBarriers.setVisibleLayers([subsetBarriersID]);
             subsetBarriers.setLayerDefinitions(layerDefs);
-            subsetBarriers.hideLayers = [subsetBarriersID]
+            subsetBarriers.hideLayers = [subsetBarriersID];
             this.map.addLayer(subsetBarriers);
         },
         
@@ -1014,8 +1028,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         scenarioSelection: function(v, bool){
             //change the radar metrics displayed when sceanrio is changed
-            if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousRadarMetrics;}
-            if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutRadarMetrics;}
+            if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousMetricBars;}
+            if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutMetricBars;}
+            console.log(scenarioRadarMetrics)
             lang.hitch(this, this.updateDefaultMetricBars(scenarioRadarMetrics));
    
             lang.hitch(this, this.selectStratification());
@@ -1045,7 +1060,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.subsetExtent(stratExtent);
             this.visibleLayers = [primaryLayer];
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
-            this.sub
+
 //            lang.hitch(this, this.clearConsensusFilterMapService());
             
             lang.hitch(this, this.refreshIdentify(this.config.url));
@@ -1076,6 +1091,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.subExtents){this.map.addLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
+            this.activateIdentify = "framework";
+            lang.hitch(this, this.refreshIdentify(this.config.url)); 
             lang.hitch(this, this.glanceZoom());
         },
         
@@ -1087,7 +1104,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.map.addLayer(this.prioritizedBarriers);
-            
+            this.activateIdentify = "consensus";
+            lang.hitch(this, this.refreshIdentify(this.config.url)); 
             lang.hitch(this, this.exploreZoom());
         },
         
@@ -1099,18 +1117,22 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
-         
+            this.activateIdentify = "custom";
+            if (this.resMapServ){
+                lang.hitch(this, this.refreshIdentify(this.resMapServ)); 
+            }
+            
         },
         
         exploreTabAccordClicks: function(){
             if ($("#" + this.id +"additionalLayersContainer").is(":visible")===false){
                 console.log("true");
-                this.activateIdentify = true;
+                this.activateIdentify = "consensus";
                 lang.hitch(this, this.refreshIdentify(this.config.url));   
             }
             else{                   
                 console.log("false");	                    	
-                this.activateIdentify = false;
+                this.activateIdentify = "framework";
                 lang.hitch(this, this.refreshIdentify(this.config.url));              	
             }    
         },
@@ -1175,7 +1197,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             lang.hitch(this, this.refreshIdentify(this.config.url));
           },    
           
-          resetFilterSliders: function(){
+        resetFilterSliders: function(){
             $( "#" + this.id + "consensusResultFilterSliderTier" ).slider( "values", 0, 1);
             $( "#" + this.id + "consensusResultFilterSliderTier" ).slider( "values", 1, 20);
             $( "#" + this.id + "consensusResultFilterSliderSeverity" ).slider( "values", 0, 1);
@@ -1244,7 +1266,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
              }
             if ($("input[name='graphicSelectBarriers2Remove']:checked").val() === "show"){
                 this.removingBarriers = true;
-                this.activateIdentify = false;
+                this.activateIdentify = "framework";
                 lang.hitch(this, this.refreshIdentify());
                 if (this.removeFeatureLayer === undefined){
                     console.log("removing barriers");
@@ -1570,6 +1592,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 //disable Submit button so a second analyiss can't be run until the first is finished
                 $('#' + this.id +"submitButton").addClass('submitButtonRunning');
                 $('#' + this.id +"submitButton").prop('disabled', true);   
+                
+                //remove any click results
+                $("#" + this.id + "customMetricSliderParent").children().remove();
             }
         },
 
@@ -1612,43 +1637,43 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         //GP complete            
         completeCallback: function (jobInfo){
-                $("#" + this.id +"gpStatusReport").html("Analysis complete.");
-                // Get result as map service -- needed for larger datasets and easy way to get legend
-                this.resMapServURLRoot = this.config.gpURL.replace("GPServer/Prioritize", "MapServer/jobs/");
-                this.resMapServ =  (this.resMapServURLRoot + jobInfo.jobId);
-                this.gpResLayer = new ArcGISDynamicMapServiceLayer(this.resMapServ);
-                this.gpResLayer.opacity = 0.8;
-                this.map.removeLayer(this.prioritizedBarriers);
-                this.map.addLayer(this.gpResLayer);
-                console.log("callback complete");
-                this.jobInfo = jobInfo;
-                // Get result JSON for graphics and linked table
-                if (this.runSumStats === true){
-                    console.log("stats");
-                    this.gp.getResultData(jobInfo.jobId, this.config.summStatsParamName, lang.hitch(this,this.displayStats));
-                    console.log("finished stats");
-                }
+            $("#" + this.id +"gpStatusReport").html("Analysis complete.");
+            // Get result as map service -- needed for larger datasets and easy way to get legend
+            this.resMapServURLRoot = this.config.gpURL.replace("GPServer/Prioritize", "MapServer/jobs/");
+            this.resMapServ =  (this.resMapServURLRoot + jobInfo.jobId);
+            this.gpResLayer = new ArcGISDynamicMapServiceLayer(this.resMapServ);
+            this.gpResLayer.opacity = 0.8;
+            this.map.removeLayer(this.prioritizedBarriers);
+            this.map.addLayer(this.gpResLayer);
+            console.log("callback complete");
+            this.jobInfo = jobInfo;
+            // Get result JSON for graphics and linked table
+            if (this.runSumStats === true){
+                console.log("stats");
+                this.gp.getResultData(jobInfo.jobId, this.config.summStatsParamName, lang.hitch(this,this.displayStats));
+                console.log("finished stats");
+            }
 
-                if (this.config.tableResults === false){
-                    this.gp.getResultData(jobInfo.jobId, this.config.resultsParamName, lang.hitch(this, this.displayResultMapServ));              
-                }
-                this.gp.getResultData(jobInfo.jobId, this.config.zippedResultParamName, lang.hitch(this, this.getZippedResultURL));  
-                this.gp.getResultData(jobInfo.jobId, this.config.csvResultParamName, lang.hitch(this, this.getCSVResultURL));  
-                $( "#" + this.id + "customAnalysisResultsAccord" ).trigger( "click" );
-       
-                this.statusCallbackIterator = 0;
-                //Re-enable submit button
-                $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
-                $('#' + this.id +"submitButton").prop('disabled', false);
+            if (this.config.tableResults === false){
+                this.gp.getResultData(jobInfo.jobId, this.config.resultsParamName, lang.hitch(this, this.displayResultMapServ));              
+            }
+            this.gp.getResultData(jobInfo.jobId, this.config.zippedResultParamName, lang.hitch(this, this.getZippedResultURL));  
+            this.gp.getResultData(jobInfo.jobId, this.config.csvResultParamName, lang.hitch(this, this.getCSVResultURL));  
+            $("#" + this.id + "customAnalysisResultsAccord" ).trigger( "click" );
+   
+            this.statusCallbackIterator = 0;
+            //Re-enable submit button
+            $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
+            $('#' + this.id +"submitButton").prop('disabled', false);
+     
+            $( "#" + this.id + "customResultsPane").trigger("click");
+            
         },
 
         cancelGPServ: function(){
-            console.log(this.jobInfo);
-            console.log(this.jobInfo.jobId);
             var cancelURL = this.config.gpURL +"/jobs/" + this.jobInfo.jobId + "/cancel";
-            console.log(cancelURL)
             $.get(cancelURL);
-            //window.location = this.config.gpURL +"/jobs/" + this.jobInfo.jobID + "/cancel";
+           
             //Re-enable submit button
             $('#' + this.id +"submitButton").removeClass('submitButtonRunning');
             $('#' + this.id +"submitButton").prop('disabled', false);
@@ -1665,8 +1690,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.requestObject.Run_Watershed_Summary_Stats===true){
                 $('#' + this.id + 'dlStats').show(); 
             }
-            else{$('#' + this.id + 'dlStats').hide(); }
-            
+            else{$('#' + this.id + 'dlStats').hide(); }    
         },
         
         getCSVResultURL: function (result, messages){
@@ -1681,18 +1705,27 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         //Display GP Result Map Service  
         displayResultMapServ: function (result, messages){
             this.gpIterator ++;
-            
-            
             //set identify to GP service
-            //this.identifyRes = new IdentifyTask(this.resMapServ);
-            this.activateIdentify = true;
-            this.useRadar = false;
-            lang.hitch(this, this.refreshIdentify(this.resMapServ));                                
+            this.activateIdentify = "custom";
+            lang.hitch(this, this.refreshIdentify(this.resMapServ)); 
+            
+            //Still working on this - zoom to subset of barriers that are prioritized
+//            var layerDef=[];
+//            layerDef[0]= "Tier Is Not Null";
+//            this.gpResLayer.setLayerDefinitions(layerDef);
+//            console.log(this.gpResLayer)
+//            var ext = this.gpResLayer.initialExtent;
+//            console.log(ext)
+//            this.map.setExtent = ext;
+//            layerDef[0]= "1=1";
+//            this.gpResLayer.setLayerDefinitions(layerDef);
+            
         },
 
 
         //Display Summary Stats table
         displayStats:  function(result, messages){
+            console.log(result)
             console.log("in display stats");
             $("#" + this.id + "gpSumStatsTable tr:first").append("<th>" + this.summarizeBy + "</th>");
                 $("#" + this.id + "gpSumStatsTable tr:first").append("<th># Barriers</th>");
@@ -1721,26 +1754,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 dStr2 = dStr.replace(/,/g, "");
                 $("#" + this.id + "gpSumStatsTable > tbody:last-child").append(dStr2); 
                 console.log(dStr2);
-                //Set up tablesorter           
-                // require(["jquery", "plugins/barrier-prioritization-v3/js/jquery.tablesorter.combined.js"],lang.hitch(this,function($) {
-                            // $("#" + this.id + "gpSumStatsTable").tablesorter({
-                            // widthFixed : true,
-                            // headerTemplate : '{content} {icon}', // Add icon for various themes
-                            // widgets: [ 'zebra', 'stickyHeaders' ], 
-                            // theme: 'blue',
-                            // widgetOptions: {
-                                // //jQuery selector or object to attach sticky header to
-                                // stickyHeaders_attachTo: '.gpSumStatsTableDivContainer',
-                                // stickyHeaders_includeCaption: false, // or $('.wrapper')   
-                        // }
-                    // });   
-                    // console.log("tablesort initialized");
-                    // $('#' + this.id + 'gpSumStatsTable').trigger("update");
-                    // var sorting = [[0]];                         
-                    // setTimeout(lang.hitch(this,function () {
-                        // $("#" + this.id + "gpSumStatsTable").trigger("sorton", [sorting]);
-                    // }, 100));
-                // }));
                 $('#' + this.id + 'gpSumStatsTableDivContainer').show();    
                 
             },
@@ -1800,11 +1813,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     });
                 }
             }));
-            
         },
-
-        updateDefaultMetricBars: function(defaultBarMetrics) {
-            console.log(defaultBarMetrics);
+        
+        
+        updateDefaultMetricBars: function(defaultBarMetrics) { 
             this.currentBarMetrics = []; //array from config 
             for (var i=0; i< defaultBarMetrics.length; i++){ 
                 this.currentBarMetrics.push(defaultBarMetrics[i]);
@@ -1816,7 +1828,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //only show those attributes selected by user - take the text labels, not the values since the radar
             //axis use the labels
             var userFilterArray = $("#" + this.id + "selectClickMetrics").val();
-            console.log(userFilterArray)
+            console.log(userFilterArray);
             this.userFilterArray=[];
             for (var i=0; i< userFilterArray.length; i++){
                 this.userFilterArray.push(this.config.metricShortNames[userFilterArray[i]]);
@@ -1825,12 +1837,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.temp = [];
             this.temp.push(this.metricBarDataFiltered);
             this.metricBarDataFiltered = this.temp;
-//            console.log(this.metricBarDataFiltered);
             
             $("#" + this.id + "metricSliderParent").children().remove();
             $("#" + this.id + "metricSliderGoodBad").show();
-
-
 
             this.metricBarDataFilteredSorted = this.metricBarDataFiltered[0].sort(this.compareValues('axis'));
   
@@ -1843,76 +1852,74 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
      
                 //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
                 var sliderVal = Math.round(v.value*100);
-                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" target="_blank" class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
+                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" onClick=' + "'" + 'return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")' + "'" + 'class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
                 var sliderContainer = $('<div class="slider-container bp_exploreMetricBarContainer" id="#' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
                 var slider = $('<div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div>');
                
                //Append the jquery objects
-                $("#" + this.id + "metricSliderParent").append(sliderHead).append(sliderContainer);
-                $(sliderContainer).append(slider);            
-                $(".metricSlider").slider({min: 0, max: 100, range: false});
-                $(".metricSlider").each(function(){
-                    this.style.setProperty("background-color", "white" , "important");
-                });
-                
-                $(slider).slider("value", sliderVal);
-                $(slider).slider({disabled: true});
-           }));
+                if (isNaN(v.value) === false){
+                    $("#" + this.id + "metricSliderParent").append(sliderHead).append(sliderContainer);
+                    $(sliderContainer).append(slider);            
+                    $(".metricSlider").slider({min: 0, max: 100, range: false});
+                    $(".metricSlider").each(function(){
+                        this.style.setProperty("background-color", "white" , "important");
+                    });
 
+                    $(slider).slider("value", sliderVal);
+                    $(slider).slider({disabled: true});
+                    $("#" + this.id + "metricSliderGoodBad").show();
+                }
+                else{
+                    $("#" + this.id + "metricSliderParent").append(sliderHead).append("<br>");
+                    $("#" + this.id + "metricSliderGoodBad").hide();
+                }
+           }));
         },        
 
-        
-        barChart: function(theme, chartSelector, d, maxVal, color){
-            var categories = [];
-            var values = [];
-            values.push(d);
-            categories.push(theme);  
-            var xscale = d3.scaleLinear()
-                            .domain([0,maxVal])
-                            .range([0,200]);
-    
-            var yscale = d3.scaleLinear()
-                            .domain([0,categories.length])
-                            .range([0,10]);
+        customMetricBars: function(){
+            $("#" + this.id + "customMetricSliderParent").children().remove();
+            $("#" + this.id + "customMetricSliderGoodBad").show();
+         
+            var temp = [];
+            temp.push(this.customMetricBarData);
+            this.customMetricBarData = temp;
 
-            d3.select("#" + chartSelector).select("svg").remove();
-            var canvas = d3.select("#" + chartSelector)
-                            .append('svg')
-                            .attr("id", chartSelector + "svg")
-                            .attr('width',300)
-                            .attr('height',20);
-     
-            var chart = canvas.append('g')
-                                .attr("transform", "translate(0,0)")
-                                .attr('id',chartSelector + 'bars')
-                                .selectAll('rect')
-                                .data(values)
-                                .enter()
-                                .append('rect')
-                                .attr('height',18)
-                                .attr('x',0)
-                                .attr('y', function(d,i){ return yscale(i); })
-                                .style('fill',color)
-                                .attr('width',function(d){ return 0; });
-    
-            var transit = d3.select("#" + chartSelector + "svg").selectAll("rect")
-                                .data(values)
-                                .transition()
-                                .duration(1000) 
-                                .attr("width", function(d) {return xscale(d); });
-    
-            var transitext = d3.select('#' + chartSelector + 'bars')
-                                .selectAll('text')
-                                .data(values)
-                                .enter()
-                                .append('text')
-                                .attr('x',function(d) {return xscale(d)-0; })
-                                .attr('y',function(d,i){ return yscale(i)+14; })
-                                .text(function(d){ return " " + d;}) //+" " + theme; }) //This adds a label - can use inseatd of     
-                                    .style('fill','#000000')
-                                    .style('font-size','12px');
+            this.customMetricBarDataSorted = this.customMetricBarData[0].sort(this.compareValues('axis'));
         
+            $.each(this.customMetricBarDataSorted, lang.hitch(this, function(i, v){
+//                console.log(v.axis);
+//                console.log(v.coreName);
+//                console.log(v.unit);
+//                console.log(v.value);
+//                console.log(v.valDisp);
+     
+                //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
+                var sliderVal = Math.round(v.value*100);
+                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" target="_blank" class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
+                var sliderContainer = $('<div class="slider-container bp_exploreMetricBarContainer" id="#custom' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
+                var slider = $('<div class="slider metricSlider" id="#custom' +  this.id + v.coreName +'"></div>');
+                
+               //Append the jquery objects
+                if (isNaN(v.value) === false){
+                    $("#" + this.id + "customMetricSliderParent").append(sliderHead).append(sliderContainer);
+                    $(sliderContainer).append(slider);            
+                    $(".metricSlider").slider({min: 0, max: 100, range: false});
+                    $(".metricSlider").each(function(){
+                        this.style.setProperty("background-color", "white" , "important");
+                    });
+
+                    $(slider).slider("value", sliderVal);
+                    $(slider).slider({disabled: true});
+                    $("#" + this.id + "customMetricSliderGoodBad").show();
+                }
+                else{
+                    $("#" + this.id + "customMetricSliderParent").append(sliderHead).append("<br>");
+                    $("#" + this.id + "customMetricSliderGoodBad").hide();
+                }
+                $("#" + this.id + "customClickMetricsContainer").show();
+           }));
         },
+        
 
         setUpAdditionalLayers: function(addlLayers){
             $.each(addlLayers, lang.hitch(this, function(k, v){
@@ -1989,13 +1996,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 if (ischecked) {
                     this.map.addLayer(this.prioritizedBarriers);
                     //Commented out so that don't turn on custom popup and radar every time primary layer is turned on
-                    //this.activateIdentify = true;
+                    //this.activateIdentify = "consensus";
                     //lang.hitch(this, this.refreshIdentify(this.url));
                     $("#" + this.id + "barrierstransp").show();
                 }
                 else{
                     this.map.removeLayer(this.prioritizedBarriers);
-                    //this.activateIdentify = false; 
+                    //this.activateIdentify = "framework"; 
                     //this.refreshIdentify();
                     $("#" + this.id + "barrierstransp").hide();
                 }
@@ -2088,12 +2095,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             console.log("identify active = " +this.activateIdentify);
             
             this.idLayerURL = layerURL;
-            if (this.activateIdentify === false){ 
+            if (this.activateIdentify === "framework"){ 
             	//this is the generic framework identify
             	this.allowIdentifyWhenActive = true;
                 dojo.disconnect(this.identifyClick);
             }
-            if (this.activateIdentify === true){
+            if (this.activateIdentify === "consensus" || this.activateIdentify === "custom"){
                 console.log("visible layers = " + this.visibleLayers);
             	//this is the custom identify w/ radar
             	this.allowIdentifyWhenActive = false;
@@ -2132,15 +2139,17 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 
                 this.identifyClick = dojo.connect(this.map, "onClick", lang.hitch(this, function(evt){this.doIdentify(evt);}));    
             }    
+
+            
         },
             
         doIdentify: function(evt){
             console.log(evt);
-            if (this.firstIdentify === 0){
+            if (this.activateIdentify === "consensus" && this.firstIdentify === 0){
                 $("#" + this.id + "clickMetricsContainer").show();
                 $("#" + this.id + "clickInstructions").hide();
             }
-            if (this.activateIdentify === true){
+            if (this.activateIdentify === "consensus" || this.activateIdentify === "custom"){
                 console.log("LayerDefs = " + this.identifyParams.layerDefinitions);
                 console.log("Layer IDs = " + this.identifyParams.layerIds);
                 this.identifyRes = new IdentifyTask(this.idLayerURL);
@@ -2154,20 +2163,25 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                         console.log(response);
                         if (this.identifyIterator ===0 && response[0].feature){
                             console.log(response[0].feature);
-                            lang.hitch(this, this.displayIDResult(response[0].feature, this.identifyParams.geometry));
+                            if (this.activateIdentify === "consensus"){
+                                lang.hitch(this, this.displayIDResult(response[0].feature, this.identifyParams.geometry));
+                            }
+                            if (this.activateIdentify === "custom"){
+                                lang.hitch(this, this.displayCustomIDResult(response[0].feature, this.identifyParams.geometry));
+                            }
                         }
                         this.identifyIterator ++;    
                         this.idContent = "";
                 }));
-             } 
-             this.firstIdentify ++;
+            } 
+            this.firstIdentify ++;
              
         },
         
         displayIDResult: function(idResult, point){
             this.idContent="";
             this.metricBarData =[];
-            this.allClickData = {}; //build an object to get the all real values.  Used in RadarChart.js to make tooltip labels
+            this.allClickData = {}; //build an object to get the all real values.
 
             $.each(idResult.attributes, lang.hitch(this, function(k, v){ 
                 this.allClickData[k] = v; 
@@ -2219,7 +2233,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                                 else if(isNaN(parseFloat(realVal)) === false){var vDisplay = this.round(realVal, 2);}
                                 else{var vDisplay = realVal;}
 
-
                                 if (k.startsWith(PRsev) === true){
                                     this.radarItem = {};
                                     this.radarItem["axis"] = this.config.metricShortNames[basename];
@@ -2230,17 +2243,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                                     this.metricBarData.push(this.radarItem);
                                 }   
 
-                                //HTML for identify popup -- loop through and include all fields except those in plugin-config blakclist
-                                if (this.config.metricNames[basename] !== undefined){
-                                    this.idContent = this.idContent + "<b>" + this.config.metricNames[basename] + "</b> : " + vDisplay + "<hr>";
-                                }
-                                if (this.config.idWhiteList[basename] !== undefined){
-                                    this.idContent = this.idContent + "<b>" + basename+ "</b> : " + vDisplay + "<hr>";
-                                }
-                           
-                                else{
-                                    this.idContent = "Individual metric values are not available for the averaged result.  Select a different barrier severity to view individual metric values";
-                                }
+//                                //HTML for identify popup -- loop through and include all fields except those in plugin-config blakclist
+//                                if (this.config.metricNames[basename] !== undefined){
+//                                    this.idContent = this.idContent + "<b>" + this.config.metricNames[basename] + "</b> : " + vDisplay + "<hr>";
+//                                }
+//                                if (this.config.idWhiteList[basename] !== undefined){
+//                                    this.idContent = this.idContent + "<b>" + basename+ "</b> : " + vDisplay + "<hr>";
+//                                }
+
                             }
                         }
                     }
@@ -2248,7 +2258,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
            
             }));
                 
-            
             if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){
                 var tierName = "Tier" + String(this.currentSeverity);
             }
@@ -2323,20 +2332,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.config.includeBarrierSeverity === true && this.currentSeverity !== "0" && this.idLayerURL === this.config.url){    
                 this.clickHeader = this.clickHeader + "<br/>All values for " + radarSeverityDisplay;
             }
-            
-            if (this.useRadar === true){
-                console.log(this.metricBarData);
-                console.log(this.identifyParams.layerDefinitions);
-                lang.hitch(this, this.metricBars());
-
-            }    
+//            console.log(this.metricBarData);
+//            console.log(this.identifyParams.layerDefinitions);
+            lang.hitch(this, this.metricBars());
 
             //if using radar plot, don't show metric values in popup
-            if (this.useRadar === true){
-                this.idContent = this.clickHeader;
-            }
-            else{this.idContent = this.clickHeader + "<hr>" + this.idContent;}
-            
+            this.idContent = this.clickHeader;
+
             this.identJSON = {
                 title: "${" + this.uniqueID+ "} = Tier ${" + tierName +"}",
                 content: this.idContent
@@ -2347,7 +2349,104 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.infoWindow.resize(300,400); //switching to framework identify can cause this popup to resize wrong.  So be explicit    
             this.map.infoWindow.setFeatures([idResult]);
                
-        }            
-//End of functions...
+        },            
+
+        displayCustomIDResult: function(idResult, point){
+            console.log("custom display result");
+            $("#" + this.id + "customClickInstructions").hide();
+            this.customMetricBarData =[];
+            this.customAllClickData = {}; //build an object to get the all real values.  Used in RadarChart.js to make tooltip labels
+            this.customMetricsUsed = [];
+            $.each(idResult.attributes, lang.hitch(this, function(k, v){ 
+                this.customAllClickData[k] = v; 
+            }));
+            console.log(this.customAllClickData);
+            //Set click result header info
+            $("#" + this.id + "customClickBarrierName").text(this.customAllClickData[this.config.barrierNameField]);
+            $("#" + this.id + "customClickBarrierID").text(this.customAllClickData[this.config.uniqueID]);
+            $("#" + this.id + "customClickBarrierType").text(this.customAllClickData[this.config.barrierTypeField]);
+            if (this.customAllClickData[this.config.resultTier] !== "Null"){
+                $("#" + this.id + "customNotPrioritizedHeader").hide();
+                $("#" + this.id + "customClickBarrierTier").text(this.customAllClickData[this.config.resultTier]);
+            }
+            else{
+                $("#" + this.id + "customNotPrioritizedHeader").show();
+                $("#" + this.id + "customClickBarrierTier").text("Not Prioritized - User Filter");
+            }
+            $("#" + this.id + "customClickBarrierPassability").text(this.round(this.customAllClickData[this.config.barrierPassabilityField],2));
+            
+            $.each(this.customAllClickData, lang.hitch(this, function(k, v){ 
+                if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){
+                    var metricSev = "s"+String(this.currentSeverity);
+                }
+                else{var metricSev = k;}
+
+                if (k.startsWith(metricSev)===true){
+                    if (this.idLayerURL === this.config.url && this.config.includeBarrierSeverity === true){
+                           var basename = k.replace(metricSev, "");
+                    }
+                    else{var basename = k;}
+                    
+                    if ($.inArray(basename, this.config.idBlacklist) === -1){
+                        //don't show indivudal metric values if consensus (average result)
+                        if (this.currentSeverity !== "0"){
+
+                            if (this.config.includeBarrierSeverity === true){
+                                var PRsev = "PR" + String(this.currentSeverity);
+                            }
+                            else{var PRsev = "PR";}
+                            basename = k.replace(PRsev, "");
+                            if (k.startsWith(PRsev)){
+                                this.customMetricsUsed.push(basename);
+                                //convert meter results to miles, round if a number, take value as is if not a number, use yes or no if unit is yes/no
+                                var realVal = this.customAllClickData[basename];
+                                if (this.config.metricUnits[basename] === "yes/no"){
+                                    if (parseInt(realVal) === 0){var vDisplay ="No";}
+                                    if (parseInt(realVal) === 1){var vDisplay ="Yes";}
+                                }
+                                else if (this.config.metricMetersToMiles.indexOf(basename)!== -1){
+                                    var vDisplay = String(this.round(realVal * 0.000621371, 2)) + " miles";
+                                }
+                                else if(isNaN(parseFloat(realVal)) === false){var vDisplay = this.round(realVal, 2);}
+                                else{var vDisplay = realVal;}
+
+                                if (k.startsWith(PRsev) === true){
+                                    this.customBarItem = {};
+                                    this.customBarItem["axis"] = this.config.metricShortNames[basename];
+                                    this.customBarItem["coreName"] = basename;
+                                    this.customBarItem["unit"]= this.config.metricUnits[basename];
+                                    this.customBarItem["value"] =parseFloat(v)/100;
+                                    this.customBarItem["valDisp"]=vDisplay;
+                                    this.customMetricBarData.push(this.customBarItem);
+                                }   
+
+                            }
+                        }
+                    }
+                }    
+           
+            }));        
+            
+            //if using radar plot, don't show metric values in popup
+     
+            
+            var tierName = this.config.resultTier;
+            this.customClickHeader = "Name: " + this.customAllClickData[this.config.barrierNameField] +
+            "<br/>ID: " + this.customAllClickData[this.config.uniqueID] +
+            "<br/>Type: " + this.customAllClickData[this.config.barrierTypeField];
+            
+            this.identJSON = {
+                title: "${" + this.uniqueID+ "} = Tier ${" + tierName +"}",
+                content: this.customClickHeader
+            };
+            this.popupInfoTemplate = new InfoTemplate(this.identJSON);
+            idResult.setInfoTemplate(this.popupInfoTemplate);    
+            this.map.infoWindow.show(point);            
+            this.map.infoWindow.resize(300,400); //switching to framework identify can cause this popup to resize wrong.  So be explicit    
+            this.map.infoWindow.setFeatures([idResult]);
+            lang.hitch(this, this.customMetricBars());
+        }
+        
+        //End of functions...
     });
 });
