@@ -6,12 +6,12 @@ require({
 define([
     "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/Color",  "dojo/_base/array", "framework/PluginBase", "dijit/layout/ContentPane", "dojo/dom", 
     "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html", './js/esriapi', './js/clicks', 
-    'dojo/text!./config.json', 'dojo/text!./filters.json', "esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
+    'dojo/text!./config.json', 'dojo/text!./filters.json', 'dojo/text!./photos.json',"esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
      "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask"
 ],
 function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content, Esriapi, Clicks,  config, 
-    filters, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
+    filters, photos, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
     IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask) {
     return declare(PluginBase, {
         // The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
@@ -29,6 +29,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.obj = dojo.eval("[" + obj + "]")[0];    
             this.config = dojo.eval("[" + config + "]")[0];
             this.filters = dojo.eval("[" + filters + "]")[0]; 
+            this.photoNames = dojo.eval("[" + photos + "]")[0]; 
             this.url = this.config.url;
             this.layerDefs = this.obj.startingVisibleLayers;
             this.gp = new Geoprocessor(this.config.gpURL);
@@ -56,7 +57,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $('#' + this.id).parent().parent().css('display', 'flex');
                 this.clicks.updateAccord(this);
             }    
-            
             this.open = "yes";
         },
         
@@ -70,7 +70,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         getState: function () {
             // remove this conditional statement when minimize is added
             if ( $('#' + this.id ).is(":visible") ){
-                //accordions
+                //tabs
                 if ( $('#' + this.id + 'mainAccord').is(":visible") ){
                     this.obj.accordVisible = 'mainAccord';
                     this.obj.accordHidden = 'infoAccord';
@@ -79,81 +79,79 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     this.obj.accordHidden = 'mainAccord';
                 }    
                 this.obj.accordActive = $('#' + this.id + this.obj.accordVisible).accordion( "option", "active" );
-                // main button text
-                this.obj.buttonText = $('#' + this.id + 'getHelpBtn').html();
+         
                 //extent
                 this.obj.extent = this.map.geographicExtent;
-                this.obj.stateSet = "yes";    
+                this.obj.stateSet = "yes";   
                 
+
                 //get the current map layers
-//                if (this.dynamicLayer.visible === true){this.obj.startingMapLayers =true;}
                 this.obj.startingMapLayers =true;
                 $.each(this.obj.startingAdditionalLayers, lang.hitch(this, function(key,value ) {
                     if ($("#" + this.id + key).is(':checked')){
                         this.obj.startingAdditionalLayers[key]="on";
                     }
                 }));
-                
-                //Get starting barrier severity
-                this.obj.startingDisplayBarrierSeverity = $("#" + this.id + "selectSeverity").val();
+              
 
                 //Get the state/region zoomed into & sceanrio
-                this.obj.startingZoomState = $("#" + this.id + "zoomState").val();
-                this.obj.startingScenario = $("#" + this.id + "scenario").val();
-                
-                if (this.config.includeCustomAnalysis ===true){
-                    //Get filter
-                    this.obj.startingFilter = $("#" + this.id + "userFilter").val();
-                    //Get list of barriers to remove
-                    this.obj.startingBarriers2Remove = $("#" + this.id + 'barriers2Remove').val();            
-                    this.obj.startingRemovingBarriers = this.removingBarriers;
-                    this.obj.startingPassability = $("#" + this.id + "passability").val();        
-
-                    
-                    this.obj.startingSummarizeBy = $("#" + this.id + "summarizeBy").val();    
-                    this.obj.startingSummaryStatField = $("#" + this.id + "summaryStatField").val();    
-                    
-                    //Get the current weights
-                    $("input[id^=" + this.id + "weightIn]").each(lang.hitch(this, function(i, v){
-                            var m = v.id.replace(this.id + "weightIn-", "");
-                            this.obj.startingWeights[m] = parseInt(v.value, 10);                
-                     }));
-                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
-                    
-                }
-                
-                if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
-                    this.obj.startingConsensusTierFilterMin =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
-                    this.obj.startingConsensusTierFilterMax =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
-                    this.obj.startingUseConsensusFilter = true;
-                    if (this.consensusCustomFilter !=="" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
-                }
-                if (document.getElementById(this.id + 'consensusResultFilterSliderSeverity')) {
-                    this.obj.startingConsensusSeverityFilterMin =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 0);
-                    this.obj.startingConsensusSeverityFilterMax =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 1);
-                    this.obj.startingUseConsensusFilter = true;
-                    if (this.consensusCustomFilter !== "" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
-                }
-                if (document.getElementById(this.id + 'resultsConsensusFilter')){
-                    if ($('#' + this.id + 'resultsConsensusFilter').val() !== ""){
-                        this.obj.startingUseConsensusCustomFilter = true;
-                        this.obj.startingConsensusCustomFilter = $('#' + this.id + 'resultsConsensusFilter').val();
-                        this.obj.startingUseConsensusFilter = true;
-                        if (this.consensusSliderFilter !== "" && this.consensusSliderFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-                        else{this.obj.startingConsensusFilter = this.consensusCustomFilter;}
-                    }    
-                    else{
-                        this.obj.startingUseConsensusFilter = false;
-                        this.obj.startingUseConsensusCustomFilter = false;
-                    }
-                }
+                this.obj.startingGlanceZoom = $("#" + this.id + "glanceZoom").val();
+                this.obj.startingExploreZoom = $("#" + this.id + "exploreZoom").val();
+                this.obj.exploreScenario = $("#" + this.id + "exploreScenario").val();
+            
+//                if (this.config.includeCustomAnalysis ===true){
+//                    //Get filter
+//                    this.obj.startingFilter = $("#" + this.id + "userFilter").val();
+//                    //Get list of barriers to remove
+//                    this.obj.startingBarriers2Remove = $("#" + this.id + 'barriers2Remove').val();            
+//                    this.obj.startingRemovingBarriers = this.removingBarriers;
+//                    this.obj.startingPassability = $("#" + this.id + "passability").val();        
+//
+//                    
+//                    this.obj.startingSummarizeBy = $("#" + this.id + "summarizeBy").val();    
+//                    this.obj.startingSummaryStatField = $("#" + this.id + "summaryStatField").val();    
+//                    
+//                    //Get the current weights
+//                    $("input[id^=" + this.id + "weightIn]").each(lang.hitch(this, function(i, v){
+//                            var m = v.id.replace(this.id + "weightIn-", "");
+//                            this.obj.startingWeights[m] = parseInt(v.value, 10);                
+//                     }));
+//                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
+//                    
+//                }
+//                
+//                if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
+//                    this.obj.startingConsensusTierFilterMin =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
+//                    this.obj.startingConsensusTierFilterMax =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
+//                    this.obj.startingUseConsensusFilter = true;
+//                    if (this.consensusCustomFilter !=="" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
+//                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
+//                }
+//                if (document.getElementById(this.id + 'consensusResultFilterSliderSeverity')) {
+//                    this.obj.startingConsensusSeverityFilterMin =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 0);
+//                    this.obj.startingConsensusSeverityFilterMax =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 1);
+//                    this.obj.startingUseConsensusFilter = true;
+//                    if (this.consensusCustomFilter !== "" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
+//                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
+//                }
+//                if (document.getElementById(this.id + 'resultsConsensusFilter')){
+//                    if ($('#' + this.id + 'resultsConsensusFilter').val() !== ""){
+//                        this.obj.startingUseConsensusCustomFilter = true;
+//                        this.obj.startingConsensusCustomFilter = $('#' + this.id + 'resultsConsensusFilter').val();
+//                        this.obj.startingUseConsensusFilter = true;
+//                        if (this.consensusSliderFilter !== "" && this.consensusSliderFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
+//                        else{this.obj.startingConsensusFilter = this.consensusCustomFilter;}
+//                    }    
+//                    else{
+//                        this.obj.startingUseConsensusFilter = false;
+//                        this.obj.startingUseConsensusCustomFilter = false;
+//                    }
+//                }
                 this.obj.startingVisibleLayers = this.visibleLayers;
                 var state = {};
                 state = this.obj;
                 console.log(this.obj);
-                return state;    
+//                return state;    
             }
         },
         // Called before activate only when plugin is started from a getState url. 
@@ -172,44 +170,26 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         render: function() {  
             //TODO uncomment Google analytics and paste analytics property ID back into region.json 7401895-16 
             
-            //this.oid = -1;
-            //$('.basemap-selector').trigger('change', 3);
+
             this.mapScale  = this.map.getScale();
             // BRING IN OTHER JS FILES
-            this.esriapi = new Esriapi();
             this.clicks = new Clicks();
-            
-            
-//            ////set up window popup for metric defintiions        
-//            window.windowPopup = function(mylink, windowname, size){
-//                console.log("window popup")
-//            if (! window.focus)return true;
-//                var href;
-//            if (typeof(mylink) == 'string')
-//               href=mylink;
-//            else
-//               href=mylink.href;
-//            winPop = window.open(href, windowname, size);
-//            winPop.moveTo(400, 200);
-//            return false;
-//            };
+
             
             // window popup for metric definition
             window.windowPopup = function(mylink, windowname){
-                console.log("window popup")
-                if (! window.focus)return true;
+                if (!window.focus)return true;
                     var href;
                 if (typeof(mylink) === 'string')
                     href=mylink;
                 else
                     href=mylink.href;
-                winPop = window.open(href, windowname, 'width=650,height=590,scrollbars=yes');
-                winPop.moveTo(400, 200);
+
+                var windowname = window.open(href, windowname, 'width=650,height=590,scrollbars=yes');
+                windowname.moveTo(400, 200);
                 return false;
+                
             };
-            
-            
-            
             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
@@ -248,9 +228,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "glanceTab").click(lang.hitch(this, function(){lang.hitch(this, this.glanceTabClick());}));
             $("#" + this.id + "exploreTab").click(lang.hitch(this, function(){lang.hitch(this, this.exploreTabClick());}));
             $("#" + this.id + "customTab").click(lang.hitch(this, function(){lang.hitch(this, this.customTabClick());}));
-            
-            // Create ESRI objects and event listeners    
-//            this.esriapi.esriApiFunctions(this);         
 
             //set up initial layers for display
             lang.hitch(this, this.setupLayers());
@@ -663,18 +640,26 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 lang.hitch(this, this.selectBarrSeverity(this.obj.startingDisplayBarrierSeverity));
             }
                     
-            //apply starting zoom state 
+            //apply starting glance zoom state 
             this.regionName = $("#" + this.id + "glanceZoom option:first").val();
-            if (this.obj.startingZoomState !== ""){
-                $("#" + this.id + "glanceZoom").val(this.obj.startingZoomState).trigger("chosen:updated");
-                lang.hitch(this, this.glanceZoom(this.obj.startingZoomState, "no"));
+            if (this.obj.startingGlanceZoom !== ""){
+                $("#" + this.id + "glanceZoom").val(this.obj.startingGlanceZoom).trigger("chosen:updated");
+                lang.hitch(this, this.glanceZoom(this.obj.startingGlanceZoom, "no"));
             }
             else{lang.hitch(this, this.glanceZoom(this.regionName));}
             
-            //apply starting sceanrio
+            //apply starting explore zoom state 
+            this.regionName = $("#" + this.id + "exploreZoom option:first").val();
+            if (this.obj.startingExploreZoom !== ""){
+                $("#" + this.id + "exploreZoom").val(this.obj.startingExploreZoom).trigger("chosen:updated");
+                lang.hitch(this, this.exploreZoom(this.obj.startingExploreZoom, "no"));
+            }
+            else{lang.hitch(this, this.exploreZoom(this.regionName));}            
+            
+            //apply starting explore sceanrio
             if (this.stateSet === "yes" && this.config.includeMultipleScenarios === true){
-                $("#" + this.id + "scenario").val(this.obj.startingScenario).trigger("chosen:updated");
-                lang.hitch(this, this.scenarioSelection(this.obj.startingScenario, "no"));
+                $("#" + this.id + "exploreScenario").val(this.obj.startingExploreScenario).trigger("chosen:updated");
+                lang.hitch(this, this.scenarioSelection(this.obj.startingExploreScenario, "no"));
             }
                       
             //add barriers & apply filter if from saved state
@@ -1817,11 +1802,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         
         updateDefaultMetricBars: function(defaultBarMetrics) { 
-            this.currentBarMetrics = []; //array from config 
-            for (var i=0; i< defaultBarMetrics.length; i++){ 
-                this.currentBarMetrics.push(defaultBarMetrics[i]);
-            };
-            $("#" + this.id + "selectClickMetrics").val(this.currentBarMetrics).trigger('chosen:updated');
+            if(defaultBarMetrics){
+                this.currentBarMetrics = []; //array from config 
+                for (var i=0; i< defaultBarMetrics.length; i++){ 
+                    this.currentBarMetrics.push(defaultBarMetrics[i]);
+                };
+                $("#" + this.id + "selectClickMetrics").val(this.currentBarMetrics).trigger('chosen:updated');
+            }
         },
         
         metricBars: function(){
@@ -1852,7 +1839,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
      
                 //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
                 var sliderVal = Math.round(v.value*100);
-                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" onClick=' + "'" + 'return windowPopup(this, "def", "width=660,height=590,scrollbars=yes")' + "'" + 'class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
+                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" onClick=' + "'" + 'return windowPopup(this, "' + v.coreName +'", "width=660,height=590,scrollbars=yes")' + "'" + 'class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
                 var sliderContainer = $('<div class="slider-container bp_exploreMetricBarContainer" id="#' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
                 var slider = $('<div class="slider metricSlider" id="#' +  this.id + v.coreName +'"></div>');
                
@@ -1895,7 +1882,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
      
                 //Make jQuery objects for HTML to be inserted.  If appended as HTML string, can't access to set slider values
                 var sliderVal = Math.round(v.value*100);
-                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" target="_blank" class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp);
+                var sliderHead = $('<a href="plugins/barrier-prioritization-v3/images/' + v.coreName + '.pdf" onClick=' + "'" + 'return windowPopup(this, "' + v.coreName +'", "width=660,height=590,scrollbars=yes" )' + "'" + 'class="bp_exploreMetricBarLink"><p class="bp_exploreMetricBarP"></p></a>').text(v.axis + ": " + v.valDisp); 
                 var sliderContainer = $('<div class="slider-container bp_exploreMetricBarContainer" id="#custom' +  this.id + v.coreName +'Container" style="width:250px;"></div>');        
                 var slider = $('<div class="slider metricSlider" id="#custom' +  this.id + v.coreName +'"></div>');
                 
@@ -2190,6 +2177,24 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "clickBarrierName").text(this.allClickData[this.config.barrierNameField]);
             $("#" + this.id + "clickBarrierID").text(this.allClickData[this.config.uniqueID]);
             $("#" + this.id + "clickBarrierType").text(this.allClickData[this.config.barrierTypeField]);
+            
+
+            //add links to photos
+            var photoHtml ="";
+            var siteID = this.allClickData[this.config.uniqueID];
+            $("#" + this.id + "clickBarrierPhotos").children().remove();
+            if (this.photoNames[siteID] !== undefined){
+                $.each(this.photoNames[siteID], lang.hitch(this, function(k, v){
+                    var link = this.config.photoURLRoot + v;
+                    var photoRoot = v.replace(".JPG", "").replace(".jpg", "");
+                    var dispName= v.replace(".JPG", "").replace(".jpg", "").replace("_", "").replace("-", "").replace(this.allClickData[this.config.uniqueID], "");
+                    photoHtml = photoHtml + '<a href="'+link+ '" onClick=' + "'" + 'return windowPopup(this, "' +photoRoot+ '", "width=660,height=590,scrollbars=yes")'+ "'" + ' class="bp_exploreMetricBarLink">' + dispName+ '</a>';
+           
+                }));
+                $("#" + this.id + "clickBarrierPhotos").append(photoHtml);
+            }
+            else{$("#" + this.id + "clickBarrierPhotos").append("<p>No photos available</p>");}
+            
             if (this.allClickData[this.config.resultTier] !== "Null"){
                 $("#" + this.id + "notPrioritizedHeader").hide();
                 $("#" + this.id + "clickBarrierTier").text(this.allClickData[this.config.resultTier]);
@@ -2320,22 +2325,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.clickHeader += "<br/>" + this.allClickData[this.config.severityField];
             }           
             
-            //if included show the stratification region
-            if (this.config.includeStratifiedRegions === true){
-                var stratRegion = $("#" + this.id + "zoomState").val();
-            }
-            else{var stratRegion = "";}
-            //if included, show the resident & BKT tiers in the radar plot header
-            if (this.config.anadTierName !== "" && this.config.anadTierName !== false){
-                this.clickHeader += "<br/>" + stratRegion + " Diadromous Tier= " + this.allClickData[this.config.anadTierName];
-            } 
-            if (this.config.residentTierName !== "" && this.config.residentTierName !== false){
-                this.clickHeader += "<br/>" + stratRegion + " Resident Tier= " + this.allClickData[this.config.residentTierName];
-            }       
-            if (this.config.bktTierName !== "" && this.config.bktTierName !== false){
-                this.clickHeader += "<br/>" + stratRegion + " Brook Trout Tier= " + this.allClickData[this.config.bktTierName];
-            }                   
-            
+
             if (this.config.includeFactSheets === true){
             	this.clickHeader += "<br/><a target='_blank' href='plugins/barrier-prioritization-v3/factSheets/" + this.allClickData[this.config.uniqueID] + ".pdf'>Fact Sheet</a>";
             }
@@ -2344,8 +2334,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.config.includeBarrierSeverity === true && this.currentSeverity !== "0" && this.idLayerURL === this.config.url){    
                 this.clickHeader = this.clickHeader + "<br/>All values for " + radarSeverityDisplay;
             }
-//            console.log(this.metricBarData);
-//            console.log(this.identifyParams.layerDefinitions);
+
             lang.hitch(this, this.metricBars());
 
             //if using radar plot, don't show metric values in popup
@@ -2377,6 +2366,24 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "customClickBarrierName").text(this.customAllClickData[this.config.barrierNameField]);
             $("#" + this.id + "customClickBarrierID").text(this.customAllClickData[this.config.uniqueID]);
             $("#" + this.id + "customClickBarrierType").text(this.customAllClickData[this.config.barrierTypeField]);
+            
+            //add links to photos
+            var photoHtml ="";
+            var siteID = this.customAllClickData[this.config.uniqueID];
+            $("#" + this.id + "customClickBarrierPhotos").children().remove();
+            if (this.photoNames[siteID] !== undefined){
+                $.each(this.photoNames[siteID], lang.hitch(this, function(k, v){
+                    var link = this.config.photoURLRoot + v;
+                    var photoRoot = v.replace(".JPG", "").replace(".jpg", "");
+                    var dispName= v.replace(".JPG", "").replace(".jpg", "").replace("_", "").replace("-", "").replace(this.customAllClickData[this.config.uniqueID], "");
+                    photoHtml = photoHtml + '<a href="'+link+ '" onClick=' + "'" + 'return windowPopup(this, "' +photoRoot+ '", "width=660,height=590,scrollbars=yes")'+ "'" + ' class="bp_exploreMetricBarLink">' + dispName+ '</a>';
+           
+                }));
+                $("#" + this.id + "customClickBarrierPhotos").append(photoHtml);
+            }        
+            else{$("#" + this.id + "customClickBarrierPhotos").append("<p>No photos available</p>");}
+            
+            
             if (this.customAllClickData[this.config.resultTier] !== "Null"){
                 $("#" + this.id + "customNotPrioritizedHeader").hide();
                 $("#" + this.id + "customClickBarrierTier").text(this.customAllClickData[this.config.resultTier]);

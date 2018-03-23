@@ -900,7 +900,6 @@
             {"metricGISName" : "HUC8_Name", "metricPrettyName" : "HUC8 Name"},
             {"metricGISName" : "HUC10", "metricPrettyName" : "HUC10"},
             {"metricGISName" : "HUC10_Name", "metricPrettyName" : "HUC10 Name"},
-            {"metricGISName" : "Tier", "metricPrettyName" : "metric Tier"},
             {"metricGISName" : "Type", "metricPrettyName" : "Barrier Type"},
             {"metricGISName" : "NESZCL", "metricPrettyName" : "Stream Size"},
             {"metricGISName" : "HUC12", "metricPrettyName" : "HUC12"},
@@ -1277,29 +1276,6 @@
                 {"metricValue" : "&#39;Upper Mattawamkeag River&#39;"},
                 {"metricValue" : "&#39;Upper Piscataquis River&#39;"},
                 {"metricValue" : "&#39;West Branch Mattawamkeag River&#39;"}
-            ],
-        "metric Tier" : 
-            [
-                {"metricValue" : 1},
-                {"metricValue" : 2},
-                {"metricValue" : 3},
-                {"metricValue" : 4},
-                {"metricValue" : 5},
-                {"metricValue" : 6},
-                {"metricValue" : 7},
-                {"metricValue" : 8},
-                {"metricValue" : 9},
-                {"metricValue" : 10},
-                {"metricValue" : 11},
-                {"metricValue" : 12},
-                {"metricValue" : 13},
-                {"metricValue" : 14},
-                {"metricValue" : 15},
-                {"metricValue" : 16},
-                {"metricValue" : 17},
-                {"metricValue" : 18},
-                {"metricValue" : 19},
-                {"metricValue" : 20}
             ],
 
         "Barrier Type" : 

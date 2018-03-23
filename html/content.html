@@ -152,8 +152,10 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                     <div  style="flex: 1;">
                                         <div class="bp_flexRow"><p style="font-weight: 700">Result Tier: &nbsp</p><p id="clickBarrierTier"></p></div>
                                     </div>
-                                    <div>
-                                        <div class="bp_flexRow"></div>                            
+                                </div>
+                                <div class="bp_flex">
+                                    <div  style="flex: 1;">
+                                        <div class="bp_flexRow"><p style="font-weight: 700; width:150px;">ME <a href="https://webapps2.cgis-solutions.com/MaineStreamViewer/" target="_blank" >Stream Habitat Viewer</a> Photos:</p><p id="clickBarrierPhotos" class="bp_flexWrap"></p></div>
                                     </div>
                                 </div>
                             </div>
@@ -326,7 +328,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                         <div>
                             <div class="bp_flexColHCenter">
 
-                                <h4 style="text-align: center;" id="customFilterExpander" class="bp_expander">1. Do you want to limit the analysis to a geography, species, or other subset of the data? <span class="bp_expand">+</span></h4>
+                                <h4 style="text-align: center;" id="customFilterExpander" class="bp_expander">1. Do you want to limit the analysis to a smaller geography or other subset of the data? <span class="bp_expand">+</span></h4>
                                 <div id="customFilterContainer" class="bp_flexColHCenter">
                                     <div class="toggle-btn"  >
                                         <input type="radio" id="filterBarriers2" name="filterBarriers" value="no" checked/>
@@ -533,8 +535,10 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                             <div  style="flex: 1;">
                                                 <div class="bp_flexRow"><p style="font-weight: 700">Result Tier: &nbsp</p><p id="customClickBarrierTier"></p></div>
                                             </div>
-                                            <div>
-                                                <div class="bp_flexRow"></div>                            
+                                        </div>
+                                        <div class="bp_flex">
+                                            <div  style="flex: 1;">
+                                                <div class="bp_flexRow"><p style="font-weight: 700; width:150px;">ME <a href="https://webapps2.cgis-solutions.com/MaineStreamViewer/" target="_blank" >Stream Habitat Viewer</a> Photos:</p><p id="customClickBarrierPhotos" class="bp_flexWrap"></p></div>
                                             </div>
                                         </div>
                                     </div>
@@ -578,7 +582,20 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                         </div>
                         <h3>Custom Analysis Documentation</h3>
                         <div>
-                            <p>Here's how you run a custom analysis.  Easy peasy</p>
+                            <p>The custom analysis functionality allows users to run a prioritization using parameters of their choosing.  The questions in the "Run a Custom Analysis" pane step through the available input parameters. Clicking on any of the questions will expand the input dialogs.</p>
+                            <h4>Filtering the Input Barriers</h4>
+                            <p>The input barriers for an analysis can be filtered based on geography (e.g. town, county, watershed) or other attributes (e.g. passability, barrier type).  Filtering the barriers limits which barriers are included in the prioritization analysis.  However, barriers that are excluded from the analysis through an input filter are still “present” through their effect on other barriers in the metric values.  If, for example, a filter is applied to prioritize only barriers in Piscataquis County the results will include only those barriers in within the county.  However, the “Count of Downstream Barriers,” for barriers in Piscataquis County will still include the mainstem dams in Penobscot County.</p>
+                            <h4>Weighting Metrics</h4>
+                            <p>The metrics which underlie the prioritization can be selected by assigning relative weights to them.  The weights applied to each metric indicates the relative importance of the metric in a given prioritization scenario.  The consensus diadromous fish scenario uses a set of weights selected by The Nature Conservancy and partners, but alternate scenarios could be developed using different metrics and weights, to reflect different objectives.  For example, if the primary objective is simply to maximize the number of open upstream river miles, then 100% of the weight could be applied to “Upstream Functional Network Length.”  The results of this prioritization would be analogous to sorting the barriers so that the one with the longest upstream functional network was on top.</p>
+                            <p>Metrics are weighted by simply typing in a value between 0 and 100 in the input box next to the metric name.  Clicking on a metric name opens a pop-up window with a simple description of the metric, its source data and units.  A running tally of metric weights is provided and a warning message will appear if the weights do not sum to 100.  Metrics are divided into five categories to provide a logical organization of metrics.  However, the grouping has no bearing on the prioritization and the total metrics weights (which must = 100) can be spread across the metric categories in any manner desired.</p>
+                            <p>Implicit in the prioritization is the idea that for each metric, either large values are desirable or small values are desirable.  Generally speaking, “Upstream Functional Network Length” is a metric where large values are desirable in a potential passage project – the intent is to open up the most upstream miles of river habitat.  In this case, the metrics are sorted in descending order where large values rank at the top.  Conversely, the number of downstream barriers is a metric where small values are generally desirable – the intent is to open habitat that is in a more natural state to support healthy fish populations.  In this case, the metric is sorted in ascending order where small values rank at the top.  The sort order for each metric is described in the metric description slide which can be access by clicking on a metric name.</p>
+                            <h4>Model Barrier Removal</h4>  
+                            <p>One or more barriers can be selected for “removal” when a prioritization is run.  Doing so recalculates new metric values as if the selected barriers do not exist.  This functionality can be useful for several reasons.  First, it allows users to assess the impact of a proposed project on the priorities of the remaining barriers in the network. By removing a barrier, it becomes possible to see, for example, that the next upstream barrier becomes a priority.  </p>
+                            <p>Second, it can be used to address known data errors in an analysis.  For example, if a user with first-hand knowledge of a particular barrier knows that it is actually not a barrier, then it can be removed and the priorities of the remaining barriers more accurately assessed.  Removing a barrier in this fashion does not update the input database.  The removal only persists for the duration of the user’s session. Future version of the tool may include functionality to directly incorporate user edits. </p>
+                            <p>Third, and perhaps more importantly, removing barriers before running a custom prioritization can be used to assess potential projects that may include a series of barrier removals.  This can be useful when a series of barriers are individually relatively low priorities, but when treated together may be a higher priority.</p>
+                            <p>To select barrier for modeled removal, the "Show Selection Barriers" button can be clicked.  This will load all barriers symbolized as black points.  Clicking a point will add the ID of the selected barrier to the text input.  Up to 10 barriers can be selected in this fashion.  Alternately, if the barrier IDs are known, they can be pasted into the input box wrapped in single quotes and comma separated.  </p>
+                            <h4>Summary Statistics</h4> 
+                            <p>Optionally, summary statistics can be produced for the custom prioritization scenario results.  These summary statistics can be used to evaluate and make relative comparisons between different geographies (e.g. town, county, watersheds).  If summary statistics are desired, select the option to do so.  This will reveal options to generate summary statistics for either the Result Tier or the Final Rank (the un-binned sequential results).  The output table enables users to makes statements such as “Watershed X has a mean Tier value of 8 while Watershed Y has a mean Tier value of 5.”  From this statement we can deduce that Watershed Y has more barriers with greater potential to benefit the target of interest, based on the metric weights chosen by the user, than Watershed X.</p>
                         </div>
                     </div>
                 </div>

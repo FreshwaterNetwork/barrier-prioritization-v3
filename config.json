@@ -34,6 +34,7 @@
     "summStatsParamName" : "Summary_Stats",
     "zippedResultParamName" : "ZipResult",
     "csvResultParamName" : "CSVResult",
+    "photoURLRoot":"http://www.maine.gov/dmr/mcp/environment/streamviewer/site_photos/",
     "includeZippedConsensusDownload" : true,
     "zippedConsensusResultURL" : "plugins/barrier-prioritization-v3/images/Penobscot_AquaticBarrierPrioritization_GIS.zip",
     "excelConsensusResultURL" : "plugins/barrier-prioritization-v3/images/Penobscot_AquaticBarrierPrioritization_Excel.zip",

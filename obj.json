@@ -23,7 +23,7 @@
 	"startingUseFilter" : false,
 	"startingSummarizeBy" : "",
 	"startingSummaryStatField" : "",
-	"startingZoomState" : "",
+	"startingExploreZoom" : "",
 	"startingConsensusTierFilterMin":1,
 	"startingConsensusTierFilterMax":20,
 	"startingConsensusSeverityFilterMin":1,

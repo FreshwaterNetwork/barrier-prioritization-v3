@@ -3,10 +3,14 @@
 }
 .flex1{
 	flex:1;
-	
+        -webkit-flex: 1;
+	-ms-flex: 1;
 }
 .flexColumn{
-	display:flex; flex-direction:column;
+	display:flex; 
+        display: -webkit-flex;
+        flex-direction:column;
+        -webkit-flex-direction:column;
 }
 .hide{
 	display:none;
@@ -38,6 +42,13 @@
 	color: #999999;
 	margin-top: 5px;
 	margin: 0 auto;
+}
+
+.bp_flexWrap{
+    display: -webkit-flex;
+    -webkit-flex-wrap: wrap;
+    display: flex; 
+    flex-wrap: wrap;
 }
 
 .bp_flexColHCenter{
@@ -83,6 +94,7 @@
 	    display: -webkit-flex;
 	    display: flex;
 	    flex-direction:column; 
+            -webkit-flex-direction::column;
 	    align-items: stretch;
 	}
 }
@@ -97,6 +109,7 @@
     display: -webkit-flex;
     display: flex;
     flex-direction:row;
+    -webkit-flex-direction:row;
     justify-content: center;
 }
 .bp_flexRow{
@@ -108,6 +121,7 @@
     display: -ms-flexbox;
     display: -webkit-flex;
     display: flex;
+    -webkit-flex-direction:row;
     flex-direction:row;
 
 }
@@ -141,7 +155,10 @@
 
 .bp_flexFillVerticalContainer{
     display: flex;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     flex-direction: column;
+    -webkit-flex-direction:row;
 }
 .bp_lightGrayDiv1{
     background-color: #eff4f4;
@@ -179,7 +196,9 @@
 
 .bp_glanceStats{
     display: flex;
+    display: -webkit-flex;
     flex-direction: row;
+    -webkit-flex-direction:row;
     padding: 10px 0;
     height: 105px;
 }
@@ -197,12 +216,16 @@
 
 .bp_glanceStatsContainer{
     display: flex;
+    display: -webkit-flex;
     flex-direction: column;
+    -webkit-flex-direction:column;
     justify-content: center;    
 }
 .bp_glanceStatsContainerRight{
     display: flex;
     flex-direction: column;
+    flex-direction: column;
+    -webkit-flex-direction:column;
     justify-content: center; 
     margin: 0 0 0 auto;
 }
@@ -232,7 +255,9 @@
 }
 .bp_flexNoWrap{
 	flex-wrap: nowrap;
+        -webkit-flex-wrap: nowrap
 	flex-direction: row;
+        -webkit-flex-direction:row;
 	margin: 5px;
 }
 
