@@ -3,7 +3,6 @@
     "removeSelectionURL" : "http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer/20",
     "gpURL":"http://dev.services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
     "includeCustomAnalysis" : true,
-    "includeBarrierSeverity" : false,
     "includeSurveyPageLink" : false,
     "includeFERC": false,
     "includeFactSheets" : false,

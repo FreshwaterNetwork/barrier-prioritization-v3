@@ -5,12 +5,12 @@ require({
 // Bring in dojo and javascript api classes as well as varObject.json, js files, and content.html
 define([
     "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/Color",  "dojo/_base/array", "framework/PluginBase", "dijit/layout/ContentPane", "dojo/dom", 
-    "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html", './js/esriapi', './js/clicks', 
+    "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html",  './js/clicks', 
     'dojo/text!./config.json', 'dojo/text!./filters.json', 'dojo/text!./photos.json',"esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
      "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask"
 ],
-function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content, Esriapi, Clicks,  config, 
+function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content,  Clicks,  config, 
     filters, photos, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
     IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask) {
     return declare(PluginBase, {
@@ -31,9 +31,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.filters = dojo.eval("[" + filters + "]")[0]; 
             this.photoNames = dojo.eval("[" + photos + "]")[0]; 
             this.url = this.config.url;
-            this.layerDefs = this.obj.startingVisibleLayers;
             this.gp = new Geoprocessor(this.config.gpURL);
             this.gp.setUpdateDelay(200); //status check in milliseconds;
+            this.barriers2RemoveCount = 0;   
+            this.glanceExtentCount = 0;
+            this.selectSeverityCounter = 0;
+            this.zoomCounter=0;
             
         },
         // Called after initialize at plugin startup (why the tests for undefined). Also called after deactivate when user closes app by clicking X. 
@@ -71,87 +74,91 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             // remove this conditional statement when minimize is added
             if ( $('#' + this.id ).is(":visible") ){
                 //tabs
-                if ( $('#' + this.id + 'mainAccord').is(":visible") ){
-                    this.obj.accordVisible = 'mainAccord';
-                    this.obj.accordHidden = 'infoAccord';
-                }else{
-                    this.obj.accordVisible = 'infoAccord';
-                    this.obj.accordHidden = 'mainAccord';
-                }    
-                this.obj.accordActive = $('#' + this.id + this.obj.accordVisible).accordion( "option", "active" );
+                if ($("#" + this.id + "glance").is(":visible")){this.obj.startingTab = "glance";}
+                if ($("#" + this.id + "explore").is(":visible")){this.obj.startingTab = "explore";}
+                if ($("#" + this.id + "custom").is(":visible")){this.obj.startingTab = "custom";}
          
                 //extent
                 this.obj.extent = this.map.geographicExtent;
                 this.obj.stateSet = "yes";   
                 
-
                 //get the current map layers
                 this.obj.startingMapLayers =true;
                 $.each(this.obj.startingAdditionalLayers, lang.hitch(this, function(key,value ) {
                     if ($("#" + this.id + key).is(':checked')){
+                        if (key !== "barriers"){
                         this.obj.startingAdditionalLayers[key]="on";
+                        }
                     }
                 }));
-              
 
                 //Get the state/region zoomed into & sceanrio
                 this.obj.startingGlanceZoom = $("#" + this.id + "glanceZoom").val();
                 this.obj.startingExploreZoom = $("#" + this.id + "exploreZoom").val();
-                this.obj.exploreScenario = $("#" + this.id + "exploreScenario").val();
-            
-//                if (this.config.includeCustomAnalysis ===true){
-//                    //Get filter
-//                    this.obj.startingFilter = $("#" + this.id + "userFilter").val();
-//                    //Get list of barriers to remove
-//                    this.obj.startingBarriers2Remove = $("#" + this.id + 'barriers2Remove').val();            
-//                    this.obj.startingRemovingBarriers = this.removingBarriers;
-//                    this.obj.startingPassability = $("#" + this.id + "passability").val();        
-//
-//                    
-//                    this.obj.startingSummarizeBy = $("#" + this.id + "summarizeBy").val();    
-//                    this.obj.startingSummaryStatField = $("#" + this.id + "summaryStatField").val();    
-//                    
-//                    //Get the current weights
-//                    $("input[id^=" + this.id + "weightIn]").each(lang.hitch(this, function(i, v){
-//                            var m = v.id.replace(this.id + "weightIn-", "");
-//                            this.obj.startingWeights[m] = parseInt(v.value, 10);                
-//                     }));
-//                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
-//                    
-//                }
-//                
-//                if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
-//                    this.obj.startingConsensusTierFilterMin =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
-//                    this.obj.startingConsensusTierFilterMax =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
-//                    this.obj.startingUseConsensusFilter = true;
-//                    if (this.consensusCustomFilter !=="" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-//                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
-//                }
-//                if (document.getElementById(this.id + 'consensusResultFilterSliderSeverity')) {
-//                    this.obj.startingConsensusSeverityFilterMin =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 0);
-//                    this.obj.startingConsensusSeverityFilterMax =$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 1);
-//                    this.obj.startingUseConsensusFilter = true;
-//                    if (this.consensusCustomFilter !== "" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-//                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
-//                }
-//                if (document.getElementById(this.id + 'resultsConsensusFilter')){
-//                    if ($('#' + this.id + 'resultsConsensusFilter').val() !== ""){
-//                        this.obj.startingUseConsensusCustomFilter = true;
-//                        this.obj.startingConsensusCustomFilter = $('#' + this.id + 'resultsConsensusFilter').val();
-//                        this.obj.startingUseConsensusFilter = true;
-//                        if (this.consensusSliderFilter !== "" && this.consensusSliderFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
-//                        else{this.obj.startingConsensusFilter = this.consensusCustomFilter;}
-//                    }    
-//                    else{
-//                        this.obj.startingUseConsensusFilter = false;
-//                        this.obj.startingUseConsensusCustomFilter = false;
-//                    }
-//                }
-                this.obj.startingVisibleLayers = this.visibleLayers;
+                this.obj.startingExploreScenario = $("#" + this.id + "exploreScenario").val();
+                
+                //get the current consensus layer (scenario & stratify extent
+                this.obj.startingPrioritizedLayerID = this.visibleLayers;
+                
+                //get starting stratify region
+                this.obj.startingStratifyRegion = $('input[name="stratify"]:checked').val();
+                
+                if (this.config.includeCustomAnalysis ===true){
+                    //Get filter
+                    this.obj.startingFilter = $("#" + this.id + "userFilter").val();
+                    //Get list of barriers to remove
+                    this.obj.startingBarriers2Remove = $("#" + this.id + 'barriers2Remove').val();            
+                    this.obj.startingRemovingBarriers = this.removingBarriers;
+                    this.obj.startingPassability = $("#" + this.id + "passability").val();        
+
+                    
+                    this.obj.startingSummarizeBy = $("#" + this.id + "summarizeBy").val();    
+                    this.obj.startingSummaryStatField = $("#" + this.id + "summaryStatField").val();    
+                    
+                    //Get the current weights
+                    $("input[id^=" + this.id + "weightIn]").each(lang.hitch(this, function(i, v){
+                            var m = v.id.replace(this.id + "weightIn-", "");
+                            this.obj.startingWeights[m] = parseInt(v.value, 10);                
+                     }));
+                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
+                }
+                
+                if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
+                    this.obj.startingConsensusTierFilterMin =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
+                    this.obj.startingConsensusTierFilterMax =$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
+                    this.obj.startingUseConsensusFilter = true;
+                    if (this.consensusCustomFilter !=="" && this.consensusCustomFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
+                    else{this.obj.startingConsensusFilter = this.consensusSliderFilter;}
+                }
+
+                if (document.getElementById(this.id + 'resultsConsensusFilter')){
+                    if ($('#' + this.id + 'resultsConsensusFilter').val() !== ""){
+                        this.obj.startingUseConsensusCustomFilter = true;
+                        this.obj.startingConsensusCustomFilter = $('#' + this.id + 'resultsConsensusFilter').val();
+                        this.obj.startingUseConsensusFilter = true;
+                        if (this.consensusSliderFilter !== "" && this.consensusSliderFilter  !== undefined){this.obj.startingConsensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
+                        else{this.obj.startingConsensusFilter = this.consensusCustomFilter;}
+                    }    
+                    else{
+                        this.obj.startingUseConsensusFilter = false;
+                        this.obj.startingUseConsensusCustomFilter = false;
+                    }
+                }
+    
+                //open the accorions on each tab
+                if ( $('#' + this.id + 'mainAccord').is(":visible") ){
+                    this.obj.accordVisible = 'mainAccord';
+                    this.obj.accordHidden = 'customAccord';
+                }else{
+                    this.obj.accordVisible = 'customAccord';
+                    this.obj.accordHidden = 'mainAccord';
+                }    
+                this.obj.accordActive = $('#' + this.id + this.obj.accordVisible).accordion( "option", "active" );
+                
                 var state = {};
                 state = this.obj;
                 console.log(this.obj);
-//                return state;    
+                return state;    
             }
         },
         // Called before activate only when plugin is started from a getState url. 
@@ -175,7 +182,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             // BRING IN OTHER JS FILES
             this.clicks = new Clicks();
 
-            
+           
             // window popup for metric definition
             window.windowPopup = function(mylink, windowname){
                 if (!window.focus)return true;
@@ -184,7 +191,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     href=mylink;
                 else
                     href=mylink.href;
-
                 var windowname = window.open(href, windowname, 'width=650,height=590,scrollbars=yes');
                 windowname.moveTo(400, 200);
                 return false;
@@ -212,13 +218,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.severityDict = this.config.severitySliderDict;
             this.activateIdentify = "framework";
             this.uniqueID = this.config.uniqueID;
-            this.barriers2RemoveCount = 0;   
-            this.glanceExtentCount = 0;
+
             this.workingRemoveBarriers = [];
             this.workingRemoveBarriersString = "";
-            this.visibleLayers = this.obj.startingVisibleLayers;
-            this.selectSeverityCounter = 0;
-
+            this.visibleLayers = this.obj.startingPrioritizedLayerID;
+            
+            if (this.config.includeBarrierSeverity === false){this.currentSeverity = "";}
             this.firstIdentify = 0;
             lang.hitch(this, this.refreshIdentify(this.url));
 
@@ -235,7 +240,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //hide elements until they're needed 
             $('#' + this.id + 'gpSumStatsTableDivContainer').hide(); 
             $('#' + this.id + 'downloadCustomContainer').hide();                 
-
+            
+            //apply starting stratify region
+            if (this.obj.stateSet === "yes"){
+                $('input[name="stratify"][value="'+this.obj.startingStratifyRegion+'"]').prop("checked", true);
+            }
             
             //Set up the +/- expanders on the custom analysis tab
             this.expandContainers = [ "customFilter", "customMetric", "barrierRemoval", "sumStats"];
@@ -265,7 +274,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }));
 
 
-            if (this.config.includeBarrierSeverity === false){this.currentSeverity = "";}
+            
 
             if (this.config.includeExploreConsensus === true){
                 //Consensus Tier Slider
@@ -403,34 +412,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     if (this.map.infoWindow){this.map.infoWindow.hide();}
                 }
             }));
-            $('#' + this.id +'exploreConsensusAccord').on('click', lang.hitch(this,function(e){
-                if (this.gpResLayer){
-                    this.map.removeLayer(this.gpResLayer);
-                }
-                if (this.prioritizedBarriers === true){this.map.removeLayer(this.prioritizedBarriers);}
-                this.map.addLayer(this.prioritizedBarriers);
 
-                this.activateIdentify="consensus";
-                lang.hitch(this, this.refreshIdentify(this.config.url));
-                if (this.config.includeBarrierSeverity === true){
-                    $('#' + this.id +'selectSeverity').trigger("updated");
-                }
-                if (this.map.infoWindow){this.map.infoWindow.hide();}
-            }));
-            
-            //set up metric weight tabs
-            jQuery('.tabs .tab-links a').on('click', function(e)  {
-                tabIDprefix = this.id.split("tab")[0];
-                mapSide = tabIDprefix.replace("weightIn", "");
-                var currentAttrValue = mapSide + jQuery(this).attr('href');
-                currentAttrValue = "#" + currentAttrValue;
-                // Show/Hide Tabs
-                jQuery('.tabs ' + currentAttrValue).show().siblings().hide();
-                // Change/remove current tab to active
-                jQuery(this).parent('li').addClass('active').siblings().removeClass('active'); 
-                e.preventDefault();
-            });
-                
+                            
             //show inputs if yes is selected
             $('#'+ this.id +"customWeightsDiv").hide();
             $("input[name='useConsensusWeights']").on('change',lang.hitch(this,function(){
@@ -635,11 +618,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }    //END custom analysis                 
             
             
-            //apply starting barrier severity
-            if (this.config.includeBarrierSeverity === true && this.obj.startingDisplayBarrierSeverity !== ""){
-                lang.hitch(this, this.selectBarrSeverity(this.obj.startingDisplayBarrierSeverity));
-            }
-                    
+
             //apply starting glance zoom state 
             this.regionName = $("#" + this.id + "glanceZoom option:first").val();
             if (this.obj.startingGlanceZoom !== ""){
@@ -664,31 +643,31 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                       
             //add barriers & apply filter if from saved state
             if (this.stateSet === "yes"){
-                    $('#' + this.id + 'resultsConsensusFilter').val(this.obj.startingConsensusCustomFilter);
-                    $("#" + this.id + "clickInstructions").show();
-                    lang.hitch(this, this.filterConsensusMapServiceSlider());
+                $('#' + this.id + 'resultsConsensusFilter').val(this.obj.startingConsensusCustomFilter);
+                $("#" + this.id + "clickInstructions").show();
+                lang.hitch(this, this.filterConsensusMapServiceSlider());
 
-                    $("#" + this.id +"consFiltMax").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0));
-                    $("#" + this.id +"consFiltMin").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1));
-                    $("#" + this.id +"consSevMin").text(this.severityDict[$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 0)]);
-                    $("#" + this.id +"consSevMax").text(this.severityDict[$('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 1)]);                    
+                $("#" + this.id +"consFiltMax").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0));
+                $("#" + this.id +"consFiltMin").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1));
+                      
 
-                    this.map.removeLayer(this.prioritizedBarriers);
-                    this.prioritizedBarriers = this.filterMapService(this.obj.startingConsensusFilter, this.prioritizedBarriers, this.config.url);
-                    this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
-                    setTimeout(lang.hitch(this, function(){
+                this.map.removeLayer(this.prioritizedBarriers);
+                this.prioritizedBarriers = this.filterMapService(this.obj.startingConsensusFilter, this.prioritizedBarriers, this.config.url);
+                this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
+                setTimeout(lang.hitch(this, function(){
+                    if (this.obj.startingTab === "explore"){
                         this.map.addLayer(this.prioritizedBarriers);
-                    },500));        
-                    lang.hitch(this, this.refreshIdentify(this.config.url, this.consensusFilter));
-                    this.filterMapService(this.obj.startingConsensusFilter, this.prioritizedBarriers, this.config.url); 
-                    
-                    //set the severity dropdown
-                    if (this.config.includeBarrierSeverity === true){
-                        $("#" + this.id + "selectSeverity").val(parseInt(this.visibleLayers)).trigger('chosen:updated');
                     }
-                   
-                    //show the state stats expander
-                    $("#" + this.id + "stateStatsExpander").show();
+                    else if (this.obj.startingTab === "glance"){
+                        this.map.addLayer(this.glanceBarriers);
+                    }
+                        
+                },500));        
+                lang.hitch(this, this.refreshIdentify(this.config.url, this.consensusFilter));
+                this.filterMapService(this.obj.startingConsensusFilter, this.prioritizedBarriers, this.config.url); 
+
+                //show the state stats expander
+                $("#" + this.id + "stateStatsExpander").show();
             }
            
             // //clear all metric weights, filters, barriers to remove, uncheck all options
@@ -712,36 +691,27 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $('#' + this.id + 'dlConsensus').on('click',lang.hitch(this,function(e) { 
                 //download zipped result
                 e.preventDefault();
-                window.location.href = this.config.zippedConsensusResultURL;                    
+                window.location.href = this.config.zippedConsensusResultURL; 
+                ga('send', 'event', {
+                    eventCategory:this.config.analyticsEventTrackingCategory,        
+                    eventAction: 'Download consensus GDB', 
+                    eventLabel: 'Download consensus GDB' 
+                }); 
             }));            
             $('#' + this.id + 'dlConsensusExcel').on('click',lang.hitch(this,function(e) { 
                 //download excel result
                 e.preventDefault();
-                window.location.href = this.config.excelConsensusResultURL;                    
+                window.location.href = this.config.excelConsensusResultURL;   
+                ga('send', 'event', {
+                    eventCategory:this.config.analyticsEventTrackingCategory,        
+                    eventAction: 'Download consensus Excel', 
+                    eventLabel: 'Download consensus Excel' 
+                }); 
             }));
 
             //build checkboxes for additonal layers
             lang.hitch(this, this.setUpAdditionalLayers(this.config.additionalLayers));
             
-            //build select severity chosen
-            if (this.config.includeBarrierSeverity === true){
-                $("#" + this.id + "selectSeverity").chosen({allow_single_deselect:true, width:"220px"}).change(lang.hitch(this, function(c){
-                    var v = c.target.value;
-                    // check for a deselect
-                    if (v.length === 0){v = "none";}
-                    console.log(v);    
-                    $("#" + this.id +"stateStatsExpander").show();
-                    
-                    //analytics event tracking
-                    ga('send', 'event', {
-                       eventCategory:this.config.analyticsEventTrackingCategory,        
-                       eventAction: 'Select Severity', 
-                       eventLabel: v + ' selected'
-                    });
-  
-                    lang.hitch(this, this.selectBarrSeverity(v));
-                }));
-            }
 
             //build glance zoom-to chosen
             $("#" + this.id + "glanceZoom").chosen({allow_single_deselect:true, width:"130px"}).change(lang.hitch(this, function(c){
@@ -801,10 +771,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 else{$("#" + this.id + "expandSelectMetrics").html('Edit Metrics <i class="fa fa-gear"></i>');}
             }));
             
-            lang.hitch(this, this.updateMetricSliders());
-            $("#" + this.id + "selectClickMetrics").on('change', lang.hitch(this, function(){
-                lang.hitch(this, this.updateMetricSliders());
-            }));
+
             
             this.map.on("mouse-move", lang.hitch(this, function(evt){this.getCursorLatLong(evt);}));
             
@@ -822,18 +789,19 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 //            $("#" + this.id + "glanceXingDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Crossing"));}));
 //            $("#" + this.id + "glanceNetworkDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Network"));}));
             
+            //apply starting tab
+            if(this.obj.startingTab !==""){
+                lang.hitch(this, this.applyStartingTab()); 
+            }       
+            lang.hitch(this, this.fireResize());
             this.rendered = true;
+   
         },    
         
-
         
-        updateMetricSliders: function(){
-            
-                
-        },
-        
-        compareValues(key, order='asc') {
+        compareValues: function(key, order) {
             // function for sorting an array of objects
+            if (order === undefined){order= 'asc';}
             return function(a, b) {
                 if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
                   // property doesn't exist on either object
@@ -856,60 +824,46 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 );
             };
         },
-            
+        
+        applyStartingTab: function(){
+            var tabs = $("#" + this.id + "mainTabs").children().children();
+            $.each(tabs, lang.hitch(this, function(i, v){
+                if (v.id === this.id + this.obj.startingTab + "Tab"){
+                    document.getElementById(v.id).click();
+                }
+            }));
+        },
+        
         setupLayers: function(){
             this.glanceBarriers = new ArcGISDynamicMapServiceLayer(this.url);
             this.glanceBarriers.setVisibleLayers([this.config.glanceBarriersLayerID]);
-            this.map.addLayer(this.glanceBarriers);
-            
+            if (this.obj.stateSet === "no"){
+                this.map.addLayer(this.glanceBarriers);
+            }
+
             this.prioritizedBarriers = new ArcGISDynamicMapServiceLayer(this.url);
             this.prioritizedBarriers.setVisibleLayers([this.obj.startingPrioritizedLayerID]);
         },
         
-        selectBarrSeverity:function(v){
-            if (this.selectSeverityCounter === 0){
-                $("#" + this.id + "stateStatsExpander").trigger("click");
-            }
-            this.visibleLayers.push(parseInt(v));
-            this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);    
-            if (this.config.includeBarrierSeverity === true){this.currentSeverity = v;}
-            else{this.currentSeverity = "";}
-//            if (this.currentSeverity ==='0'){
-//                $("#" + this.id + "consensusRadarUse").hide();
-//                $("#" + this.id + "consensusRadarNoUse").show();
-//            }
-//            else{
-//                $("#" + this.id + "consensusRadarUse").show();
-//                $("#" + this.id + "consensusRadarNoUse").hide();
-//            }
-            console.log(this.visibleLayers);
 
-            if (this.selectSeverityCounter >0){            
-                lang.hitch(this, this.clearConsensusFilterMapService()); 
-                lang.hitch(this, this.refreshIdentify(this.config.url));
-            }
-
-            this.selectSeverityCounter++;
-
-        },
-        
-        
         glanceZoom: function(v, bool){
             if (v === undefined){var v = $("#" + this.id + "glanceZoom").val();}
-            console.log(v);
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
-            this.map.setExtent(zoomExt);
             
+            if (this.obj.stateSet === "no" || this.zoomCounter>2){
+                this.map.setExtent(zoomExt);
+            }
             lang.hitch(this, this.glanceStats(v));
+            this.zoomCounter ++;
 
-//            lang.hitch(this, this.refreshIdentify(this.config.url));
             
 
         },
         
         glanceStats: function(v){
-            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"+String(this.currentSeverity)]*0.000621371, 2);  
+            var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"]*0.000621371, 2);  
+
             $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
             $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
             $("#" + this.id + "glanceNetworks").text(avgNetRound);
@@ -917,12 +871,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
             lang.hitch(this, this.subsetExtent(v));
             
-            //This was an attempt to use a dynamic map service instead of feature layer.  But problmes with double legend
-//            if (this.glanceExtentCount >=1){
-//                lang.hitch(this, this.subsetBarriersDynamic(v, this.glanceBarriers, this.subsetGlanceBarriers, this.config.glanceBarriersLayerID));
-//            }
-//            this.glanceExtentCount ++;
-           
+
             //subset out the barriers in the active subextent
             if (this.glanceExtentCount >=1){
                 //make all barriers semi transparent
@@ -969,53 +918,33 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.subExtents.setDefinitionExpression(this.subExtentLayerDef);
             this.map.addLayer(this.subExtents);
         },
-        
-        subsetBarriersDynamic: function(extent, barriers, subsetBarriers, subsetBarriersID){
-            //make all barriers semi transparent
-            this.map.removeLayer(barriers);
-            barriers.opacity = 0.5;
-            this.map.addLayer(barriers);
-            
-          
-            if (subsetBarriers !== undefined){this.map.removeLayer(subsetBarriers);}
-            
 
-            if (extent !== this.regionName){
-                var subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + extent + "'";
-            }
-            else{var subsetBarriersLayerDef = "1 = 1";}
-           
-            //make a new Feature Layer for subset barriers & apply definition query
-            var layerDefs = [];
-            
-            layerDefs[this.config.glanceBarriersLayerID] = subsetBarriersLayerDef;
-            
-            subsetBarriers = new ArcGISDynamicMapServiceLayer(this.url);
-            subsetBarriers.setVisibleLayers([subsetBarriersID]);
-            subsetBarriers.setLayerDefinitions(layerDefs);
-            subsetBarriers.hideLayers = [subsetBarriersID];
-            this.map.addLayer(subsetBarriers);
-        },
         
         
         exploreZoom: function(){
             var v = $("#" + this.id + "exploreZoom").val();
-            console.log(v);
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
-            this.map.setExtent(zoomExt);
-//            lang.hitch(this, this.refreshIdentify(this.config.url));
+            
+            //two zoom happen programmatically on render -- glance and explore.
+            // in order to not overwrite saved extent from save & share, only
+            //fire zoom extent if not coming from saved state or there have already been
+            //2 zooms
+            if (this.obj.stateSet === "no" || this.zoomCounter>2){
+                this.map.setExtent(zoomExt);
+            }
             
             if (this.config.includeStratifiedRegions === true){
                 lang.hitch(this, this.selectStratification());
             }
+            this.zoomCounter ++;
         },
         
         scenarioSelection: function(v, bool){
             //change the radar metrics displayed when sceanrio is changed
             if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousMetricBars;}
             if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutMetricBars;}
-            console.log(scenarioRadarMetrics)
+ 
             lang.hitch(this, this.updateDefaultMetricBars(scenarioRadarMetrics));
    
             lang.hitch(this, this.selectStratification());
@@ -1034,16 +963,16 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
             if (stratify === "stratify-subregion"){
                 var primaryLayerKey = stratExtent + "_" + scenario;
-                var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
+                this.activeConsensusLayerID = this.config.stratifiedLayers[primaryLayerKey];
             }
             if (stratify === "stratify-region"){
                 var primaryLayerKey = this.config.stratifiedLayers["Region"] + "_" + scenario;
-                var primaryLayer = this.config.stratifiedLayers[primaryLayerKey];
+                this.activeConsensusLayerID = this.config.stratifiedLayers[primaryLayerKey];
             }
             console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
        
             this.subsetExtent(stratExtent);
-            this.visibleLayers = [primaryLayer];
+            this.visibleLayers = [this.activeConsensusLayerID];
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
 
 //            lang.hitch(this, this.clearConsensusFilterMapService());
@@ -1077,8 +1006,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.activateIdentify = "framework";
+            this.visibleTab = "glance";
             lang.hitch(this, this.refreshIdentify(this.config.url)); 
             lang.hitch(this, this.glanceZoom());
+            ga('send', 'event', {
+                eventCategory:this.config.analyticsEventTrackingCategory,        
+                eventAction: 'Tab click', 
+                eventLabel: "Glance tab click" 
+            }); 
         },
         
         exploreTabClick: function(){
@@ -1090,8 +1025,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.map.addLayer(this.prioritizedBarriers);
             this.activateIdentify = "consensus";
+            this.visibleTab = "explore";
             lang.hitch(this, this.refreshIdentify(this.config.url)); 
             lang.hitch(this, this.exploreZoom());
+            ga('send', 'event', {
+                eventCategory:this.config.analyticsEventTrackingCategory,        
+                eventAction: 'Tab click', 
+                eventLabel: "Explore tab click" 
+            });   
         },
         
         
@@ -1103,10 +1044,15 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
             this.activateIdentify = "custom";
+            this.visibleTab = "custom";
             if (this.resMapServ){
                 lang.hitch(this, this.refreshIdentify(this.resMapServ)); 
             }
-            
+            ga('send', 'event', {
+                eventCategory:this.config.analyticsEventTrackingCategory,        
+                eventAction: 'Tab click', 
+                eventLabel: "Custom tab click" 
+            }); 
         },
         
         exploreTabAccordClicks: function(){
@@ -1140,8 +1086,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 filterParameters.layerIds = [this.currentSeverity];
             }
             else{
-                //filterParameters.layerIds = this.obj.startingVisibleLayers;
-                //layerDefs[this.obj.startingVisibleLayers] = filter;
                 filterParameters.layerIds = this.visibleLayers;
                 layerDefs[this.visibleLayers] = filter;
                 
@@ -1221,7 +1165,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
             setTimeout(lang.hitch(this, function(){
-                this.map.addLayer(this.prioritizedBarriers);
+                if (this.stateSet === "No" || this.visibleTab === "explore"){
+                    this.map.addLayer(this.prioritizedBarriers);
+                }
             },500));        
             lang.hitch(this, this.refreshIdentify(this.config.url, this.consensusFilter));
 
@@ -1467,11 +1413,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 alert("Metric weights must sum to 100");
             }
             else{
-                ga('send', 'event', {
-                    eventCategory:this.config.analyticsEventTrackingCategory,        
-                    eventAction: 'submit click', 
-                    eventLabel: "Custom analysis on " + this.passability
-                 });   
+                 
                  
                 //clear old map graphics and results table
                 this.map.graphics.clear();
@@ -1517,7 +1459,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.summarizeBy = $("#" + this.id + "summarizeBy").val();
                 this.sumStatField = $("#" + this.id + "summaryStatField").val();
                 
-                
+                if ($("input[name='useConsensusWeights']:checked").val() === "no"){this.customWeights = true;}
 
                 
                 if ($("#" + this.id + "exportCustomCSV").is(":checked")){
@@ -1566,6 +1508,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 console.log(this.requestObject);
                 this.statusCallbackIterator = 0;
                 
+                //Google analytics.  Make a string to indicate what parameters were modified
+                if (this.filterBarr === true){var useFilt = "Filter";} else{var useFilt = "";}
+                if (this.removeBarr === true){var modRem = "Remove";} else{var modRem = "";}
+                if (this.runSumStats === true){var sumStats = "Stats";} else{var sumStats = "";}
+                if (this.customWeights === true){var custWeights = "Weights";} else{var custWeights = "";}
+                var customParams = useFilt+custWeights+modRem+sumStats;
+                ga('send', 'event', {
+                    eventCategory:this.config.analyticsEventTrackingCategory,        
+                    eventAction: 'Custom analysis submit click', 
+                    eventLabel: "Custom analysis: " + customParams 
+                 });  
+                 
                 this.gp.submitJob(this.requestObject, lang.hitch(this, this.completeCallback), lang.hitch(this, this.statusCallback), lang.hitch(this, function(error){
                         alert(error);
                         //re-enable Submit button for subsequent analyses
@@ -1740,7 +1694,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $("#" + this.id + "gpSumStatsTable > tbody:last-child").append(dStr2); 
                 console.log(dStr2);
                 $('#' + this.id + 'gpSumStatsTableDivContainer').show();    
-                
             },
 
 
@@ -1793,8 +1746,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     //analytics event tracking
                     ga('send', 'event', {
                        eventCategory:this.config.analyticsEventTrackingCategory,        
-                       eventAction: 'changing radar metrics', 
-                       eventLabel: 'changing radar metrics'
+                       eventAction: 'changing metric bars', 
+                       eventLabel: 'changing metric bars'
                     });
                 }
             }));
@@ -1970,9 +1923,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     }
                 }));
                 
-
-				
-				
                 //turn on by default if config says to
                 if (v[4] === "on" || this.obj.startingAdditionalLayers[v[0]] === "on"){$("#" + this.id + v[0]).trigger("click");}
             }));
@@ -1982,15 +1932,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 var ischecked = $("#"+ this.id + "barriers").is(':checked');
                 if (ischecked) {
                     this.map.addLayer(this.prioritizedBarriers);
-                    //Commented out so that don't turn on custom popup and radar every time primary layer is turned on
-                    //this.activateIdentify = "consensus";
-                    //lang.hitch(this, this.refreshIdentify(this.url));
                     $("#" + this.id + "barrierstransp").show();
                 }
                 else{
                     this.map.removeLayer(this.prioritizedBarriers);
-                    //this.activateIdentify = "framework"; 
-                    //this.refreshIdentify();
                     $("#" + this.id + "barrierstransp").hide();
                 }
             }));
