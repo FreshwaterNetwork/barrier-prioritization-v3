@@ -590,7 +590,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
                 //Start custom analysis 
                 $('#' + this.id +"submitButton").on('click',lang.hitch(this,function(e){
-                    console.log("clicked gp button");                     
+//                    console.log("clicked gp button");                     
                     this.submit();
                 }));
                 //Canel custom analysis
@@ -1084,12 +1084,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         exploreTabAccordClicks: function(){
             if ($("#" + this.id +"additionalLayersContainer").is(":visible")===false){
-                console.log("true");
+//                console.log("true");
                 this.activateIdentify = "consensus";
                 lang.hitch(this, this.refreshIdentify(this.config.url));   
             }
             else{                   
-                console.log("false");	                    	
+//                console.log("false");	                    	
                 this.activateIdentify = "framework";
                 lang.hitch(this, this.refreshIdentify(this.config.url));              	
             }    
@@ -1906,7 +1906,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                             '<div class="check"></div>' +
                             '<span class="form-text">' + k + '</span>' +
                         '</label>' +
-                        '<span class="fa fa-info-circle info" title="' + v[3] + '"></span>' +
+                        '<span class="fa fa-info-circle info bp_infoIcon" title="' + v[3] + '"></span>' +
                         '<div class="bp_transparency-control" data-layer="' + v[0] + '" id="' + this.id + v[0] +  'transp" data-opacity="100">' +
                             '<span class="bp_transparency-header">Transparency</span>' +
                             '<div class="bp_transparency-label"><span class="value">100%</span></div>' +
@@ -2051,7 +2051,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },                   
         
         refreshIdentify: function(layerURL, layerDef) { 
-            console.log("identify active = " +this.activateIdentify);
+//            console.log("identify active = " +this.activateIdentify);
             
             this.idLayerURL = layerURL;
             if (this.activateIdentify === "framework"){ 
@@ -2060,7 +2060,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 dojo.disconnect(this.identifyClick);
             }
             if (this.activateIdentify === "consensus" || this.activateIdentify === "custom"){
-                console.log("visible layers = " + this.visibleLayers);
+//                console.log("visible layers = " + this.visibleLayers);
             	//this is the custom identify w/ radar
             	this.allowIdentifyWhenActive = false;
                 dojo.disconnect(this.identifyClick);
@@ -2072,7 +2072,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.identifyParams.returnGeometry = true;
                 if (layerURL === this.config.url){
                     var visLayer = this.visibleLayers;
-                    console.log("querying layer # " + visLayer);
+//                    console.log("querying layer # " + visLayer);
                 }
                 else{var visLayer = 0;}
           
@@ -2082,11 +2082,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     var idLayer = parseInt(this.currentSeverity);
                 }
                 else{var idLayer = 0;}
-                console.log(idLayer);
-                console.log(visLayer);
+//                console.log(idLayer);
+//                console.log(visLayer);
                 if (layerDef !== undefined){
                     this.identifyParams.layerDefinitions[idLayer] = layerDef;
-                    console.log("layer def= " + this.identifyParams.layerDefinitions);
+//                    console.log("layer def= " + this.identifyParams.layerDefinitions);
                 }
                 else if (this.consensusFilter !== []){
                     this.identifyParams.layerDefinitions[idLayer] = this.consensusFilter;
@@ -2103,14 +2103,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
             
         doIdentify: function(evt){
-            console.log(evt);
+//            console.log(evt);
             if (this.activateIdentify === "consensus" && this.firstIdentify === 0){
                 $("#" + this.id + "clickMetricsContainer").show();
                 $("#" + this.id + "clickInstructions").hide();
             }
             if (this.activateIdentify === "consensus" || this.activateIdentify === "custom"){
-                console.log("LayerDefs = " + this.identifyParams.layerDefinitions);
-                console.log("Layer IDs = " + this.identifyParams.layerIds);
+//                console.log("LayerDefs = " + this.identifyParams.layerDefinitions);
+//                console.log("Layer IDs = " + this.identifyParams.layerIds);
                 this.identifyRes = new IdentifyTask(this.idLayerURL);
                 this.identifyParams.geometry = evt.mapPoint;
                 this.identifyParams.mapExtent = this.map.extent;
@@ -2119,9 +2119,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.identifyRes        
                     .execute(this.identifyParams)
                     .addCallback(lang.hitch(this, function (response) {
-                        console.log(response);
+//                        console.log(response);
                         if (this.identifyIterator ===0 && response[0].feature){
-                            console.log(response[0].feature);
+//                            console.log(response[0].feature);
                             if (this.activateIdentify === "consensus"){
                                 lang.hitch(this, this.displayIDResult(response[0].feature, this.identifyParams.geometry));
                             }
