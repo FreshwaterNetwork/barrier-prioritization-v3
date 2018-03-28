@@ -16,7 +16,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
         <div role="tabpanel" class="tab-pane active" id="glance">
             <h2 class="sidebar-content-heading">At a Glance</h2>
             <div>
-                <p>Select a watershed to get some quick facts about the state of aquatic connectivity in that watershed.</p>
+                <p>Select a watershed to get some quick facts about the state of aquatic connectivity in that watershed. Click the "Explore" tab above to take a deeper dive on the data.</p>
             </div>
             <section>
                 <div class="bp_lightGrayDiv1">
@@ -40,7 +40,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 <div class="bp_glanceStats" id="glanceDamDiv">
                     <img src="plugins/barrier-prioritization-v3/images/damStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Number of dams">   
                     <div class="bp_glanceStatsContainer">    
-                        <h2 id="glanceDams">152</h2>
+                        <h2 id="glanceDams"></h2>
                         <h3>Number of Dams</h3>
                         
                     </div>
@@ -53,8 +53,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 <div class="bp_glanceStats" id="glanceXingDiv">
                     <img src="plugins/barrier-prioritization-v3/images/xingStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Number of crossings">
                     <div class="bp_glanceStatsContainer">    
-                        <h2 id="glanceXings">1,955</h2>
-                        <h3>Number of Crossings</h3>
+                        <h2 id="glanceXings"></h2>
+                        <h3>Number of Public Crossings</h3>
                     </div>
 <!--                    <div class="bp_glanceStatsContainerRight">
                         <img src="plugins/barrier-prioritization-v3/images/rightArrow.PNG" height="30" > 
@@ -65,7 +65,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 <div class="bp_glanceStats" id="glanceNetworkDiv">
                     <img src="plugins/barrier-prioritization-v3/images/netStatsIcon.PNG" width="75" style="padding-top: 10px;" alt="Connected network length">
                     <div class="bp_glanceStatsContainer">    
-                        <h2 id="glanceNetworks">4.86</h2>
+                        <h2 id="glanceNetworks"></h2>
                         <h3>Avg Network Length (Miles)</h3>
                     </div>
 <!--                    <div class="bp_glanceStatsContainerRight">
@@ -145,7 +145,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <div class="bp_flexRow"><p style="font-weight: 700">Type:  &nbsp</p><p id="clickBarrierType"></p></div>
                                     </div>
                                     <div  style="width: 120px;">
-                                        <div class="bp_flexRow"><p style="font-weight: 700">Passability:  &nbsp</p><p id="clickBarrierPassability"></p></div>                         
+                                        <div class="bp_flexRow"><p style="font-weight: 700"><a href="plugins/barrier-prioritization-v3/images/Passability.pdf" onClick="return windowPopup(this, 'def', 'width=660,height=590,scrollbars=yes')">Passability</a>:  &nbsp</p><p id="clickBarrierPassability"></p></div>                         
                                     </div>
                                 </div>
                                 <div class="bp_flex">
@@ -277,42 +277,46 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     </div>
                     <h3>Documentation</h3>
                     <div>
-                        <h4 style="text-align:center">Welcome to the Penobscot Habitat Focus Area barrier prioritization tool</h4>
+                        <p>
+                            <strong>The fragmentation </strong>of river habitats through dams and poorly functioning culverts is one of the primary threats to aquatic species in the United States.  The impact of fragmentation on aquatic species generally involves loss of access to quality habitat for one or more life stages of a species.  For example, dams and impassable culverts limit the ability of diadromous fish species to reach preferred freshwater spawning habitats from the sea and prevent brook trout populations from reaching thermal refuges. 
+                        </p> 
                         <figure >
                             <img src="plugins/barrier-prioritization-v3/images/dam.jpg" ></img>
                             <figcaption style="font-size:10px">Dam on the Presumpscot River, Maine.  &copy; Paul Noble Photography <a href="https://creativecommons.org/licenses/by-nc-nd/2.0/">Flickr Creative Commons</a>.</figcaption>
                         </figure>
-                        <p>
-                            <strong>The fragmentation </strong>of river habitats through dams and poorly functioning culverts is one of the primary threats to aquatic species in the United States.  The impact of fragmentation on aquatic species generally involves loss of access to quality habitat for one or more life stages of a species.  For example, dams and impassable culverts limit the ability of anadromous fish species to reach preferred freshwater spawning habitats from the sea and prevent brook trout populations from reaching thermal refuges. 
-                        </p> 
                         <br/>
                         <p>
                             This app can be used to explore the barriers to aquatic connectivity -- dams and road stream crossings -- in the Penobscot River Basin, Maine.  
                         </p>
                             <figure >
                                 <img src="plugins/barrier-prioritization-v3/images/culverts.png" ></img>
-                                <figcaption style="font-size:10px">Culverts showing different kinds connectivity problems including outlet drop, high water velocity, low water depth, flowconstriction and inlet drop.  &copy; <a href="https://streamcontinuity.org/">NAACC</a>.</figcaption>
+                                <figcaption style="font-size:10px">Culverts showing different kinds connectivity problems including outlet drop, high water velocity, low water depth, flow constriction and inlet drop.  &copy; <a href="https://streamcontinuity.org/">NAACC</a>.</figcaption>
                             </figure>
+                            <br/>    
                             <p>
-                                Begin by clicking the "Start Using Aquatic Barrier Prioritization" button above.  Then select a state to see a sumamry of the status of aquatic connectivity in that state based on the number of dams and road-stream crossings and the average length of the connected river network that results from these barriers.
-                            </p>
+                                Begin by selecting the entire Penobscot basin or subwatershed to zoom to to, and a prioritization scenario to display.  The "diadromous" scenario prioritizes barriers for their potential to benefit diadromous fish species if removed or bypassed, while the "brook trout" scenario does the same for brook trout.  If working with a subwatershed, the results can be displayed relative to the entire Penobscot basin, or only relative to that subwatershed.  If the results are displayed relative to the subwatershed, only barriers within the subwatershed will be displayed.  
+                            </p>                   
                             <br/>
                             <p>
-                                Click on an individual barrier to get a summary of its ecological attribtues.  A subset of the available attribtues were used to develop a multi-stakeholder consensus prioritization for anadromous fish like American shad, river herring, and Atlantic salmon. 
+                                Click on an individual barrier to get a summary of its ecological attributes.  A subset of the available attributes were used to develop a multi-stakeholder consensus prioritization for anadromous fish like Atlantic salmon and alewife. 
                             </p>
                             <br/>
                         <h4>Interpreting the barrier data &amp; results</h4>
                         <div>
                             <p>
-                                When a barrier is clicked, the name of the barrier, it"s unqiue identifier, the severity of the barrier (passability), and the result Tier from the consensus anadormous prioritization scneario are displayed.  A Tier 1 barrier is the highest priorty -- most potential gained from a passage restoration project -- while a Tier 20 barrier is the lowest priority.
+                                When a barrier is clicked on the "Explore" tab, the name of the barrier, it's unique identifier, and other identifying information about the barrier are displayed on the left side of map.  A Tier 1 barrier is the highest priority -- most potential gained from a passage restoration project -- while a Tier 20 barrier is the lowest priority.
                             </p>
                             <br/>
                             <p>
-                                Additionally, a "radar" plot of the barrier"s attributes is displayed.  This radar plot is designed to provide a quick and intuitive way to visualize the qualities of that barrier.  Each attribute is arranged so that values that are desirable in a passage restoration project are at the margin of the plot.  For example, a barrier that has the potential to open up 200 miles of habitat would have a value towards the margin of the plot since opening up a lot of upstream abitat is desirable in a passage restoration project for anadromous fish.  Likewise a barrier with 0% impervious surface in its watershed would have a a value at the margin of the plot since no impervious surface (urban paved landcover) is a proxy for good quality.
+                                Below the barrier's identifying information, several of the barrier"s attributes is displayed using sliders.  These sliders are designed to provide a quick and intuitive way to visualize the relative performance of a barrier versus the other barriers in the scenario.  Each slider bar is arranged so that values that are desirable in a passage restoration project are on the left side of the bar.  For example, a barrier that has the potential to open up 200 miles of habitat would have a value towards the right side of the slider bar since opening up a lot of upstream habitat is desirable in a passage restoration project for diadromous fish.  
                             </p>
-                            <div class="bp_flexColHCenter"><img src="plugins/barrier-prioritization-v3/images/radar.png"></div>
+                            <div class="bp_flexColHCenter"><img src="plugins/barrier-prioritization-v3/images/metricBars.png" width="275"></div>
                             <p>
-                                The axes of the radar plot are normalized relative to the other barriers.  Thus, using the example from above, if the "best" barrier has 2% impervious surface in its watershed, it would have its value at the margin of the plot.  Hovering over the red dot that denotes the value will display the real-world value for that metric.
+                                The slider bars are set up relative to the other barriers in the scenario.  Thus, using the example from above, if the "best" barrier in the currently displayed prioritization would open up 200 miles of river habitat, its metric bar for Upstream Functional Network would be all the way to the right.  The real-world value for each metric are displayed above each metric bar, along with a link to a description of the metric.
+                            </p>
+                            <br/>
+                            <p>
+                                Several metrics are derived from the 'passability' score of a barrier.  This score ranges from 0-1 where 0 is a complete barrier (e.g. a dam with no fish passage or a culvert with an outlet perch) and 1 is fully passable (e.g. a bridge with ample span).  Details on the methods that were used to develop the passability score are details <a href="plugins/barrier-prioritization-v3/images/FishPassageCoarseScreenForMaineCulverts.pdf" target="_blank" class="bp_link">here</a>. 
                             </p>
                         </div>
                     </div> 

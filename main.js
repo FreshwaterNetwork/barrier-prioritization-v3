@@ -42,24 +42,45 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         // Called after initialize at plugin startup (why the tests for undefined). Also called after deactivate when user closes app by clicking X. 
         hibernate: function () {
             if (this.appDiv !== undefined){
-                this.prioritizedBarriers.setVisibleLayers([-1]);
+                console.log("hibernating")
+                this.map.removeLayer(this.prioritizedBarriers);
+                this.map.removeLayer(this.glanceBarriers);
+                if (this.subExtents){    
+                    this.map.removeLayer(this.subExtents);
+                }
+                if (this.subsetBarriers){
+                    this.map.removeLayer(this.subsetBarriers);
+                }  
+                if (this.gpResLayer){
+                    this.map.removeLayer(this.gpResLayer);
+                }
+                console.log(this.visibleTab)
+                this.hibernating = "yes";
             }
             this.open = "no";
+            
             
             
         },
         // Called after hibernate at app startup. Calls the render function which builds the plugins elements and functions.   
         activate: function () {
-            //$('#' + this.id + 'mainAccord').css("display", "none");
             if (this.rendered === false) {
                 this.rendered = true;                            
                 this.render();
-                $(this.printButton).hide();
             }else{
-                
                 $('#' + this.id).parent().parent().css('display', 'flex');
                 this.clicks.updateAccord(this);
             }    
+            
+            if (this.hibernating === "yes"){
+
+                lang.hitch(this, this.applyStartingTab(this.visibleTab)); 
+                var id = "#" + this.id + this.visibleTab + "Tab";
+                console.log(id);
+                document.getElementById(id).click();
+               
+            } 
+
             this.open = "yes";
         },
         
@@ -175,7 +196,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },    
         // Called by activate and builds the plugins elements and functions
         render: function() {  
-            //TODO uncomment Google analytics and paste analytics property ID back into region.json 7401895-16 
+            //first render: not coming out of hibernation
+            if (this.hibernating !== 'yes'){
+                this.visibleTab = "glance";
+            }
             
 
             this.mapScale  = this.map.getScale();
@@ -790,9 +814,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 //            $("#" + this.id + "glanceNetworkDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Network"));}));
             
             //apply starting tab
-            if(this.obj.startingTab !==""){
-                lang.hitch(this, this.applyStartingTab()); 
-            }       
+            if(this.obj.startingTab !=="" ){
+                lang.hitch(this, this.applyStartingTab(this.obj.startingTab)); 
+            }  
+        
+            
             lang.hitch(this, this.fireResize());
             this.rendered = true;
    
@@ -825,10 +851,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             };
         },
         
-        applyStartingTab: function(){
+        applyStartingTab: function(tab){
+            console.log("applying starting tab")
             var tabs = $("#" + this.id + "mainTabs").children().children();
             $.each(tabs, lang.hitch(this, function(i, v){
-                if (v.id === this.id + this.obj.startingTab + "Tab"){
+                if (v.id === this.id + tab + "Tab"){
                     document.getElementById(v.id).click();
                 }
             }));
@@ -865,7 +892,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             var avgNetRound = this.round(this.config.zoomTo[v][1]["avgNetwork"]*0.000621371, 2);  
 
             $("#" + this.id + "glanceDams").text(this.config.zoomTo[v][1]["dams"]);    
-            $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"+String(this.currentSeverity)]);
+            $("#" + this.id + "glanceXings").text(this.config.zoomTo[v][1]["crossings"]);
             $("#" + this.id + "glanceNetworks").text(avgNetRound);
             
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
@@ -2391,8 +2418,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
            
             }));        
             
-            //if using radar plot, don't show metric values in popup
-     
+            
             
             var tierName = this.config.resultTier;
             this.customClickHeader = "Name: " + this.customAllClickData[this.config.barrierNameField] +
