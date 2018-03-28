@@ -1,5 +1,4 @@
 {
-	"visibleLayers": [0],
 	"accordVisible": "",
 	"accordHidden": "",
 	"accordActive": 0,
@@ -9,12 +8,16 @@
 	"getStarted" : "open",
 	
 	"startingAdditionalLayers":{	
-		"barrType":"off",
-		"huc12s":"off",
-		"salmonCH":"off",
-		"rivers":"off"
+            "barrType":"off",
+            "huc12s":"off",
+            "huc10s":"off",
+            "huc8s":"off",
+            "salmonCH":"off",
+            "rivers":"off",
+            "falls" : "off"   
 	},
-	"startingVisibleLayers":[0],
+	"startingPrioritizedLayerID":[0],
+        "startingVisibleLayers":"",
 	"startingMapLayers" : false,
 	"startingFilter" : "",
 	"startingPassability" : "Dams",
@@ -23,23 +26,28 @@
 	"startingUseFilter" : false,
 	"startingSummarizeBy" : "",
 	"startingSummaryStatField" : "",
-	"startingZoomState" : "",
+	"startingGlanceZoom" : "",
+        "startingExploreZoom" : "",
+        "startingExploreScenario" : "",
+        "startingStratifyRegion" : "",
+        "startingTab" :"",
 	"startingConsensusTierFilterMin":1,
 	"startingConsensusTierFilterMax":20,
 	"startingConsensusSeverityFilterMin":1,
 	"startingConsensusSeverityFilterMax":5,
 	"startingUseConsensusCustomFilter":false,
 	"startingConsensusCustomFilter":"",
-	"startingRadarMetrics" : [
-		"batFuncUS",
-		"HUC10_CritSalmHab",
-		"alewifeAcres",
-		"batCountDS",
-		"US_SalmHabUnits",
-		"SeaRunBT",
-		"InvasiveBarrierConfirmed",
-		"DMRSalmonPriority",
-		"usSmeltPriority"
+	"startingBarMetrics" : [
+            "batFuncUS",
+            "alewifeAcres",
+            "batCountDS",
+            "US_SalmHabUnitsWeighted",
+            "InvasiveBarrierConfirmed",
+            "DMRSalmonPriority",
+            "cumulativeSalmHabUnits",
+            "dsPassabilityProduct",
+            "HUC10_Habitat_Units",
+            "cumulativeUSNet"
 	],
 	"startingWeights" : {}
 }
