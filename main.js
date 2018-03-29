@@ -55,10 +55,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 if (this.gpResLayer){
                     this.map.removeLayer(this.gpResLayer);
                 }
-           
-                this.subsetBarriers= "off";
                 this.subExtents= "off";
-              
                 this.hibernating = "yes";
             }
             this.open = "no";
@@ -904,11 +901,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 
                 //make a new Feature Layer for subset barriers & apply definition query
                 if(this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);}
-                if ((!this.subsetBarriers || this.subsetBarriers === "off" )&& v !== this.regionName){
-                    this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
-                }
-                if (v !== this.regionName && this.subsetBarriers !== "off"){
-                    this.map.removeLayer(this.glanceBarriers);
+                this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
+                
+                if (v !== this.regionName ){
                     this.glanceBarriers.opacity = 0.5;
                     this.map.addLayer(this.glanceBarriers);
                     this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
@@ -922,10 +917,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         subsetExtent: function(v){
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
-            console.log(this.subExtents);
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
             if (!this.subExtents || this.subExtents === "off"){
-                console.log("making new subextent")
                 this.subExtents = new FeatureLayer(this.url +"/" + this.config.subExtentLayerID);
             }
             
@@ -1055,6 +1048,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             lang.hitch(this, this.fireResize());
             if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
+            this.subExtents = "off";
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
