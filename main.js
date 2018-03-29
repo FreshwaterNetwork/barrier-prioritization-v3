@@ -42,19 +42,23 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         // Called after initialize at plugin startup (why the tests for undefined). Also called after deactivate when user closes app by clicking X. 
         hibernate: function () {
             if (this.appDiv !== undefined){
-                console.log("hibernating")
+                console.log("hibernating");
+
                 this.map.removeLayer(this.prioritizedBarriers);
                 this.map.removeLayer(this.glanceBarriers);
-                if (this.subExtents){    
-                    this.map.removeLayer(this.subExtents);
-                }
+                   
+                this.map.removeLayer(this.subExtents);
+                
                 if (this.subsetBarriers){
                     this.map.removeLayer(this.subsetBarriers);
                 }  
                 if (this.gpResLayer){
                     this.map.removeLayer(this.gpResLayer);
                 }
-                console.log(this.visibleTab)
+           
+                this.subsetBarriers= "off";
+                this.subExtents= "off";
+              
                 this.hibernating = "yes";
             }
             this.open = "no";
@@ -73,12 +77,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }    
             
             if (this.hibernating === "yes"){
-
-                lang.hitch(this, this.applyStartingTab(this.visibleTab)); 
-                var id = "#" + this.id + this.visibleTab + "Tab";
-                console.log(id);
-                document.getElementById(id).click();
-               
+                lang.hitch(this, this.applyStartingTab(this.visibleTab));    
             } 
 
             this.open = "yes";
@@ -808,11 +807,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 lang.hitch(this, this.scenarioSelection(v));
             }));  
             
-            //handle click when at-a-glance divs are clicked for more info on dams, xings, etc
-//            $("#" + this.id + "glanceDamDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Dam"));}));
-//            $("#" + this.id + "glanceXingDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Crossing"));}));
-//            $("#" + this.id + "glanceNetworkDiv").click(lang.hitch(this, function(){lang.hitch(this, this.glanceStatClick("Network"));}));
-            
+
             //apply starting tab
             if(this.obj.startingTab !=="" ){
                 lang.hitch(this, this.applyStartingTab(this.obj.startingTab)); 
@@ -885,7 +880,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.zoomCounter ++;
 
             
-
         },
         
         glanceStats: function(v){
@@ -902,45 +896,39 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //subset out the barriers in the active subextent
             if (this.glanceExtentCount >=1){
                 //make all barriers semi transparent
-                this.map.removeLayer(this.glanceBarriers);
-                this.glanceBarriers.opacity = 0.5;
-                this.map.addLayer(this.glanceBarriers);
+                if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
+                if (v === this.regionName){
+                    this.glanceBarriers.opacity = 1;
+                    this.map.addLayer(this.glanceBarriers);
+                }   
                 
                 //make a new Feature Layer for subset barriers & apply definition query
-                if (this.subsetBarriers === undefined){
+                if(this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);}
+                if ((!this.subsetBarriers || this.subsetBarriers === "off" )&& v !== this.regionName){
                     this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
                 }
-                if (v !== this.regionName){
+                if (v !== this.regionName && this.subsetBarriers !== "off"){
+                    this.map.removeLayer(this.glanceBarriers);
+                    this.glanceBarriers.opacity = 0.5;
+                    this.map.addLayer(this.glanceBarriers);
                     this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+                    this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef);
+                    this.map.addLayer(this.subsetBarriers);   
                 }
-                else{this.subsetBarriersLayerDef = "1 = 1";}
-                this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef);
-                this.map.addLayer(this.subsetBarriers);   
             }
-            this.glanceExtentCount ++;
-        
+            this.glanceExtentCount ++;       
         },
 
-        glanceStatClick: function(features){
-            console.log(features);
-            var v = $("#" + this.id + "glanceZoom").val();
-            //add a feature layer of the barriers in that extent
-            if (this.subsetBarriers === undefined){
-                this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
-            }
-            this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "' and Type ='" + features + "'";
-            this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef);
-            var symbol = new SimpleMarkerSymbol().setColor(new Color([255,0,0,0.5]));
-            var renderer = new SimpleRenderer(symbol);
-            this.subsetBarriers.setRenderer(renderer);
-            this.map.addLayer(this.subsetBarriers);
-        },
         
         subsetExtent: function(v){
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
-            if (this.subExtents === undefined){
+            console.log(this.subExtents);
+            if (this.subExtents){this.map.removeLayer(this.subExtents);}
+            if (!this.subExtents || this.subExtents === "off"){
+                console.log("making new subextent")
                 this.subExtents = new FeatureLayer(this.url +"/" + this.config.subExtentLayerID);
             }
+            
             this.subExtentLayerDef = this.config.subExtentNameField + " = '" + v + "'";
             this.subExtents.setDefinitionExpression(this.subExtentLayerDef);
             this.map.addLayer(this.subExtents);
@@ -1028,8 +1016,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         glanceTabClick: function(){
             console.log("glance tab click");
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
-            if (this.subsetBarriers){this.map.addLayer(this.subsetBarriers);} 
-            if (this.subExtents){this.map.addLayer(this.subExtents);}
+            if (this.subsetBarriers && this.subsetBarriers!== "off"){this.map.addLayer(this.subsetBarriers);} 
+            if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.activateIdentify = "framework";
@@ -2120,7 +2108,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     .execute(this.identifyParams)
                     .addCallback(lang.hitch(this, function (response) {
 //                        console.log(response);
-                        if (this.identifyIterator ===0 && response[0].feature){
+                        if (this.identifyIterator ===0 && response[0]){
 //                            console.log(response[0].feature);
                             if (this.activateIdentify === "consensus"){
                                 lang.hitch(this, this.displayIDResult(response[0].feature, this.identifyParams.geometry));
