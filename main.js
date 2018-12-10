@@ -38,6 +38,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.selectSeverityCounter = 0;
             this.zoomCounter=0;
             
+            ga('send', 'event', {
+                eventCategory:this.config.analyticsEventTrackingCategory,        
+                eventAction: 'App open', 
+                eventLabel: "App open" 
+            }); 
         },
         // Called after initialize at plugin startup (why the tests for undefined). Also called after deactivate when user closes app by clicking X. 
         hibernate: function () {
@@ -2279,7 +2284,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.clickHeader += "<br/>" + this.allClickData[this.config.severityField];
             }           
             
-
             if (this.config.includeFactSheets === true){
             	this.clickHeader += "<br/><a target='_blank' href='plugins/barrier-prioritization-v3/factSheets/" + this.allClickData[this.config.uniqueID] + ".pdf'>Fact Sheet</a>";
             }
@@ -2303,7 +2307,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.infoWindow.show(point);            
             this.map.infoWindow.resize(300,400); //switching to framework identify can cause this popup to resize wrong.  So be explicit    
             this.map.infoWindow.setFeatures([idResult]);
-               
         },            
 
         displayCustomIDResult: function(idResult, point){
