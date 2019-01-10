@@ -1,5 +1,5 @@
 {
-    "url": "httpd://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer",
+    "url": "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer",
     "removeSelectionURL" : "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer/20",
     "gpURL":"https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
     "includeCustomAnalysis" : true,
