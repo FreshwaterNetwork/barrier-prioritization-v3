@@ -51,7 +51,9 @@
     display: flex; 
     flex-wrap: wrap;
 }
-
+.dijitDialog {
+    background: none repeat-x scroll left top #FFFFFF;
+}
 .bp_flexColHCenter{
     /*height: 100%;*/
     padding: 0;

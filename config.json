@@ -1,7 +1,7 @@
 {
-    "url": "http://maspatial.tnc.org/arcgis/rest/services/MEFO/Statewide_Prioritization/MapServer",
-    "removeSelectionURL" : "http://maspatial.tnc.org/arcgis/rest/services/MEFO/Statewide_Prioritization/MapServer/120",
-    "gpURL":"http://maspatial.tnc.org/arcgis/rest/services/MEFO/Statewide_Prioritize/GPServer/Prioritize",
+    "url": "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer",
+    "removeSelectionURL" : "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer/120",
+    "gpURL":"https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
     "includeCustomAnalysis" : true,
     "includeSurveyPageLink" : false,
     "includeFERC": false,
@@ -216,6 +216,13 @@
         "Insignificant":"Use_Insignificant"
     },
 
+    "scenarioNotes" : {
+        "coastal" : ["Coastal Anadromous Fish", "The coastal anadromous fish scenario is focused on identifying priority passage projects for sea-run brook trout, smelt, and other species move between smaller coastal streams and the ocean. Only barriers that are on coastal streams (those that drain less than 100 sq miles and whose mouth is in tidal waters) are prioritized in this scenario. Road-stream crossings that are themselves on tidal waters are also excluded from this prioritization because of uncertainties and variabilities surrounding passage at tidal crossings."],
+        "alewife" : ["Alewife", "The alewife scenario prioritizes barriers whose removal could most benefit alewife.  Only those barriers that have alewife spawning ponds upstream of them are prioritized."],
+        "inlandBKT" : ["Inland Brook Trout", "The inland brook trout scenario prioritizes inland barriers for their potential to benefit Eastern brook trout if removed/improved passage. Coastal barriers are excluded from this analysis (see the coastal anadromous scenario for a prioritization of barriers for sea-run brook trout).   Some of the metrics that are used in thsi scenario are not available for barriers on larger rivers.  Therefore, these barriers (generally dams) are also excldued from this scenario."],
+        "salmon" : ["Salmon", "The salmon scenario prioritizes barriers that could benefit salmon if removed/improved passage.  All barriers are included in this scenario."],
+        "shadBBH" : ["American Shad / Blueback Herring", "The salmon scenario prioritizes barriers that could benefit American shad and blueback herring if removed/improved passage.  All barriers are included in this scenario."]
+    },
 
     "coastalMetricBars" : [
             "batFuncUS",

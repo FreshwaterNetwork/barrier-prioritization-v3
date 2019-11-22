@@ -17,6 +17,7 @@
             "falls" : "off"   
 	},
 	"startingPrioritizedLayerID":[23],
+        "startingPrioritizedLayerName":"alewife",
         "startingVisibleLayers":"",
 	"startingMapLayers" : false,
 	"startingFilter" : "",
@@ -39,15 +40,11 @@
 	"startingConsensusCustomFilter":"",
 	"startingBarMetrics" : [
             "batFuncUS",
-            "alewifeAcres",
+            "usAlewifeAcres",
             "batCountDS",
-            "US_SalmHabUnitsWeighted",
-            "InvasiveBarrierConfirmed",
-            "DMRSalmonPriority",
-            "cumulativeSalmHabUnits",
-            "dsPassabilityProduct",
-            "HUC10_Habitat_Units",
-            "cumulativeUSNet"
+            "DSFishways",
+            "DA_PercFor",  
+            "dsPassabilityProduct"
 	],
 	"startingWeights" : {}
 }

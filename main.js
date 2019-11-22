@@ -8,11 +8,11 @@ define([
     "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html",  './js/clicks', 
     'dojo/text!./config.json', 'dojo/text!./filters.json', 'dojo/text!./photos.json',"esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
-     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask", "esri/layers/LayerInfo"
+     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask", "esri/layers/LayerInfo", "dijit/Dialog"
 ],
 function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content,  Clicks,  config, 
     filters, photos, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
-    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask, LayerInfo) {
+    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask, LayerInfo, Dialog) {
     return declare(PluginBase, {
         // The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
         toolbarName: "Aquatic Barrier Prioritization", showServiceLayersInLegend: true, allowIdentifyWhenActive: true, rendered: false, resizable: false,
@@ -35,6 +35,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.gp.setUpdateDelay(200); //status check in milliseconds;
             this.barriers2RemoveCount = 0;   
             this.glanceExtentCount = 0;
+            this.exploreTabCounter = 0;
             this.selectSeverityCounter = 0;
             this.zoomCounter=0;
             
@@ -142,7 +143,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                             var m = v.id.replace(this.id + "weightIn-", "");
                             this.obj.startingWeights[m] = parseInt(v.value, 10);                
                      }));
-                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
+                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();  
+                    console.log(this.obj.startingWeights)
                 }
                 
                 if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
@@ -221,7 +223,27 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 return false;
                 
             };
+            //set up a counter so the notes about the scenario are only displayed once
+            const keys = Object.keys(this.config.scenarioNotes);
+            this.scenNoteCounter = {};
+            for (const key of keys) {
+              this.scenNoteCounter[key] = 0;
+            }
             
+            this.scenarioDialog = new Dialog({
+	    	id: "scenarioDialog",
+	        style: {
+                    width : "500px",
+                    maxWidth: "700px",
+                    overflow: "hidden",
+                    border: "1px",
+                    background:"white",
+                    opacity: "0.5",
+                    borderRadius: "5px"
+	        }
+	    });
+            
+             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
             this.appDiv = new ContentPane({style:'padding:0; color:#000; flex:1; display:flex; flex-direction:column;}'});
@@ -242,7 +264,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //set varaibles
             this.severityDict = this.config.severitySliderDict;
             this.activateIdentify = "";
-            this.allowIdentifyWhenActive = false
+            this.allowIdentifyWhenActive = false;
             this.uniqueID = this.config.uniqueID;
 
             this.workingRemoveBarriers = [];
@@ -1015,6 +1037,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             console.log(variableString);
             var scenarioRadarMetrics = eval(variableString);
             console.log(scenarioRadarMetrics);
+            setTimeout(lang.hitch(this, function(){
+                lang.hitch(this, this.scenarioNotes(v));
+            }, 2000));
+            
             //change the radar metrics displayed when sceanrio is changed
 //            if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousMetricBars;}
 //            if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutMetricBars;}
@@ -1027,6 +1053,22 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                lang.hitch(this, this.metricBars());
             }
 //            lang.hitch(this, this.refreshIdentify(this.config.url));
+        },
+
+        scenarioNotes: function(scenario){       
+            var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+            var scenPrettyName = this.config.scenarioNotes[scenario][0];
+            var notes = this.config.scenarioNotes[scenario][1];
+            var content = "<h4 style=\"padding:10px\">" +scenPrettyName+"</h4>"+"<hr><p style=\"padding:10px\">" +notes+"</p><hr>"+okButton;
+ 
+            if (this.scenNoteCounter[scenario] === 0){
+                this.scenarioDialog.set("content", content);
+                this.scenarioDialog.show();
+                $("#dialogOK").on("click", lang.hitch(this, function(e){
+                    dijit.byId('scenarioDialog').hide(); 
+                 }));
+                 this.scenNoteCounter[scenario] +=1
+            }
         },
 
         selectStratification: function(){
@@ -1106,7 +1148,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 eventCategory:this.config.analyticsEventTrackingCategory,        
                 eventAction: 'Tab click', 
                 eventLabel: "Explore tab click" 
-            });   
+            });
+            if (this.exploreTabCounter === 0){ //show scenario notes the first time on Explore tab
+                lang.hitch(this, this.scenarioNotes(this.obj.startingPrioritizedLayerName));
+                this.exploreTabCounter += 1;
+            }
         },
         
         
@@ -2236,7 +2282,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 
 
                 if (this.allClickData[this.config.barrierPassabilityField] < this.config.consensusFilterPassabilityThreshold){
-                    var Text = "This barrier was not prioritized because one of the input datasets did not cover the extent of this barrier. This barrier can be prioritized by running a custom analysis that excludes any of the metrics below that have 'Null' values.";
+                    var Text = "This barrier was not prioritized because one of the following is true: the barrier doesn't meet the filtering criteria of the sceanrio or because one or more input datasets does not cover the extent of this barrier. This barrier can be prioritized by running a custom analysis that doesn't use a filter and or any of the metrics below that have 'Null' values for this barrier.";
                     $("#" + this.id + "notPrioritizedText").text(Text);
                     $("#" + this.id + "clickBarrierTier").text("Not Prioritized - Missings Metric(s)");
                 }
@@ -2385,6 +2431,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         getSubStrAfterLastInstanceOfChar: function(str, char) {
             return str.split(char).pop();
         },
+        
         
         displayCustomIDResult: function(idResult, point){
             console.log("custom display result");
