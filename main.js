@@ -199,6 +199,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },    
         // Called by activate and builds the plugins elements and functions
         render: function() {  
+           
             //first render: not coming out of hibernation
             if (this.hibernating !== 'yes'){
                 this.visibleTab = "glance";
@@ -243,6 +244,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 	        }
 	    });
             
+            this.welcomeDialog = new Dialog({
+	    	id: "welcomeDialog",
+	        style: {
+                    width : "500px",
+                    maxWidth: "700px",
+                    overflow: "hidden",
+                    border: "1px",
+                    background:"white",
+                    opacity: "0.1",
+                    borderRadius: "5px"
+	        }
+	    });
              
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
@@ -857,11 +870,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if(this.obj.startingTab !=="" ){
                 lang.hitch(this, this.applyStartingTab(this.obj.startingTab)); 
             }  
-        
             
             lang.hitch(this, this.fireResize());
+            
+            //use streets map by default
+            $(".basemap-selector-list").find("li")[1].click();
+            lang.hitch(this, this.welcomePopup());
             this.rendered = true;
-   
         },    
         
         
@@ -1069,6 +1084,25 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                  }));
                  this.scenNoteCounter[scenario] +=1
             }
+        },
+
+        welcomePopup: function(){
+            var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+            var welcomeHeader = this.config.welcomeHeader;
+            var welcomeText = this.config.welcomeText;
+            var logos = this.config.logos;
+            var logosTable = "<table class=\"noPrint\" align=\"center\"><tr align=\"center\">"
+            $.each(logos, function(index, value){
+                logosTable +="<td align=\"center\" colspan=\"2\"><img src=\""+value+ "\" width=\"150\">&nbsp;&nbsp;</td>";
+            });
+            logosTable +="</tr></table>"
+            var content = "<h4 style=\"padding:10px\" align=\"center\">" +welcomeHeader+"</h4>"+"<hr><p style=\"padding:10px\">" +welcomeText+"</p><hr>"+logosTable+"<hr>"+okButton;
+            this.welcomeDialog.set("content", content);
+            this.welcomeDialog.show();
+            $("#dialogOK").on("click", lang.hitch(this, function(e){
+                dijit.byId('welcomeDialog').hide(); 
+             })); 
+        
         },
 
         selectStratification: function(){
