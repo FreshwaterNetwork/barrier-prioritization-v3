@@ -227,6 +227,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //set up a counter so the notes about the scenario are only displayed once
             const keys = Object.keys(this.config.scenarioNotes);
             this.scenNoteCounter = {};
+            
             for (const key of keys) {
               this.scenNoteCounter[key] = 0;
             }
@@ -237,7 +238,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     width : "500px",
                     maxWidth: "700px",
                     overflow: "hidden",
-                    border: "1px",
+                    border: "black",
+                    borderStyle: "solid",
                     background:"white",
                     opacity: "0.5",
                     borderRadius: "5px"
@@ -250,7 +252,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     width : "500px",
                     maxWidth: "700px",
                     overflow: "hidden",
-                    border: "1px",
+                    border: "black",
+                    borderStyle: "solid",
                     background:"white",
                     opacity: "0.1",
                     borderRadius: "5px"

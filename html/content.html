@@ -17,6 +17,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
             <h2 class="sidebar-content-heading">At a Glance</h2>
             <div>
                 <p>Select a watershed to get some quick facts about the state of aquatic connectivity in that watershed. Click the "Explore" tab above to take a deeper dive into the data.</p>
+                <p>Refer to the <a href="plugins/barrier-prioritization-v3/images/SBPT_Guide.pdf" target="_blank" class="bp_link">tool user's guide</a> for further instructions. </p>
             </div>
             <section>
                 <div class="bp_lightGrayDiv1">
@@ -148,7 +149,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     </div>
                 </div>
                 <div class="bp_lightGrayDiv1">
-                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected subwatershed.</p>
+                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected extent.</p>
                     <div class="bp_flexRowHCenter">
                         <div class="bp_flexColHCenter">
                             <label class="form-component" for="stratify-region">
@@ -161,7 +162,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             <label class="form-component" for="stratify-subregion">
                                 <input type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
                                 <div class="check"></div>
-                                <span class="form-text">Subwatershed</span>
+                                <span class="form-text">Extent</span>
                             </label>
                         </div>    
                     </div>
@@ -330,7 +331,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                         </figure>
                         <br/>
                         <p>
-                            This app can be used to explore the barriers to aquatic connectivity -- dams and road stream crossings -- in the Penobscot River Basin, Maine.  
+                            This app can be used to explore the barriers to aquatic connectivity -- dams and road stream crossings -- in the state of Maine.  
                         </p>
                             <figure >
                                 <img src="plugins/barrier-prioritization-v3/images/culverts.png" ></img>
@@ -338,29 +339,28 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             </figure>
                             <br/>    
                             <p>
-                                Begin by selecting the entire Penobscot basin or subwatershed to zoom to to, and a prioritization scenario to display.  The "diadromous" scenario prioritizes barriers for their potential to benefit diadromous fish species if removed or bypassed, while the "brook trout" scenario does the same for brook trout.  If working with a subwatershed, the results can be displayed relative to the entire Penobscot basin, or only relative to that subwatershed.  If the results are displayed relative to the subwatershed, only barriers within the subwatershed will be displayed.  
+                                Begin by selecting a prioritization scenario to display, and optionally, a sub-extent to zoom to. The five scenarios to choose from include alewife, American shad/blueback herring, salmon, coastal anadromous fish, and inland brook trout. If working within a sub-extent, the results can be displayed relative to the entire state, or only relative to that sub-extent. If the results are displayed relative to the sub-extent, only barriers within the sub-extent will be prioritized.  
                             </p>                   
-                            <br/>
-                            <p>
-                                Click on an individual barrier to get a summary of its ecological attributes.  A subset of the available attributes were used to develop a multi-stakeholder consensus prioritization for anadromous fish like Atlantic salmon and alewife. 
-                            </p>
                             <br/>
                         <h4>Interpreting the barrier data &amp; results</h4>
                         <div>
                             <p>
-                                When a barrier is clicked on the "Explore" tab, the name of the barrier, it's unique identifier, and other identifying information about the barrier are displayed on the left side of map.  A Tier 1 barrier is the highest priority -- most potential gained from a passage restoration project -- while a Tier 3 barrier is a lower priority.
+                                When a barrier is clicked on the "Explore" tab, the name of the barrier, it's unique identifier, and other identifying information about the barrier are displayed on the left side of map. A Tier 1 barrier is the highest priority -- most potential gained from a passage restoration project -- while a Tier 3 barrier is a lower priority.
                             </p>
                             <br/>
                             <p>
-                                Below the barrier's identifying information, several of the barrier"s attributes is displayed using sliders.  These sliders are designed to provide a quick and intuitive way to visualize the relative performance of a barrier versus the other barriers in the scenario.  Each slider bar is arranged so that values that are desirable in a passage restoration project are on the left side of the bar.  For example, a barrier that has the potential to open up 200 miles of habitat would have a value towards the right side of the slider bar since opening up a lot of upstream habitat is desirable in a passage restoration project for diadromous fish.  
+                                Below the barrier's identifying information, several of the barrier’s attributes are displayed using sliders. These sliders are designed to provide a quick and intuitive way to visualize the relative performance of a barrier versus the other barriers in the scenario. Each slider bar is arranged so that values that are desirable in a passage restoration project are on the right side of the bar. For example, a barrier that has the potential to open up 200 miles of habitat would have a value towards the right side of the slider bar since opening up a lot of upstream habitat is desirable in a passage restoration project for diadromous fish. 
                             </p>
                             <div class="bp_flexColHCenter"><img src="plugins/barrier-prioritization-v3/images/metricBars.png" width="275"></div>
                             <p>
-                                The slider bars are set up relative to the other barriers in the scenario.  Thus, using the example from above, if the "best" barrier in the currently displayed prioritization would open up 200 miles of river habitat, its metric bar for Upstream Functional Network would be all the way to the right.  The real-world value for each metric are displayed above each metric bar, along with a link to a description of the metric.
+                                The slider bars are set up relative to the other barriers in the scenario. Thus, using the example from above, if the "best" barrier in the currently displayed prioritization would open up 200 miles of river habitat, its metric bar for Upstream Functional Network would be all the way to the right. The real-world value for each metric is displayed above each metric bar, along with a link to a description of the metric.
                             </p>
                             <br/>
                             <p>
                                 Several metrics are derived from the 'passability' score of a barrier.  This score ranges from 0-1 where 0 is a complete barrier (e.g. a dam with no fish passage or a culvert with an outlet perch) and 1 is fully passable (e.g. a bridge with ample span).  Details on the methods that were used to develop the passability score are details <a href="plugins/barrier-prioritization-v3/images/FishPassageCoarseScreenForMaineCulverts.pdf" target="_blank" class="bp_link">here</a>. 
+                            </p>
+                            <p>
+                                Additional instructions on the use of the tool can be found in the <a href="plugins/barrier-prioritization-v3/images/SBPT_Guide.pdf" target="_blank" class="bp_link">tool user's guide</a>
                             </p>
                         </div>
                     </div> 
