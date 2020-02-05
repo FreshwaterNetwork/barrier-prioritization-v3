@@ -1033,6 +1033,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         exploreZoom: function(){
             var v = $("#" + this.id + "exploreZoom").val();
+            //default the extent to statewide, but force users to select one
+            if  (v == ""){v = "Statewide"}
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
             
@@ -1055,14 +1057,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             console.log(variableString);
             var scenarioRadarMetrics = eval(variableString);
             console.log(scenarioRadarMetrics);
-            setTimeout(lang.hitch(this, function(){
-                lang.hitch(this, this.scenarioNotes(v));
-            }, 2000));
             
-            //change the radar metrics displayed when sceanrio is changed
-//            if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousMetricBars;}
-//            if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutMetricBars;}
- 
+
             lang.hitch(this, this.updateDefaultMetricBars(scenarioRadarMetrics));
    
             lang.hitch(this, this.selectStratification());
@@ -1070,23 +1066,55 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.identifyIterator >0){
                lang.hitch(this, this.metricBars());
             }
+            setTimeout(lang.hitch(this, function(){
+                lang.hitch(this, this.scenarioNotes(v));
+            }, 2000));
 //            lang.hitch(this, this.refreshIdentify(this.config.url));
         },
 
-        scenarioNotes: function(scenario){       
-            var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
-            var scenPrettyName = this.config.scenarioNotes[scenario][0];
-            var notes = this.config.scenarioNotes[scenario][1];
-            var content = "<h4 style=\"padding:10px\">" +scenPrettyName+"</h4>"+"<hr><p style=\"padding:10px\">" +notes+"</p><hr>"+okButton;
- 
-            if (this.scenNoteCounter[scenario] === 0){
-                this.scenarioDialog.set("content", content);
-                this.scenarioDialog.show();
-                $("#dialogOK").on("click", lang.hitch(this, function(e){
-                    dijit.byId('scenarioDialog').hide(); 
-                 }));
-                 this.scenNoteCounter[scenario] +=1
-            }
+        scenarioNotes: function(scenario){
+
+            //show a popup if there are no barriers 
+            var stratExtent = $("#" + this.id + "exploreZoom").val();
+            var primaryLayerKey = stratExtent + "_" + scenario
+
+            var query = new Query();
+            var featureLayer = new FeatureLayer(this.config.url + "/" + this.activeConsensusLayerID);
+            query.where = "1=1";
+            var ref = this;
+            featureLayer.queryCount(query, function(count) {  
+                if (stratExtent != null && scenario != null && ref.config.stratifiedLayers[primaryLayerKey] == null){
+                    var noScenario = true;
+                }
+                else if (count === 0){
+                    var noScenario = true;
+                }
+                else{
+                    var noScenario = false;
+                }
+
+                var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+                if (scenario !== ""){
+                    var scenPrettyName = ref.config.scenarioNotes[scenario][0];
+
+                    //If there's no scenario for this extent (e.g. alewife for the upper St John) add a note saying so
+                    var notes = ref.config.scenarioNotes[scenario][1];
+                    if (noScenario === true){
+                        notes += "<hr><p style=\"padding:10px\">No barriers that meet the criteria for this scenario are included in the selected area</p>";
+                    }
+                    var content = "<h4 style=\"padding:10px\">" +scenPrettyName+"</h4>"+"<hr><p style=\"padding:10px\">" +notes+"</p><hr>"+okButton;
+                    if (ref.scenNoteCounter[scenario] === 0 || noScenario === true){
+                        ref.scenarioDialog.set("content", content);
+                        ref.scenarioDialog.show();
+                        $("#dialogOK").on("click", lang.hitch(ref, function(e){
+                            dijit.byId('scenarioDialog').hide(); 
+                         }));
+                         ref.scenNoteCounter[scenario] +=1;
+                    }
+                }
+            }, function(error) {
+                console.log(error);
+            }); 
         },
 
         welcomePopup: function(){
@@ -1094,11 +1122,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             var welcomeHeader = this.config.welcomeHeader;
             var welcomeText = this.config.welcomeText;
             var logos = this.config.logos;
-            var logosTable = "<table class=\"noPrint\" align=\"center\"><tr align=\"center\">"
+            var logosTable = "<table class=\"noPrint\" align=\"center\"><tr align=\"center\">";
             $.each(logos, function(index, value){
                 logosTable +="<td align=\"center\" colspan=\"2\"><img src=\""+value+ "\" width=\"150\">&nbsp;&nbsp;</td>";
             });
-            logosTable +="</tr></table>"
+            logosTable +="</tr></table>";
             var content = "<h4 style=\"padding:10px\" align=\"center\">" +welcomeHeader+"</h4>"+"<hr><p style=\"padding:10px\">" +welcomeText+"</p><hr>"+logosTable+"<hr>"+okButton;
             this.welcomeDialog.set("content", content);
             this.welcomeDialog.show();
@@ -1123,7 +1151,34 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.activeConsensusLayerID = this.config.stratifiedLayers[primaryLayerKey];
             }
             console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
-       
+            
+//            //show a popup if there are no barriers 
+//            if (stratExtent != null && scenario != null && this.config.stratifiedLayers[primaryLayerKey] == null){
+//                console.log("no layer for this scenario");
+//                this.noScenario = true;
+//            }
+//            else{
+//                var query = new Query();
+//                var featureLayer = new FeatureLayer(this.config.url + "/" + this.activeConsensusLayerID);
+//                query.where = "1=1";
+//                featureLayer.queryCount(query, function(count) {
+//                    console.log(count + " features satisfied the input query");
+//                    if (count === 0){
+//                        this.noScenario = true;
+//                    }
+//                    else{
+//                        this.noScenario = false;
+//                    }
+//                 }, function(error) {
+//                    console.log(error);
+//                }); 
+//            }   
+//            setTimeout(lang.hitch(this, function(){
+                lang.hitch(this, this.scenarioNotes(scenario));
+//            }, 2000));
+            
+            
+            
             this.subsetExtent(stratExtent);
             this.visibleLayers = [this.activeConsensusLayerID];
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
@@ -1186,10 +1241,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 eventAction: 'Tab click', 
                 eventLabel: "Explore tab click" 
             });
-            if (this.exploreTabCounter === 0){ //show scenario notes the first time on Explore tab
-                lang.hitch(this, this.scenarioNotes(this.obj.startingPrioritizedLayerName));
-                this.exploreTabCounter += 1;
-            }
+//            if (this.exploreTabCounter === 0){ //show scenario notes the first time on Explore tab
+//                lang.hitch(this, this.scenarioNotes(this.obj.startingPrioritizedLayerName, this.noScenario));
+//                this.exploreTabCounter += 1;
+//            }
         },
         
         

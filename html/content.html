@@ -103,7 +103,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     <div class="bp_flexRowHCenter" >
                         <div class="bp_flexColHCenter">
                             <div class="chosen-wrap" style="margin:5px;">
-                                <select data-placeholder="Statewide" id="exploreZoom" class="chosen">
+                                <select data-placeholder="Select a region" id="exploreZoom" class="chosen">  
+                                    <option value=""></option>
                                     <option value="Statewide">Statewide</option>
                                     <option value="Allagash">Allagash</option>
                                     <option value="Aroostook">Aroostook</option>
@@ -141,7 +142,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                     <option value="alewife">Alewife</option>
                                     <option value="coastal">Coastal Anadromous</option>
                                     <option value="inlandBKT">Inland Brook Trout</option>
-                                    <option value="salmon">Salmon</option>
+                                    <option value="salmon">ESA Salmon</option>
                                     <option value="shadBBH">Shad / Blueback Herring</option>
                                 </select>
                             </div>
@@ -153,14 +154,14 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     <div class="bp_flexRowHCenter">
                         <div class="bp_flexColHCenter">
                             <label class="form-component" for="stratify-region">
-                                <input checked type="radio" value="stratify-region" id="stratify-region" name="stratify">
+                                <input  type="radio" value="stratify-region" id="stratify-region" name="stratify">
                                 <div class="check"></div>
                                 <span class="form-text">Statewide</span>
                             </label>
                         </div>
                         <div class="bp_flexColHCenter">
                             <label class="form-component" for="stratify-subregion">
-                                <input type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
+                                <input checked type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
                                 <div class="check"></div>
                                 <span class="form-text">Extent</span>
                             </label>
@@ -424,7 +425,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <input type="radio" id="apply_inlandBKT" name="applyScenarioWeights" value="inlandBKT"/>
                                         <label for="apply_inlandBKT">Inland BKT</label>
                                         <input type="radio" id="apply_salmon" name="applyScenarioWeights" value="salmon"/>
-                                        <label for="apply_salmon">Salmon</label>
+                                        <label for="apply_salmon">ESA Salmon</label>
                                         <input type="radio" id="apply_alewife" name="applyScenarioWeights" value="alewife"/>
                                         <label for="apply_alewife">Alewife</label>
                                         <input type="radio" id="apply_shadBBH" name="applyScenarioWeights" value="shadBBH"/>
@@ -438,7 +439,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <div class="bp_metricInputs" style="padding-top:0px;">
                                             <ul class="nav nav-tabs" role="tablist">
                                                 <li role="presentation" class="active"><a href="#dijit_layout_ContentPane_0weightIn-Tab1Div" aria-controls="tab1" id="tab1" role="tab" data-toggle="tab" title="Select this tab to weight network-based metrics" class="bp_tabs bp_lightGray">Network</a></li>
-                                                <li role="presentation"><a href="#dijit_layout_ContentPane_0weightIn-Tab3Div" aria-controls="tab3" id="tab3" data-toggle="tab" title="Select this tab to weight salmon metrics" class="bp_tabs bp_lightGray">Salmon</a></li>
+                                                <li role="presentation"><a href="#dijit_layout_ContentPane_0weightIn-Tab3Div" aria-controls="tab3" id="tab3" data-toggle="tab" title="Select this tab to weight ESA salmon metrics" class="bp_tabs bp_lightGray">Salmon</a></li>
                                                 <li role="presentation"><a href="#dijit_layout_ContentPane_0weightIn-Tab2Div" aria-controls="tab2"  id="tab2" data-toggle="tab" title="Select this tab to weight brook trout metrics" class="bp_tabs bp_lightGray">BKT</a></li>
                                                 <li role="presentation"><a href="#dijit_layout_ContentPane_0weightIn-Tab4Div" aria-controls="tab4"  id="tab4" data-toggle="tab" title="Select this tab to weight sea-run fish metrics" class="bp_tabs bp_lightGray">Sea Run</a></li>
                                                 <li role="presentation"><a href="#dijit_layout_ContentPane_0weightIn-Tab5Div" aria-controls="tab5"  id="tab5" data-toggle="tab" title="Select this tab to weight landcover metrics" class="bp_tabs bp_lightGray">LC</a></li>
