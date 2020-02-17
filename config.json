@@ -164,13 +164,13 @@
     },
     "analyticsEventTrackingCategory":"Maine Statewide Barrier Prioritization",
     "additionalLayers":{	
-        "Barriers by Type":["barrType", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "1", "View the barriers by type (dam, crossing, natural barrier)", "off"],
-        "Rivers" : ["rivers", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "2", "Zoom in to the scale of a city or town to view the rivers in the region.", "off"],
-        "HUC 8" :["huc8s", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "7", "View the USGS 8-digit Hydrologic Units", "off"],
-        "HUC 10" :["huc10s", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "3", "View the USGS 10-digit Hydrologic Units", "off"],
-        "HUC 12" :["huc12s", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "4", "View the USGS 12-digit Hydrologic Units", "off"],
-        "Salmon Critical Habitat" : ["salmonCH", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "5", "View the Citical Salmon Habitat in the Penobscot Basin.", "off"],
-        "Natural Barriers" : ["falls", "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "21", "View the natural barriers (waterfalls) in the Penobscot Basin.", "off"]
+        "Barriers by Type":["barrType", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "119", "View the barriers by type (dam, crossing, natural barrier)", "off"],
+        "Rivers" : ["rivers", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "127", "Zoom in to the scale of a city or town to view the rivers in the region.", "off"],
+        "HUC 8" :["huc8s", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "125", "View the USGS 8-digit Hydrologic Units", "off"],
+        "HUC 10" :["huc10s", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "124", "View the USGS 10-digit Hydrologic Units", "off"],
+        "HUC 12" :["huc12s", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServerr", "123", "View the USGS 12-digit Hydrologic Units", "off"],
+        "Salmon Critical Habitat" : ["salmonCH", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "128", "View the Citical Salmon Habitat in the Penobscot Basin.", "off"],
+        "Natural Barriers" : ["falls", "https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer", "126", "View the natural barriers (waterfalls) in the Penobscot Basin.", "off"]
     },
     "zoomTo" : {
         "Statewide" : [[-7961891.0611,5284914.2986,-7349173.1686,6123460.3499], {"dams":"918", "crossings":"10,426", "avgNetwork":"6035.241907"}],
