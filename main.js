@@ -2347,7 +2347,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "clickBarrierName").text(this.allClickData[this.config.barrierNameField]);
             $("#" + this.id + "clickBarrierID").text(this.allClickData[this.config.uniqueID]);
             $("#" + this.id + "clickBarrierType").text(this.allClickData[this.config.barrierTypeField]);
-            
+            $("#" + this.id + "clickBarrierFRisk").text(this.allClickData[this.config.barrierFloodRiskField]);
 
             //add links to photos
             var photoHtml ="";
@@ -2539,6 +2539,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "customClickBarrierName").text(this.customAllClickData[this.config.barrierNameField]);
             $("#" + this.id + "customClickBarrierID").text(this.customAllClickData[this.config.uniqueID]);
             $("#" + this.id + "customClickBarrierType").text(this.customAllClickData[this.config.barrierTypeField]);
+            $("#" + this.id + "customClickBarrierFRisk").text(this.customAllClickData[this.config.barrierFloodRiskField]);
             
             //add links to photos
             var photoHtml ="";
@@ -2625,7 +2626,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.customClickHeader = "Name: " + this.customAllClickData[this.config.barrierNameField] +
             "<br/>ID: " + this.customAllClickData[this.config.uniqueID] +
             "<br/>Type: " + this.customAllClickData[this.config.barrierTypeField];
-            
+   
             this.identJSON = {
                 title: "${" + this.uniqueID+ "} = Tier ${" + tierName +"}",
                 content: this.customClickHeader
