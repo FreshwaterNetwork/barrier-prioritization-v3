@@ -876,8 +876,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
             lang.hitch(this, this.fireResize());
             
-            //use streets map by default
-            $(".basemap-selector-list").find("li")[1].click();
+            //use topo map by default
+            $(".basemap-selector-list").find("li")[2].click();
             lang.hitch(this, this.welcomePopup());
             this.rendered = true;
         },    

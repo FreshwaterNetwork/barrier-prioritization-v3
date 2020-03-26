@@ -100,8 +100,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                 <h2 class="sidebar-content-heading" >Explore Prioritized Barriers</h2>
                 <div class="bp_lightGrayDiv2">
                     <h3 style="text-align:center; margin:5px;">Select an Extent & Prioritization Scenario</h3>
-                    <div class="bp_flexRowHCenter" >
-                        <div class="bp_flexColHCenter">
+                    <div class="bp_flexRowHCenter">
+                        <div class="bp_flexColHCenter flash">
                             <div class="chosen-wrap" style="margin:5px;">
                                 <select data-placeholder="Select a region" id="exploreZoom" class="chosen">  
                                     <option value=""></option>
@@ -135,7 +135,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                 </select>
                             </div>
                         </div>
-                        <div class="bp_flexColHCenter">
+                        <div class="bp_flexColHCenter flash">
                             <div class="chosen-wrap" style="margin:5px;">
                                 <select data-placeholder="Select a scenario" id="exploreScenario" class="chosen">
                                     <option value=""></option>
@@ -150,7 +150,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                     </div>
                 </div>
                 <div class="bp_lightGrayDiv1">
-                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected extent.</p>
+                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected region.</p>
                     <div class="bp_flexRowHCenter">
                         <div class="bp_flexColHCenter">
                             <label class="form-component" for="stratify-region">
@@ -163,7 +163,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             <label class="form-component" for="stratify-subregion">
                                 <input checked type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
                                 <div class="check"></div>
-                                <span class="form-text">Extent</span>
+                                <span class="form-text">Region</span>
                             </label>
                         </div>    
                     </div>
@@ -343,13 +343,13 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             </figure>
                             <br/>    
                             <p>
-                                Begin by selecting a prioritization scenario to display, and optionally, a sub-extent to zoom to. The five scenarios to choose from include alewife, American shad/blueback herring, salmon, coastal anadromous fish, and inland brook trout. If working within a sub-extent, the results can be displayed relative to the entire state, or only relative to that sub-extent. If the results are displayed relative to the sub-extent, only barriers within the sub-extent will be prioritized.  
+                                Begin by selecting a prioritization scenario to display and region to zoom to. The five scenarios to choose from include alewife, American shad/blueback herring, salmon, coastal anadromous fish, and inland brook trout. The results can be displayed relative to the entire state, or only relative to that region using the "Statewide" or "Region" buttons. If the results are displayed relative to the region, only barriers within that region will be prioritized.  
                             </p>                   
                             <br/>
                         <h4>Interpreting the barrier data &amp; results</h4>
                         <div>
                             <p>
-                                When a barrier is clicked on the "Explore" tab, the name of the barrier, it's unique identifier, and other identifying information about the barrier are displayed on the left side of map. A Tier 1 barrier is the highest priority -- most potential gained from a passage restoration project -- while a Tier 3 barrier is a lower priority.
+                                When the "Explore" tab is open and a barrier is clicked, the name of the barrier, it's unique identifier, and other identifying information about the barrier are displayed on the left side of map. A Tier 1 barrier is a higher  priority -- most potential gained from a passage restoration project -- while a Tier 3 barrier is a lower priority.
                             </p>
                             <br/>
                             <p>
@@ -389,7 +389,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <label for="filterBarriers1">Yes</label>
                                     </div>
                                     <div id="filterBuilderContainer" class="bp_flexColHCenter">
-                                        <p>Use the dropdowns to build an expression</p>
+                                        <p>Use the dropdowns to build an expression.  For help on building an expression see the <a href="https://desktop.arcgis.com/en/arcmap/10.3/map/working-with-layers/building-a-query-expression.htm" target="_blank"><strong>ArcGIS documentation.</strong></a></p>
                                         <div class="chosen-wrap" style="margin-bottom:10px;">
                                             <select data-placeholder="Filter By..." id="filterBuildField" class="chosen" style="width:100px" title="Filter the results...">
                                                 <option></option>
