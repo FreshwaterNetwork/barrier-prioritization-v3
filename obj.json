@@ -16,7 +16,8 @@
             "rivers":"off",
             "falls" : "off"   
 	},
-	"startingPrioritizedLayerID":[0],
+	"startingPrioritizedLayerID":[23],
+        "startingPrioritizedLayerName":"",
         "startingVisibleLayers":"",
 	"startingMapLayers" : false,
 	"startingFilter" : "",
@@ -32,22 +33,18 @@
         "startingStratifyRegion" : "",
         "startingTab" :"",
 	"startingConsensusTierFilterMin":1,
-	"startingConsensusTierFilterMax":20,
+	"startingConsensusTierFilterMax":3,
 	"startingConsensusSeverityFilterMin":1,
 	"startingConsensusSeverityFilterMax":5,
 	"startingUseConsensusCustomFilter":false,
 	"startingConsensusCustomFilter":"",
 	"startingBarMetrics" : [
             "batFuncUS",
-            "alewifeAcres",
+            "usAlewifeAcres",
             "batCountDS",
-            "US_SalmHabUnitsWeighted",
-            "InvasiveBarrierConfirmed",
-            "DMRSalmonPriority",
-            "cumulativeSalmHabUnits",
-            "dsPassabilityProduct",
-            "HUC10_Habitat_Units",
-            "cumulativeUSNet"
+            "DSFishways",
+            "DA_PercFor",  
+            "dsPassabilityProduct"
 	],
 	"startingWeights" : {}
 }

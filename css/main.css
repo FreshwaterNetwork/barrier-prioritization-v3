@@ -34,6 +34,10 @@
 }
 
 
+.tab-content .bp_lightGrayDiv1{
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
 .bp_submitButtonRunning{
 	color: #999999;
 	margin-top: 5px;
@@ -47,7 +51,47 @@
     display: flex; 
     flex-wrap: wrap;
 }
+.dijitDialog {
+    background: none repeat-x scroll left top #FFFFFF;
+}
 
+.flash{
+  -moz-animation: flash 1s ease-out;
+  -moz-animation-iteration-count: 3;
+  border-radius: 5px;
+
+  -webkit-animation: flash 1s ease-out;
+  -webkit-animation-iteration-count: 3;
+  border-radius: 5px;
+
+  -ms-animation: flash 1s ease-out;
+  -ms-animation-iteration-count: 3;
+  border-radius: 5px;
+}
+
+@keyframes flash {
+    0% { background-color: transparent; }
+    50% { background-color: #b65e79; }
+    100% { background-color: transparent; }
+}
+
+@-webkit-keyframes flash {
+    0% { background-color: transparent; }
+    50% { background-color: #b65e79; }
+    100% { background-color: transparent; }
+}
+
+@-moz-keyframes flash {
+    0% { background-color: transparent; }
+    50% { background-color: #b65e79; }
+    100% { background-color: transparent; }
+}
+
+@-ms-keyframes flash {
+    0% { background-color: transparent; }
+    50% { background-color: #b65e79; }
+    100% { background-color: transparent; }
+}
 .bp_flexColHCenter{
     /*height: 100%;*/
     padding: 0;
@@ -64,6 +108,9 @@
     align-items: center;
 }
 
+.nav-tabs>li.active>a{
+    box-shadow:none !important;
+}
 
  /*css for IE 10 & 11-- don't use align-items: center since IE doesn't deal with it well*/
 @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
@@ -129,6 +176,27 @@
     flex-direction:row;
 
 }
+
+.bp_flexRowWrap{
+    
+    padding: 5px;
+    margin: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction:row;
+    -ms-flex-direction:row;
+    flex-direction:row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.bp_lightGray{
+    background-color: #eff4f4;
+}
+
 .bp_flex{
     display: flex;
     display: -ms-flexbox;
@@ -177,15 +245,32 @@
     padding-top: 5px;
 }
 
+.bp_metricInputs{
+    outline-style: solid;
+    padding-left: 1px !important;
+    outline-color: #ccd5d5;
+}
+
+.nav>li>a.bp_stateTabs{
+    padding: 5px 5px;
+}
+
 .bp_lightGrayDiv2{
     background-color: #e1e8e8;
     padding-top: 5px;
 }
 
+.bp_padLeft{
+    padding-left: 10px !important;
+}
 .nav>li>a.bp_tabs{
     padding:3px !important;
+    margin: 3px 0px 0;
+    box-shadow: -1px 0px 0px 0px #ccd5d5; 
 }
-
+.nav-tabs{
+    background-color: #ccd5d5 !important;
+}
 .bp_greenText{
     color: green;
 }
@@ -314,7 +399,7 @@
 }
 
 .bp_weightInput{
-	width:40px !important;
+/*	width:40px !important;*/
 	height: 25px !important;
 	text-align: center;
 	margin-left:10px !important;
@@ -323,6 +408,9 @@
 } 
 
 
+.bp_metricLabelContainer{
+    padding-top: 5px;
+}
 
 .bp_weighted{
 	background-color: #6CC2C7 !important;	
@@ -339,13 +427,15 @@
 }
 
 .bp_metricLabel{
-	font-size:11px;
-	right: 40px !important;
-	float: left;
-	margin-bottom: 20px ;
-	color:#4286f4;
-	-webkit-box-decoration-break: clone;
-	box-decoration-break: clone;
+    display: inline-flex;
+    align-items: center;
+    font-size:11px;
+    right: 40px !important;
+    float: left;
+/*    margin-bottom: 20px ;*/
+    color:#4286f4;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
 
 .bp_metricLabelText{
@@ -371,6 +461,7 @@
 .bp_currWeight{
 	font-size: 15pt;
 	font-weight: bold;
+        padding-bottom: 5px;
 }
 
 .stats .number {

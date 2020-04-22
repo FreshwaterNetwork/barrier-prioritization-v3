@@ -8,11 +8,11 @@ define([
     "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html",  './js/clicks', 
     'dojo/text!./config.json', 'dojo/text!./filters.json', 'dojo/text!./photos.json',"esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
-     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask"
+     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask", "esri/layers/LayerInfo", "dijit/Dialog"
 ],
 function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content,  Clicks,  config, 
     filters, photos, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
-    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask) {
+    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask, LayerInfo, Dialog) {
     return declare(PluginBase, {
         // The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
         toolbarName: "Aquatic Barrier Prioritization", showServiceLayersInLegend: true, allowIdentifyWhenActive: true, rendered: false, resizable: false,
@@ -35,6 +35,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.gp.setUpdateDelay(200); //status check in milliseconds;
             this.barriers2RemoveCount = 0;   
             this.glanceExtentCount = 0;
+            this.exploreTabCounter = 0;
             this.selectSeverityCounter = 0;
             this.zoomCounter=0;
             
@@ -142,7 +143,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                             var m = v.id.replace(this.id + "weightIn-", "");
                             this.obj.startingWeights[m] = parseInt(v.value, 10);                
                      }));
-                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();        
+                    this.obj.startingUseConsensusWeights = $("input[name='useConsensusWeights']:checked").val();  
+                    console.log(this.obj.startingWeights)
                 }
                 
                 if (document.getElementById(this.id + 'consensusResultFilterSliderTier')) {
@@ -197,6 +199,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },    
         // Called by activate and builds the plugins elements and functions
         render: function() {  
+           
             //first render: not coming out of hibernation
             if (this.hibernating !== 'yes'){
                 this.visibleTab = "glance";
@@ -221,7 +224,42 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 return false;
                 
             };
+            //set up a counter so the notes about the scenario are only displayed once
+            const keys = Object.keys(this.config.scenarioNotes);
+            this.scenNoteCounter = {};
             
+            for (const key of keys) {
+              this.scenNoteCounter[key] = 0;
+            }
+            
+            this.scenarioDialog = new Dialog({
+	    	id: "scenarioDialog",
+	        style: {
+                    width : "500px",
+                    maxWidth: "700px",
+                    overflow: "hidden",
+                    border: "black",
+                    borderStyle: "solid",
+                    background:"white",
+                    opacity: "0.5",
+                    borderRadius: "5px"
+	        }
+	    });
+            
+            this.welcomeDialog = new Dialog({
+	    	id: "welcomeDialog",
+	        style: {
+                    width : "500px",
+                    maxWidth: "700px",
+                    overflow: "hidden",
+                    border: "black",
+                    borderStyle: "solid",
+                    background:"white",
+                    opacity: "0.1",
+                    borderRadius: "5px"
+	        }
+	    });
+             
             // ADD HTML TO APP
             // Define Content Pane as HTML parent        
             this.appDiv = new ContentPane({style:'padding:0; color:#000; flex:1; display:flex; flex-direction:column;}'});
@@ -241,7 +279,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
             //set varaibles
             this.severityDict = this.config.severitySliderDict;
-            this.activateIdentify = "framework";
+            this.activateIdentify = "";
+            this.allowIdentifyWhenActive = false;
             this.uniqueID = this.config.uniqueID;
 
             this.workingRemoveBarriers = [];
@@ -306,7 +345,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $('#' + this.id + 'consensusResultFilterSliderTier').slider({
                     range:true, 
                     min:1, 
-                    max:20, 
+                    max:this.config.maxTierVal, 
                     values: [this.obj.startingConsensusTierFilterMin, this.obj.startingConsensusTierFilterMax],
                     // called at end of slide. use change to ask server for data
                     change:lang.hitch(this,function(event,ui){
@@ -443,15 +482,35 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $('#'+ this.id +"customWeightsDiv").hide();
             $("input[name='useConsensusWeights']").on('change',lang.hitch(this,function(){
                 $('#'+ this.id +"customWeightsDiv").animate({height:"toggle"}, 500);
-                //if "consensus" is checked, fill in consensus values
-                if ($("input[name='useConsensusWeights']:checked").val() === "yes"){
-                    lang.hitch(this, this.applyWeights(this.obj.startingWeights));
-                    lang.hitch(this, this.getCurrentWeights());
-                }
-                if ($("input[name='useConsensusWeights']:checked").val() === "no"){
-                    lang.hitch(this, this.applyWeights(this.config.diadromous));
-                }
+                $('#'+ this.id +"consensusButtons").animate({height:"toggle"}, 500);
             }));
+            
+//            //set up apply weight buttons(alternate instead of toggle button)
+//            $.each(this.config.scenarioWeights, lang.hitch(this,function(i, item){
+//                var scenWeights = item;
+//                var scenName = (Object.keys(item)[0]);
+//                buttonName = "apply_" + scenName;
+//                console.log(scenName);
+//                console.log(scenWeights);
+//       
+//                $('#' + this.id + buttonName).on('click',lang.hitch(this,function(e){                 
+//                    console.log("Click scen " + scenName)
+//                    lang.hitch(this, this.applyWeights(scenWeights));
+//                }));
+//            }));
+
+            //set up toggle buttons to apply consensus weights to custom scenario
+             $('input[name="applyScenarioWeights"]').on('change', lang.hitch(this, function(){
+                var activeToggle = $('input[name="applyScenarioWeights"]:checked').val();
+                var scenName = this.getSubStrAfterLastInstanceOfChar(activeToggle, "_");
+                var activeWeightsIndex = this.config.scenarioWeights.findIndex(x =>x[scenName]);
+                var scenWeights = this.config.scenarioWeights[activeWeightsIndex];
+                lang.hitch(this, this.applyWeights(scenWeights));
+             }));
+
+
+            
+            
             
             //set up listener for change to metric weight inputs
             $("input[id^=" +  this.id + 'weightIn]').on('input', lang.hitch(this, function(e){             
@@ -672,8 +731,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 $("#" + this.id + "clickInstructions").show();
                 lang.hitch(this, this.filterConsensusMapServiceSlider());
 
-                $("#" + this.id +"consFiltMax").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0));
-                $("#" + this.id +"consFiltMin").text(21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1));
+                $("#" + this.id +"consFiltMax").text(4-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0));
+                $("#" + this.id +"consFiltMin").text(4-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1));
                       
 
                 this.map.removeLayer(this.prioritizedBarriers);
@@ -814,11 +873,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if(this.obj.startingTab !=="" ){
                 lang.hitch(this, this.applyStartingTab(this.obj.startingTab)); 
             }  
-        
             
             lang.hitch(this, this.fireResize());
+            
+            //use topo map by default
+            $(".basemap-selector-list").find("li")[2].click();
+            lang.hitch(this, this.welcomePopup());
             this.rendered = true;
-   
         },    
         
         
@@ -849,7 +910,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
         
         applyStartingTab: function(tab){
-            console.log("applying starting tab")
+            console.log("applying starting tab");
             var tabs = $("#" + this.id + "mainTabs").children().children();
             $.each(tabs, lang.hitch(this, function(i, v){
                 if (v.id === this.id + tab + "Tab"){
@@ -871,6 +932,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
 
         glanceZoom: function(v, bool){
+            console.log(v)
             if (v === undefined){var v = $("#" + this.id + "glanceZoom").val();}
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
@@ -893,9 +955,36 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
             lang.hitch(this, this.subsetExtent(v));
-            
+  
 
-            //subset out the barriers in the active subextent
+//            //subset out the barriers in the active subextent
+//            if (this.glanceExtentCount >=1){
+//                //make all barriers semi transparent
+//                if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
+//                if (v === this.regionName){
+//                    this.glanceBarriers.opacity = 1;
+//                    this.map.addLayer(this.glanceBarriers);
+//                }   
+//                
+//                //make a new Feature Layer for subset barriers & apply definition query
+//                if(this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);}
+//                this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
+//                this.subsetBarriers.name = "_";
+//     
+//                console.log(this.subsetBarriers)
+//                                
+//                if (v !== this.regionName ){
+//                    
+//                    this.glanceBarriers.opacity = 0.3;
+//                    this.map.addLayer(this.glanceBarriers);
+//                    this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+//                    this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef);
+//                    
+//                    this.map.addLayer(this.subsetBarriers);   
+//                    console.log(this.subsetBarriersLayerDef)
+//                }
+//            }
+           
             if (this.glanceExtentCount >=1){
                 //make all barriers semi transparent
                 if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
@@ -904,18 +993,25 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     this.map.addLayer(this.glanceBarriers);
                 }   
                 
-                //make a new Feature Layer for subset barriers & apply definition query
-                if(this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);}
-                this.subsetBarriers = new FeatureLayer(this.url +"/" + this.config.glanceBarriersLayerID);
-                
+
+                                
                 if (v !== this.regionName ){
-                    this.glanceBarriers.opacity = 0.5;
+                    //make a new Feature Layer for subset barriers & apply definition query
+                    if(this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);}
+                  
+                    this.glanceBarriers.opacity = 0.3;
                     this.map.addLayer(this.glanceBarriers);
-                    this.subsetBarriersLayerDef = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
-                    this.subsetBarriers.setDefinitionExpression(this.subsetBarriersLayerDef);
+                    
+                    var layerDefs =[];
+                    layerDefs[this.config.hideGlanceBarriersLayerID] = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+                    this.subsetBarriers = new ArcGISDynamicMapServiceLayer(this.url);
+                    this.subsetBarriers.setVisibleLayers([this.config.hideGlanceBarriersLayerID]);
+                    this.subsetBarriers.setLayerDefinitions(layerDefs);
                     this.map.addLayer(this.subsetBarriers);   
+   
                 }
             }
+            
             this.glanceExtentCount ++;       
         },
 
@@ -924,11 +1020,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //only display the subExtent (e.g. watershed or state outline) being zoomed to
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
             if (!this.subExtents || this.subExtents === "off"){
-                this.subExtents = new FeatureLayer(this.url +"/" + this.config.subExtentLayerID);
+                this.subExtents = new ArcGISDynamicMapServiceLayer(this.url);
             }
-            
-            this.subExtentLayerDef = this.config.subExtentNameField + " = '" + v + "'";
-            this.subExtents.setDefinitionExpression(this.subExtentLayerDef);
+            var layerDefs =[];
+            layerDefs[this.config.subExtentLayerID] = this.config.subExtentNameField + " = '" + v + "'";                
+            this.subExtents.setVisibleLayers([this.config.subExtentLayerID]);
+            this.subExtents.setLayerDefinitions(layerDefs);
             this.map.addLayer(this.subExtents);
         },
 
@@ -936,6 +1033,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         exploreZoom: function(){
             var v = $("#" + this.id + "exploreZoom").val();
+            //default the extent to statewide, but force users to select one
+            if  (v == ""){v = "Statewide"}
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
             
@@ -954,10 +1053,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         },
         
         scenarioSelection: function(v, bool){
-            //change the radar metrics displayed when sceanrio is changed
-            if (v === "diad"){var scenarioRadarMetrics = this.config.diadromousMetricBars;}
-            if (v === "bkt"){var scenarioRadarMetrics = this.config.brookTroutMetricBars;}
- 
+            var variableString = ("this.config."+v+"MetricBars");
+            console.log(variableString);
+            var scenarioRadarMetrics = eval(variableString);
+            console.log(scenarioRadarMetrics);
+            
+
             lang.hitch(this, this.updateDefaultMetricBars(scenarioRadarMetrics));
    
             lang.hitch(this, this.selectStratification());
@@ -965,7 +1066,74 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.identifyIterator >0){
                lang.hitch(this, this.metricBars());
             }
+            setTimeout(lang.hitch(this, function(){
+                lang.hitch(this, this.scenarioNotes(v));
+            }, 2000));
 //            lang.hitch(this, this.refreshIdentify(this.config.url));
+        },
+
+        scenarioNotes: function(scenario){
+
+            //show a popup if there are no barriers 
+            var stratExtent = $("#" + this.id + "exploreZoom").val();
+            var primaryLayerKey = stratExtent + "_" + scenario
+
+            var query = new Query();
+            var featureLayer = new FeatureLayer(this.config.url + "/" + this.activeConsensusLayerID);
+            query.where = "1=1";
+            var ref = this;
+            featureLayer.queryCount(query, function(count) {  
+                if (stratExtent != null && scenario != null && ref.config.stratifiedLayers[primaryLayerKey] == null){
+                    var noScenario = true;
+                }
+                else if (count === 0){
+                    var noScenario = true;
+                }
+                else{
+                    var noScenario = false;
+                }
+
+                var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+                if (scenario !== ""){
+                    var scenPrettyName = ref.config.scenarioNotes[scenario][0];
+
+                    //If there's no scenario for this extent (e.g. alewife for the upper St John) add a note saying so
+                    var notes = ref.config.scenarioNotes[scenario][1];
+                    if (noScenario === true){
+                        notes += "<hr><p style=\"padding:10px\">No barriers that meet the criteria for this scenario are included in the selected area</p>";
+                    }
+                    var content = "<h4 style=\"padding:10px\">" +scenPrettyName+"</h4>"+"<hr><p style=\"padding:10px\">" +notes+"</p><hr>"+okButton;
+                    if (ref.scenNoteCounter[scenario] === 0 || noScenario === true){
+                        ref.scenarioDialog.set("content", content);
+                        ref.scenarioDialog.show();
+                        $("#dialogOK").on("click", lang.hitch(ref, function(e){
+                            dijit.byId('scenarioDialog').hide(); 
+                         }));
+                         ref.scenNoteCounter[scenario] +=1;
+                    }
+                }
+            }, function(error) {
+                console.log(error);
+            }); 
+        },
+
+        welcomePopup: function(){
+            var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+            var welcomeHeader = this.config.welcomeHeader;
+            var welcomeText = this.config.welcomeText;
+            var logos = this.config.logos;
+            var logosTable = "<table class=\"noPrint\" align=\"center\"><tr align=\"center\">";
+            $.each(logos, function(index, value){
+                logosTable +="<td align=\"center\" colspan=\"2\"><img src=\""+value+ "\" width=\"150\">&nbsp;&nbsp;</td>";
+            });
+            logosTable +="</tr></table>";
+            var content = "<h4 style=\"padding:10px\" align=\"center\">" +welcomeHeader+"</h4>"+"<hr><p style=\"padding:10px\">" +welcomeText+"</p><hr>"+logosTable+"<hr>"+okButton;
+            this.welcomeDialog.set("content", content);
+            this.welcomeDialog.show();
+            $("#dialogOK").on("click", lang.hitch(this, function(e){
+                dijit.byId('welcomeDialog').hide(); 
+             })); 
+        
         },
 
         selectStratification: function(){
@@ -983,7 +1151,34 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.activeConsensusLayerID = this.config.stratifiedLayers[primaryLayerKey];
             }
             console.log("primary layer key = " + primaryLayerKey + " = " + this.config.stratifiedLayers[primaryLayerKey] );
-       
+            
+//            //show a popup if there are no barriers 
+//            if (stratExtent != null && scenario != null && this.config.stratifiedLayers[primaryLayerKey] == null){
+//                console.log("no layer for this scenario");
+//                this.noScenario = true;
+//            }
+//            else{
+//                var query = new Query();
+//                var featureLayer = new FeatureLayer(this.config.url + "/" + this.activeConsensusLayerID);
+//                query.where = "1=1";
+//                featureLayer.queryCount(query, function(count) {
+//                    console.log(count + " features satisfied the input query");
+//                    if (count === 0){
+//                        this.noScenario = true;
+//                    }
+//                    else{
+//                        this.noScenario = false;
+//                    }
+//                 }, function(error) {
+//                    console.log(error);
+//                }); 
+//            }   
+//            setTimeout(lang.hitch(this, function(){
+                lang.hitch(this, this.scenarioNotes(scenario));
+//            }, 2000));
+            
+            
+            
             this.subsetExtent(stratExtent);
             this.visibleLayers = [this.activeConsensusLayerID];
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
@@ -1018,7 +1213,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
-            this.activateIdentify = "framework";
+            this.activateIdentify = "";
             this.visibleTab = "glance";
             lang.hitch(this, this.refreshIdentify(this.config.url)); 
             lang.hitch(this, this.glanceZoom());
@@ -1045,7 +1240,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 eventCategory:this.config.analyticsEventTrackingCategory,        
                 eventAction: 'Tab click', 
                 eventLabel: "Explore tab click" 
-            });   
+            });
+//            if (this.exploreTabCounter === 0){ //show scenario notes the first time on Explore tab
+//                lang.hitch(this, this.scenarioNotes(this.obj.startingPrioritizedLayerName, this.noScenario));
+//                this.exploreTabCounter += 1;
+//            }
         },
         
         
@@ -1128,7 +1327,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.obj.startingConsensusCustomFilter = "";
             this.obj.startingConsensusSeverityFilterMax = 5;
             this.obj.startingConsensusSeverityFilterMin = 1;
-            this.obj.startingConsensusTierFilterMax = 20;
+            this.obj.startingConsensusTierFilterMax = this.config.maxTierVal;
             this.obj.startingConsensusTierFilterMin = 1;
             
             this.prioritizedBarriers = new ArcGISDynamicMapServiceLayer(this.url);
@@ -1142,7 +1341,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
           
         resetFilterSliders: function(){
             $( "#" + this.id + "consensusResultFilterSliderTier" ).slider( "values", 0, 1);
-            $( "#" + this.id + "consensusResultFilterSliderTier" ).slider( "values", 1, 20);
+            $( "#" + this.id + "consensusResultFilterSliderTier" ).slider( "values", 1, this.config.maxTierVal);
             $( "#" + this.id + "consensusResultFilterSliderSeverity" ).slider( "values", 0, 1);
             $( "#" + this.id + "consensusResultFilterSliderSeverity" ).slider( "values", 1, 5);
         
@@ -1152,8 +1351,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
           
         filterConsensusMapServiceSlider: function(values){
             console.log(values);
-            this.consensusTierMaxVal = 21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
-            this.consensusTierMinVal = 21-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
+            this.consensusTierMaxVal = (this.config.maxTierVal+1)-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 0);
+            this.consensusTierMinVal = (this.config.maxTierVal+1)-$('#' + this.id + 'consensusResultFilterSliderTier').slider("values", 1);
             this.consensusSeverityMinVal = $('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 0);
             this.consensusSeverityMaxVal = $('#' + this.id + 'consensusResultFilterSliderSeverity').slider("values", 1);
             this.consensusSeverityRange = [];
@@ -1174,7 +1373,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.removeLayer(this.prioritizedBarriers);
             if (this.consensusCustomFilter !== "" && this.consensusCustomFilter  !== undefined){this.consensusFilter = this.consensusSliderFilter + " AND " + this.consensusCustomFilter;}
             else{this.consensusFilter = this.consensusSliderFilter;}
-                   
+            
+            console.log(this.consensusFilter) ;      
             this.prioritizedBarriers = this.filterMapService(this.consensusFilter, this.prioritizedBarriers, this.config.url);
 
             this.prioritizedBarriers.setVisibleLayers(this.visibleLayers);
@@ -1193,7 +1393,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 if (sliderID.indexOf('Severity') !== -1){
                     var textVal = this.severityDict[ui.values[i]];
                 }
-                else{var textVal = 21-ui.values[i];}
+                else{var textVal = (this.config.maxTierVal+1)-ui.values[i];}
                 console.log(textVal);
                 $(v).html(textVal);
             }));
@@ -1378,8 +1578,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
         },
         
-       applyWeights: function(myWeights) {  
-            for (var key in myWeights) {
+       applyWeights: function(weightObj) {
+           for (var key in weightObj){
+               if (weightObj.hasOwnProperty(key)) {
+                   var myWeights = weightObj[key];
+               }
+           }
+           for (var key in myWeights) {
                 if (myWeights.hasOwnProperty(key)) {
                     $("#" + this.id + "weightIn-" + key).val(myWeights[key]);
                 }
@@ -1389,10 +1594,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     if (parseFloat(v.value) > 0){$('#' + v.id).addClass('bp_weighted');}
                     else{$('#' + v.id).removeClass('bp_weighted');}            
                 }));
-                this.sumWeights = this.metricWeightCalculator(this.gpVals);      
-                $('#'+ this.id + "bp_currWeight").text(this.sumWeights);
-                if (this.sumWeights !== 100){$('#'+ this.id +"bp_currWeight").css('color', 'red');}
-                if (this.sumWeights === 100){$('#'+ this.id +"bp_currWeight").css('color', 'green');} 
+                
+                lang.hitch(this, this.getCurrentWeights());
+                lang.hitch(this, this.metricWeightCalculator(this.gpVals));
+//                this.sumWeights = this.metricWeightCalculator(this.gpVals);      
+//                $('#'+ this.id + "bp_currWeight").text(this.sumWeights);
+//                if (this.sumWeights !== 100){$('#'+ this.id +"bp_currWeight").css('color', 'red');}
+//                if (this.sumWeights === 100){$('#'+ this.id +"bp_currWeight").css('color', 'green');} 
             }
         },
         getCurrentWeights: function(){
@@ -1782,7 +1990,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //only show those attributes selected by user - take the text labels, not the values since the radar
             //axis use the labels
             var userFilterArray = $("#" + this.id + "selectClickMetrics").val();
-            console.log(userFilterArray);
+//            console.log(userFilterArray);
             this.userFilterArray=[];
             for (var i=0; i< userFilterArray.length; i++){
                 this.userFilterArray.push(this.config.metricShortNames[userFilterArray[i]]);
@@ -2041,6 +2249,10 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 //            console.log("identify active = " +this.activateIdentify);
             
             this.idLayerURL = layerURL;
+            if (this.activateIdentify === ""){
+                this.allowIdentifyWhenActive = false;
+                dojo.disconnect(this.identifyClick);
+            }
             if (this.activateIdentify === "framework"){ 
             	//this is the generic framework identify
             	this.allowIdentifyWhenActive = true;
@@ -2121,14 +2333,13 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 }));
             } 
             this.firstIdentify ++;
-             
         },
         
         displayIDResult: function(idResult, point){
             this.idContent="";
             this.metricBarData =[];
             this.allClickData = {}; //build an object to get the all real values.
-
+            console.log(this.allClickData);
             $.each(idResult.attributes, lang.hitch(this, function(k, v){ 
                 this.allClickData[k] = v; 
             }));
@@ -2136,7 +2347,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "clickBarrierName").text(this.allClickData[this.config.barrierNameField]);
             $("#" + this.id + "clickBarrierID").text(this.allClickData[this.config.uniqueID]);
             $("#" + this.id + "clickBarrierType").text(this.allClickData[this.config.barrierTypeField]);
-            
+            $("#" + this.id + "clickBarrierFRisk").text(this.allClickData[this.config.barrierFloodRiskField]);
 
             //add links to photos
             var photoHtml ="";
@@ -2163,7 +2374,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 
 
                 if (this.allClickData[this.config.barrierPassabilityField] < this.config.consensusFilterPassabilityThreshold){
-                    var Text = "This barrier was not prioritized because one of the input datasets did not cover the extent of this barrier. This barrier can be prioritized by running a custom analysis that excludes any of the metrics below that have 'Null' values.";
+                    var Text = "This barrier was not prioritized because one of the following is true: the barrier doesn't meet the filtering criteria of the sceanrio or because one or more input datasets does not cover the extent of this barrier. This barrier can be prioritized by running a custom analysis that doesn't use a filter and or any of the metrics below that have 'Null' values for this barrier.";
                     $("#" + this.id + "notPrioritizedText").text(Text);
                     $("#" + this.id + "clickBarrierTier").text("Not Prioritized - Missings Metric(s)");
                 }
@@ -2309,6 +2520,11 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.infoWindow.setFeatures([idResult]);
         },            
 
+        getSubStrAfterLastInstanceOfChar: function(str, char) {
+            return str.split(char).pop();
+        },
+        
+        
         displayCustomIDResult: function(idResult, point){
             console.log("custom display result");
             $("#" + this.id + "customClickInstructions").hide();
@@ -2323,6 +2539,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#" + this.id + "customClickBarrierName").text(this.customAllClickData[this.config.barrierNameField]);
             $("#" + this.id + "customClickBarrierID").text(this.customAllClickData[this.config.uniqueID]);
             $("#" + this.id + "customClickBarrierType").text(this.customAllClickData[this.config.barrierTypeField]);
+            $("#" + this.id + "customClickBarrierFRisk").text(this.customAllClickData[this.config.barrierFloodRiskField]);
             
             //add links to photos
             var photoHtml ="";
@@ -2409,7 +2626,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.customClickHeader = "Name: " + this.customAllClickData[this.config.barrierNameField] +
             "<br/>ID: " + this.customAllClickData[this.config.uniqueID] +
             "<br/>Type: " + this.customAllClickData[this.config.barrierTypeField];
-            
+   
             this.identJSON = {
                 title: "${" + this.uniqueID+ "} = Tier ${" + tierName +"}",
                 content: this.customClickHeader
