@@ -932,7 +932,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
 
         glanceZoom: function(v, bool){
-            console.log(v)
             if (v === undefined){var v = $("#" + this.id + "glanceZoom").val();}
             var zoomExt = new Extent(this.config.zoomTo[v][0][0],this.config.zoomTo[v][0][1], this.config.zoomTo[v][0][2], this.config.zoomTo[v][0][3],
                   new SpatialReference({ wkid:3857 }));
@@ -1003,7 +1002,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     this.map.addLayer(this.glanceBarriers);
                     
                     var layerDefs =[];
-                    layerDefs[this.config.hideGlanceBarriersLayerID] = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+                    if (v !== "Statewide"){
+                        layerDefs[this.config.hideGlanceBarriersLayerID] = this.config.subExtentNameFieldInBarrierLayer + " = '" + v + "'";
+                    }
+                    else{
+                        layerDefs[this.config.hideGlanceBarriersLayerID] = "1=1";
+                    }
                     this.subsetBarriers = new ArcGISDynamicMapServiceLayer(this.url);
                     this.subsetBarriers.setVisibleLayers([this.config.hideGlanceBarriersLayerID]);
                     this.subsetBarriers.setLayerDefinitions(layerDefs);
@@ -1211,7 +1215,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.subsetBarriers && this.subsetBarriers!== "off"){this.map.addLayer(this.subsetBarriers);} 
             if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
-            if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
+//            if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
+            this.map.addLayer(this.glanceBarriers);
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
             this.activateIdentify = "";
             this.visibleTab = "glance";
