@@ -17,7 +17,8 @@
             {"resultGISName" : "NESZCL", "resultPrettyName" : "Stream Size"},
             {"resultGISName" : "HUC12", "resultPrettyName" : "HUC12"},
             {"resultGISName" : "HUC12_Name", "resultPrettyName" : "HUC12 Name"},
-            {"resultGISName" : "CoastalStreams", "resultPrettyName" : "Coastal Streams"}
+            {"resultGISName" : "CoastalStreams", "resultPrettyName" : "Coastal Streams"},
+            {"resultGISName" : "Tidal", "resultPrettyName" : "Tidal"}
         ],
 
         "resultValuesTable" : {
@@ -27,6 +28,10 @@
                 ],
 
             "Coastal Streams" : [
+                {"resultValue" : 1},
+                {"resultValue" : 0}
+            ],
+            "Tidal" : [
                 {"resultValue" : 1},
                 {"resultValue" : 0}
             ],
@@ -3525,7 +3530,8 @@
             {"metricGISName" : "NESZCL", "metricPrettyName" : "Stream Size"},
             {"metricGISName" : "HUC12", "metricPrettyName" : "HUC12"},
             {"metricGISName" : "HUC12_Name", "metricPrettyName" : "HUC12 Name"},
-            {"metricGISName" : "CoastalStreams", "metricPrettyName" : "Coastal Streams"}
+            {"metricGISName" : "CoastalStreams", "metricPrettyName" : "Coastal Streams"},
+            {"metricGISName" : "Tidal", "metricPrettyName" : "Tidal"}
         ],
 		
         "metricValuesTable" : {
@@ -3535,6 +3541,10 @@
 
             ],
             "Coastal Streams" : [
+                {"metricValue" : 1},
+                {"metricValue" : 0}
+            ],
+            "Tidal" : [
                 {"metricValue" : 1},
                 {"metricValue" : 0}
             ],
