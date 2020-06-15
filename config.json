@@ -1,7 +1,7 @@
 {
     "url": "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer",
     "removeSelectionURL" : "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer/120",
-    "gpURL":"https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
+    "gpURL":"https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
     "includeCustomAnalysis" : true,
     "includeSurveyPageLink" : false,
     "includeFERC": false,
