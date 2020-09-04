@@ -98,80 +98,82 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
         <div role="tabpanel" class="tab-pane" id="explore">
             <section>
                 <h2 class="sidebar-content-heading" >Explore Prioritized Barriers</h2>
-                <div class="bp_lightGrayDiv2">
-                    <h3 style="text-align:center; margin:5px;">Select an Extent & Prioritization Scenario</h3>
-                    <div class="bp_flexRowHCenter">
-                        <div class="bp_flexColHCenter flash">
-                            <div class="chosen-wrap" style="margin:5px;">
-                                <select data-placeholder="Select a region" id="exploreZoom" class="chosen">  
-                                    <option value=""></option>
-                                    <option value="Statewide">Statewide</option>
-                                    <option value="Allagash">Allagash</option>
-                                    <option value="Aroostook">Aroostook</option>
-                                    <option value="Becaguimec Stream-Saint John River">Becaguimec Stream Saint John River</option>
-                                    <option value="Big Black River-Saint John River">Big Black River Saint John River</option>
-                                    <option value="Dead">Dead</option>
-                                    <option value="East Branch Penobscot">East Branch Penobscot</option>
-                                    <option value="Fish">Fish</option>
-                                    <option value="Headwaters Saint-John River">Headwaters Saint John River</option>
-                                    <option value="Little River Saint-John River">Little River Saint John River</option>
-                                    <option value="Lower Androscoggin">Lower Androscoggin</option>
-                                    <option value="Lower Kennebec">Lower Kennebec</option>
-                                    <option value="Lower Penobscot">Lower Penobscot</option>
-                                    <option value="Maine Coastal">Maine Coastal</option>
-                                    <option value="Mattawamkeag">Mattawamkeag</option>
-                                    <option value="Meduxnekeag">Meduxnekeag</option>
-                                    <option value="Passamaquoddy Bay-Bay of Fundy">Passamaquoddy Bay Bay of Fundy</option>
-                                    <option value="Piscataqua-Salmon Falls">Piscataqua_salmon Falls</option>
-                                    <option value="Piscataquis">Piscataquis</option>
-                                    <option value="Presumpscot">Presumpscot</option>
-                                    <option value="Saco">Saco</option>
-                                    <option value="St. Croix">St. Croix</option>
-                                    <option value="St. Francis River Saint John River">St. Francis River Saint John River</option>
-                                    <option value="St. George-Sheepscot">St. George Sheepscot</option>
-                                    <option value="Upper Androscoggin">Upper Androscoggin</option>
-                                    <option value="Upper Kennebec">Upper Kennebec</option>
-                                    <option value="West Branch Penobscot">West Branch Penobscot</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="bp_flexColHCenter flash">
-                            <div class="chosen-wrap" style="margin:5px;">
-                                <select data-placeholder="Select a scenario" id="exploreScenario" class="chosen">
-                                    <option value=""></option>
-                                    <option value="alewife">Alewife</option>
-                                    <option value="coastal">Coastal Anadromous</option>
-                                    <option value="inlandBKT">Inland Brook Trout</option>
-                                    <option value="salmon">ESA Salmon</option>
-                                    <option value="shadBBH">Shad / Blueback Herring</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="bp_lightGrayDiv1">
-                    <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected region.</p>
-                    <div class="bp_flexRowHCenter">
-                        <div class="bp_flexColHCenter">
-                            <label class="form-component" for="stratify-region">
-                                <input  type="radio" value="stratify-region" id="stratify-region" name="stratify">
-                                <div class="check"></div>
-                                <span class="form-text">Statewide</span>
-                            </label>
-                        </div>
-                        <div class="bp_flexColHCenter">
-                            <label class="form-component" for="stratify-subregion">
-                                <input checked type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
-                                <div class="check"></div>
-                                <span class="form-text">Region</span>
-                            </label>
-                        </div>    
-                    </div>
-                </div>
+                
                 <div class="accord" style="margin-top:5px;">
-                    <div id="mainAccord" style="height: calc(100vh - 350px)">
-                    <h3>Assess a Barrier</h3>
-                    <div class="bp_flexColumn">
+                    <div id="mainAccord" style="height: calc(100vh - 200px)">
+                    <h3 class="assessAccord" id="assessAccord">Assess a Barrier</h3>
+                    
+                    <div id="assessContainer" class="bp_flexColumn">
+                        <div class="bp_lightGrayDiv2">
+                            <h3 style="text-align:center; margin:5px;">Select an Extent & Prioritization Scenario</h3>
+                            <div class="bp_flexRowHCenter">
+                                <div class="bp_flexColHCenter flash">
+                                    <div class="chosen-wrap" style="margin:5px;">
+                                        <select data-placeholder="Select a region" id="exploreZoom" class="chosen">  
+                                            <option value=""></option>
+                                            <option value="Statewide">Statewide</option>
+                                            <option value="Allagash">Allagash</option>
+                                            <option value="Aroostook">Aroostook</option>
+                                            <option value="Becaguimec Stream-Saint John River">Becaguimec Stream Saint John River</option>
+                                            <option value="Big Black River-Saint John River">Big Black River Saint John River</option>
+                                            <option value="Dead">Dead</option>
+                                            <option value="East Branch Penobscot">East Branch Penobscot</option>
+                                            <option value="Fish">Fish</option>
+                                            <option value="Headwaters Saint-John River">Headwaters Saint John River</option>
+                                            <option value="Little River Saint-John River">Little River Saint John River</option>
+                                            <option value="Lower Androscoggin">Lower Androscoggin</option>
+                                            <option value="Lower Kennebec">Lower Kennebec</option>
+                                            <option value="Lower Penobscot">Lower Penobscot</option>
+                                            <option value="Maine Coastal">Maine Coastal</option>
+                                            <option value="Mattawamkeag">Mattawamkeag</option>
+                                            <option value="Meduxnekeag">Meduxnekeag</option>
+                                            <option value="Passamaquoddy Bay-Bay of Fundy">Passamaquoddy Bay Bay of Fundy</option>
+                                            <option value="Piscataqua-Salmon Falls">Piscataqua_salmon Falls</option>
+                                            <option value="Piscataquis">Piscataquis</option>
+                                            <option value="Presumpscot">Presumpscot</option>
+                                            <option value="Saco">Saco</option>
+                                            <option value="St. Croix">St. Croix</option>
+                                            <option value="St. Francis River Saint John River">St. Francis River Saint John River</option>
+                                            <option value="St. George-Sheepscot">St. George Sheepscot</option>
+                                            <option value="Upper Androscoggin">Upper Androscoggin</option>
+                                            <option value="Upper Kennebec">Upper Kennebec</option>
+                                            <option value="West Branch Penobscot">West Branch Penobscot</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="bp_flexColHCenter flash">
+                                    <div class="chosen-wrap" style="margin:5px;">
+                                        <select data-placeholder="Select a scenario" id="exploreScenario" class="chosen">
+                                            <option value=""></option>
+                                            <option value="alewife">Alewife</option>
+                                            <option value="coastal">Coastal Anadromous</option>
+                                            <option value="inlandBKT">Inland Brook Trout</option>
+                                            <option value="salmon">ESA Salmon</option>
+                                            <option value="shadBBH">Shad / Blueback Herring</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bp_lightGrayDiv1">
+                            <p style="text-align: center; margin-bottom: 1px;">Choose to display priorities relative to the state or the selected region.</p>
+                            <div class="bp_flexRowHCenter">
+                                <div class="bp_flexColHCenter">
+                                    <label class="form-component" for="stratify-region">
+                                        <input  type="radio" value="stratify-region" id="stratify-region" name="stratify">
+                                        <div class="check"></div>
+                                        <span class="form-text">Statewide</span>
+                                    </label>
+                                </div>
+                                <div class="bp_flexColHCenter">
+                                    <label class="form-component" for="stratify-subregion">
+                                        <input checked type="radio" value="stratify-subregion" id="stratify-subregion" name="stratify">
+                                        <div class="check"></div>
+                                        <span class="form-text">Region</span>
+                                    </label>
+                                </div>    
+                            </div>
+                        </div>
                         <div id="clickInstructions">
                             <h4>Click on a barrier for more information and to expose additional functionality.</h4>
                         </div>
@@ -242,8 +244,8 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             </div>
                         </div>
                     </div>
-                    <h3>Filter the Results</h3>
-                    <div>
+                    <h3 id="filterAccord">Filter the Results</h3>
+                    <div id="filterContainer">
                         <div class="bp_flexColHCenter">
                                 <div id="consensusResultFiltersContainer" class="bp_flexColHCenter bp_flexBottom">
                                     <div class="bp_flexColHCenter">
@@ -296,7 +298,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                 </div>
                         </div>      
                     </div>
-                    <h3>Layers</h3>
+                    <h3 id="layersAccord">Layers</h3>
                     <div>
 			<div id="additionalLayersContainer" class="bp_flexColHCenter">
                             <div class="additionalLayers" id="additionalLayers">
@@ -324,7 +326,31 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                             </div>
 			</div>
                     </div>
-                    <h3>Documentation</h3>
+                    <h3 id="milesOpenedAccord">Track Projects Over Time</h3>
+                    <div id="milesOpenedContainer">
+                        <section>
+                            <br>
+                            <div class="bp_flexColHCenter">Use the time slider to see how upstream river miles have been opened since 1988.</div>
+                            <br>
+                            <div id="info" class="bp_flexColHCenter" title="Use the slider to see miles open over time.">
+                                <br>
+                                <div id="timeInfo" class="bp_flexColHCenter">
+                                    <div class="slider-container bp_flexColHCenter" style="width:275px;">
+                                        <div id="timeSlider" class="slider" style="width:275px;"></div>
+                                        <div style="text-align:center; margin-top:10px;">
+                                            Between <span class="blueFont" id="timeSliderMin">1995</span> and <span class="blueFont" id="timeSliderMax"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mileageResult">
+                                    <span id="passageResultVal"></span>
+                                    <br>
+                                    <p>Note: Projects with an unknown completion date are noted with a "999" and are shown starting in 2018.  </p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <h3 id="docAccord">Documentation</h3>
                     <div>
                         <p>
                             <strong>The fragmentation </strong>of river habitats through dams and poorly functioning culverts is one of the primary threats to aquatic species in the United States.  The impact of fragmentation on aquatic species generally involves loss of access to quality habitat for one or more life stages of a species.  For example, dams and impassable culverts limit the ability of diadromous fish species to reach preferred freshwater spawning habitats from the sea and prevent brook trout populations from reaching thermal refuges. 

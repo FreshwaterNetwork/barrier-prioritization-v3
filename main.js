@@ -8,11 +8,12 @@ define([
     "dojo/dom-style", "dojo/dom-geometry",  "dojo/text!./obj.json", "dojo/text!./html/content.html",  './js/clicks', 
     'dojo/text!./config.json', 'dojo/text!./filters.json', 'dojo/text!./photos.json',"esri/layers/ImageParameters", "esri/layers/FeatureLayer", "esri/layers/GraphicsLayer",
      "esri/layers/ArcGISDynamicMapServiceLayer",  "esri/graphic", "esri/symbols/SimpleMarkerSymbol", "esri/tasks/Geoprocessor", "esri/tasks/IdentifyTask", "esri/tasks/IdentifyParameters", "esri/InfoTemplate",
-     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask", "esri/layers/LayerInfo", "dijit/Dialog"
+     "esri/renderers/SimpleRenderer", "esri/geometry/Extent", "esri/geometry/webMercatorUtils", "esri/SpatialReference","esri/tasks/query", "esri/tasks/QueryTask", "esri/layers/LayerInfo", "dijit/Dialog",
+      "esri/TimeExtent", "esri/dijit/TimeSlider"
 ],
 function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domStyle, domGeom, obj, content,  Clicks,  config, 
     filters, photos, ImageParameters, FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer, Graphic, SimpleMarkerSymbol, Geoprocessor, IdentifyTask, 
-    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask, LayerInfo, Dialog) {
+    IdentifyParameters, InfoTemplate, SimpleRenderer, Extent, webMercatorUtils, SpatialReference, Query, QueryTask, LayerInfo, Dialog, TimeExtent, TimeSlider) {
     return declare(PluginBase, {
         // The height and width are set here when an infographic is defined. When the user click Continue it rebuilds the app window with whatever you put in.
         toolbarName: "Aquatic Barrier Prioritization", showServiceLayersInLegend: true, allowIdentifyWhenActive: true, rendered: false, resizable: false,
@@ -38,6 +39,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.exploreTabCounter = 0;
             this.selectSeverityCounter = 0;
             this.zoomCounter=0;
+            this.explorePane = "assess"
             
             ga('send', 'event', {
                 eventCategory:this.config.analyticsEventTrackingCategory,        
@@ -210,7 +212,9 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             // BRING IN OTHER JS FILES
             this.clicks = new Clicks();
 
-           
+            this.map.on( "update-start", this.showLoading);
+            this.map.on( "update-end", this.hideLoading);
+                
             // window popup for metric definition
             window.windowPopup = function(mylink, windowname){
                 if (!window.focus)return true;
@@ -311,7 +315,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             }
             
             //Set up the +/- expanders on the custom analysis tab
-            this.expandContainers = [ "customFilter", "customMetric", "barrierRemoval", "sumStats"];
+            this.expandContainers = [ "customFilter", "customMetric", "barrierRemoval", "sumStats", "milesOpened"];
             //Hide all expansion containers & set cursor to pointer        
             for (var i=0; i<this.expandContainers.length; i++){
                 $("#" + this.id + this.expandContainers[i] + "Container").hide();
@@ -322,7 +326,7 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $('.bp_expander').on("click", lang.hitch(this, function(e){
                 //show the assess a barrier expander if it's hidden, which it is by default
                 var expander = e.currentTarget.id;
-                var container = e.currentTarget.id.replace("Expander", "Container");
+                var container = e.currentTarget.id.replace("Expander", "Container");                
                 for (var i=0; i<this.expandContainers.length; i++){
                     if (this.id + this.expandContainers[i]+"Expander" === expander && $("#" + this.id + this.expandContainers[i]+"Container").is(":visible")===false){
                         lang.hitch(this, this.selectorTextReplace(e.currentTarget, "+", "-"));
@@ -337,8 +341,6 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 }
             }));
 
-
-            
 
             if (this.config.includeExploreConsensus === true){
                 //Consensus Tier Slider
@@ -879,9 +881,60 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             //use topo map by default
             $(".basemap-selector-list").find("li")[2].click();
             lang.hitch(this, this.welcomePopup());
+            
+            
+            if (this.config.includeMilesOverTime === true){
+                lang.hitch(this, this.initTimeSlider());
+                $("#map-0").append('<img id="loadingImg" src="plugins/barrier-prioritization-v3/images/spinner2.gif" style="position:absolute; right:45%; top:45%; z-index:100;" />');
+
+                this.loading = dom.byId("loadingImg");
+
+                this.map.on( "update-start", this.showLoading);
+                this.map.on( "update-end", this.hideLoading);
+
+                            
+                //On miles opened accordion click add 
+                $('#' + this.id +'milesOpenedAccord').on('click', lang.hitch(this,function(e){
+                    this.explorePane = "milesOpened"
+                    console.log("miles opened click click");
+                    // update summed miles
+                    var startValString = $('#' + this.id + 'timeSlider').slider("values")[0];
+                    var endValString = $('#' + this.id + 'timeSlider').slider("values")[1];
+                    var filterTimeExtent = new TimeExtent();
+                    filterTimeExtent.startTime = new Date(String(startValString) + " UTC" );
+                    filterTimeExtent.endTime = new Date(String(endValString) + " UTC");
+                    lang.hitch(this, this.sumMiles(filterTimeExtent));
+                }));
+                
+                $('#' + this.id +'assessAccord').on('click', lang.hitch(this,function(e){
+                    this.explorePane="assess"
+                }));
+                $('#' + this.id +'filterAccord').on('click', lang.hitch(this,function(e){
+                    this.explorePane="assess"
+                }));
+                $('#' + this.id +'layersAccord').on('click', lang.hitch(this,function(e){
+                    this.explorePane="assess"
+                }));
+                $('#' + this.id +'docAccord').on('click', lang.hitch(this,function(e){
+                    this.explorePane="assess"
+                }));
+                
+                
+                
+
+            }
+            
+            
             this.rendered = true;
         },    
         
+        hideLoading: function(error) {
+           $("#loadingImg").hide();
+        },
+                
+        showLoading: function(error) {
+           $("#loadingImg").show();
+        },
         
         compareValues: function(key, order) {
             // function for sorting an array of objects
@@ -1080,14 +1133,14 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
 
             //show a popup if there are no barriers 
             var stratExtent = $("#" + this.id + "exploreZoom").val();
-            var primaryLayerKey = stratExtent + "_" + scenario
+            var primaryLayerKey = stratExtent + "_" + scenario;
 
             var query = new Query();
             var featureLayer = new FeatureLayer(this.config.url + "/" + this.activeConsensusLayerID);
             query.where = "1=1";
             var ref = this;
             featureLayer.queryCount(query, function(count) {  
-                if (stratExtent != null && scenario != null && ref.config.stratifiedLayers[primaryLayerKey] == null){
+                if (stratExtent != null && scenario !== null && ref.config.stratifiedLayers[primaryLayerKey] === null){
                     var noScenario = true;
                 }
                 else if (count === 0){
@@ -1137,14 +1190,12 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             $("#dialogOK").on("click", lang.hitch(this, function(e){
                 dijit.byId('welcomeDialog').hide(); 
              })); 
-        
         },
 
         selectStratification: function(){
             var stratExtent = $("#" + this.id + "exploreZoom").val();
             var scenario = $("#" + this.id + "exploreScenario").val();    
             var stratify = $('input[name="stratify"]:checked').val();
- 
             
             if (stratify === "stratify-subregion"){
                 var primaryLayerKey = stratExtent + "_" + scenario;
@@ -1210,14 +1261,25 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
           return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
         },
         
+        roundWithCommas: function (value, decimals) {
+            x = Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
+        
         glanceTabClick: function(){
             console.log("glance tab click");
+            if ($(this.loading).is(":visible")){
+                this.hideLoading();
+                this.map.on( "update-start", this.showLoading);
+                this.map.on( "update-end", this.hideLoading);
+            } 
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
             if (this.subsetBarriers && this.subsetBarriers!== "off"){this.map.addLayer(this.subsetBarriers);} 
             if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
 //            if (this.glanceBarriers){this.map.addLayer(this.glanceBarriers);}
             this.map.addLayer(this.glanceBarriers);
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
+            if (this.mileageLayer){if (this.mileageLayer){this.map.removeLayer(this.mileageLayer);}}
             this.activateIdentify = "";
             this.visibleTab = "glance";
             lang.hitch(this, this.refreshIdentify(this.config.url)); 
@@ -1231,12 +1293,35 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         exploreTabClick: function(){
             console.log("explore tab click");
+            if ($(this.loading).is(":visible")){
+                this.hideLoading();
+                this.map.on( "update-start", this.showLoading);
+                this.map.on( "update-end", this.hideLoading);
+            } 
             lang.hitch(this, this.fireResize());
             if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
             if (this.gpResLayer){this.map.removeLayer(this.gpResLayer);}
-            this.map.addLayer(this.prioritizedBarriers);
+            
+            if (this.explorePane === "milesOpened"){
+                if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
+                if (this.subExtents){this.map.removeLayer(this.subExtents);}
+                this.map.addLayer(this.mileageLayer);
+                this.activateIdentify = "framework";
+            }   
+             else {
+                if (this.mileageLayer){this.map.removeLayer(this.mileageLayer);}
+                if (this.prioritizedBarriers){this.map.addLayer(this.prioritizedBarriers);}
+                if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
+                this.activateIdentify = "consensus";
+
+            }
+
+
+
+
+            
             this.activateIdentify = "consensus";
             this.visibleTab = "explore";
             lang.hitch(this, this.refreshIdentify(this.config.url)); 
@@ -1254,12 +1339,18 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
         
         
         customTabClick: function(){
+            if ($(this.loading).is(":visible")){
+                this.hideLoading();
+                this.map.on( "update-start", this.showLoading);
+                this.map.on( "update-end", this.hideLoading);
+            } 
             lang.hitch(this, this.fireResize());
             if (this.subsetBarriers){this.map.removeLayer(this.subsetBarriers);} 
             if (this.subExtents){this.map.removeLayer(this.subExtents);}
             this.subExtents = "off";
             if (this.glanceBarriers){this.map.removeLayer(this.glanceBarriers);}
             if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
+            if (this.mileageLayer){if (this.mileageLayer){this.map.removeLayer(this.mileageLayer);}}
             if (this.gpResLayer){this.map.addLayer(this.gpResLayer);}
             this.activateIdentify = "custom";
             this.visibleTab = "custom";
@@ -1284,6 +1375,19 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 this.activateIdentify = "framework";
                 lang.hitch(this, this.refreshIdentify(this.config.url));              	
             }    
+            
+            if ($("#" + this.id +"milesOpenedContainer").is(":visible")===true){
+                if (this.prioritizedBarriers){this.map.removeLayer(this.prioritizedBarriers);}
+                if (this.subExtents){this.map.removeLayer(this.subExtents);}
+                this.map.addLayer(this.mileageLayer);
+            }
+            else {
+                if (this.mileageLayer){this.map.removeLayer(this.mileageLayer);}
+                if (this.prioritizedBarriers){this.map.addLayer(this.prioritizedBarriers);}
+                if (this.subExtents && this.subExtents !== "off"){this.map.addLayer(this.subExtents);}
+                
+            }
+           
         },
         
         
@@ -2642,8 +2746,110 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.map.infoWindow.resize(300,400); //switching to framework identify can cause this popup to resize wrong.  So be explicit    
             this.map.infoWindow.setFeatures([idResult]);
             lang.hitch(this, this.customMetricBars());
+        },
+        
+        
+        
+        getThisYear: function(){	
+            return (new Date()).getFullYear();	
+        },
+
+        initTimeSlider: function(){
+            //Time slider 
+            this.mileageLayer = new ArcGISDynamicMapServiceLayer(this.config.mileageCalcURL);
+            var mileageLayerDefinitions = [];
+            mileageLayerDefinitions[0] = "PassYear =1995";
+            mileageLayerDefinitions[2] = "PassYear =1995";
+            mileageLayerDefinitions[3] = "1=1";
+            mileageLayerDefinitions[4] = "1=1";
+        
+            this.mileageLayer.setLayerDefinitions(mileageLayerDefinitions);
+            this.mileageLayer.setVisibleLayers([0, 1, 3, 2, 4]);
+            $('#' + this.id + 'timeSlider').slider({
+                range:true, 
+                min:1995, 
+                max:2020, 
+                values: [1995, 1995],
+                // called at end of slide. use change to ask server for data
+                change:lang.hitch(this,function(event,ui){
+                    lang.hitch(this, this.timeSlideChange(ui));
+                })
+            });  
+            
+            var filterTimeExtent = new TimeExtent();
+            filterTimeExtent.startTime = new Date(String("1994") + " UTC" );
+            filterTimeExtent.endTime = new Date(String("1995") + " UTC");
+            this.inc999 = 0; //don't include 999 projects (unknown date) in initial summary
+            lang.hitch(this, this.sumMiles(filterTimeExtent));
+
+            if (this.timeSliderInit === false){
+                $('#' + this.id + 'timeSlider').slider("values", [1995, 1995]);
+            }
+            this.timeSliderInit = true;
+        },
+        
+        timeSlideChange: function(ui){
+            var sliderID = '#' + this.id + 'timeSlider';
+            var startValString = ui.values[0];
+            var endValString = ui.values[1];
+            $("#" + this.id +"timeSliderMin").text(startValString);
+            $("#" + this.id +"timeSliderMax").text(endValString);
+            
+            var filterTimeExtent = new TimeExtent();
+            filterTimeExtent.startTime = new Date(String(startValString) + " UTC" );
+            filterTimeExtent.endTime = new Date(String(endValString) + " UTC");
+            console.log(filterTimeExtent);
+
+            var mileageLayerDefinitions = [];
+            if (endValString <=2018){
+                mileageLayerDefinitions[0] = "(PassYear <= " +endValString  + " AND PassYear >= " + startValString + ")";
+                mileageLayerDefinitions[2] = "(PassYear <= " +endValString + " AND PassYear >= " + startValString + ")";
+                this.inc999 = 0;
+            }
+            else{
+                mileageLayerDefinitions[0] = "(PassYear <= " +endValString  + " AND PassYear >= " + startValString + ") OR PassYear = 999";
+                mileageLayerDefinitions[2] = "(PassYear <= " +endValString + " AND PassYear >= " + startValString + ") OR PassYear = 999";
+                this.inc999 = 1;
+            }
+
+            mileageLayerDefinitions[1] = "1=1";
+            mileageLayerDefinitions[3] = "1=1";
+            mileageLayerDefinitions[4] = "1=1";
+            
+            this.mileageLayer.setLayerDefinitions(mileageLayerDefinitions);
+               console.log(mileageLayerDefinitions);
+            lang.hitch(this, this.sumMiles(filterTimeExtent));
+        },
+                
+        sumMiles: function(timeExtent){			
+            var passageQueryTask = new QueryTask(this.config.mileageCalcURL + "/2");
+            var passageQuery = new Query();
+            passageQuery.returnGeometry = false;
+            passageQuery.outFields = ["LENGTH_MI", "PassYear"];
+            passageQuery.timeExtent = timeExtent;
+            passageQueryTask.execute(passageQuery, lang.hitch(this, this.showPassageResults));
+
+        },
+		
+        showPassageResults: function(results){
+            console.log(results);
+            var sumLength = 0;
+            for (i=0; i < results.features.length; i++){
+                if (this.inc999 === 1){
+                    sumLength += results.features[i].attributes["LENGTH_MI"];
+                }
+                if (this.inc999 === 0){
+                    if (results.features[i].attributes["PassYear"] !== 999){ //only add mileage if it's not a 999 - unknown date project
+                        sumLength += results.features[i].attributes["LENGTH_MI"];
+                    }
+                    
+                }
+                
+            }
+            console.log("Total miles with improved access = " + sumLength);
+            $("#" + this.id + "passageResultVal").html("Improved access: <strong>" + this.roundWithCommas(sumLength, 0) + "</strong> Miles<br><br>" 
+                    + "<p>Note: Rivers with improved access includes those rivers reaches upstream of a passage project to the next barrier.  It does not necessarily reflect safe, timely and effective passage.</p>");
         }
         
-        //End of functions...
     });
 });

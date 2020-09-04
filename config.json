@@ -1,7 +1,8 @@
 {
     "url": "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer",
     "removeSelectionURL" : "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization/MapServer/120",
-    "gpURL":"https://dev-services.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
+    "gpURL":"https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_GPServ/GPServer/Prioritize",
+    "mileageCalcURL": "https://services2.coastalresilience.org/arcgis/rest/services/Maine/Aquatic_Prioritization_ProjectTracking/MapServer",
     "includeCustomAnalysis" : true,
     "includeSurveyPageLink" : false,
     "includeFERC": false,
@@ -10,6 +11,7 @@
     "includeMultipleScenarios" : true,
     "includeExploreConsensus":true,
     "includeSeverityFilter":true,
+    "includeMilesOverTime" : true,
     "includePassabilityOption" : false,
     "includeExportCSVOption" : true,
     "residentTierName" : "",
