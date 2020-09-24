@@ -206,7 +206,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                 </div>
                                 <div class="bp_flex">
                                     <div  style="flex: 1;">
-                                        <div class="bp_flexRow"><p style="font-weight: 700; width:150px;">ME <a href="https://webapps2.cgis-solutions.com/MaineStreamViewer/" target="_blank" >Stream Habitat Viewer</a> Photos:</p><p id="clickBarrierPhotos" class="bp_flexWrap"></p></div>
+                                        <div class="bp_flexRow"><p style="font-weight: 700; width:100px;">Site Photos:</p><p id="clickBarrierPhotos" class="bp_flexWrap"></p></div>
                                     </div>
                                 </div>
                             </div>
@@ -442,14 +442,17 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                 </div>
                                 <h4 style="text-align: center;" id="customMetricExpander" class="bp_expander">2. Do you want to use metric weights from one of the consensus scenarios or customize them? <span class="bp_expand">+</span></h4>
                                 <div id="customMetricContainer" class="bp_flexColHCenter">
+                                   
                                     <div class="toggle-btn bp_flexRowHCenter">
                                             <input type="radio" id="useConsensusWeights2" name="useConsensusWeights" value="yes" checked/>
                                             <label for="useConsensusWeights2">Consensus</label>
                                             <input type="radio" id="useConsensusWeights1" name="useConsensusWeights" value="no"/>
                                             <label for="useConsensusWeights1">Customize</label>
                                     </div>
-                                    <div class="toggle-btn bp_flexRow bp_lightGrayDiv1 bp_padLeft" id="consensusButtons">     
-                                        <input type="radio" id="apply_coastalAnad" name="applyScenarioWeights" value="coastalAnad"/>
+                                    <div id="consensusButtons">
+                                    <p style="text-align:center;">Where applicable consensus scenario buttons will also limit the input barriers (e.g. only coastal streams in the Coastal Anadromous scenario.) These can be modified under Step 1 above.</p>
+                                    <div class="toggle-btn bp_flexRow bp_lightGrayDiv1 bp_padLeft" >     
+                                         <input type="radio" id="apply_coastalAnad" name="applyScenarioWeights" value="coastalAnad"/>
                                         <label for="apply_coastalAnad">Coastal Anad</label>
                                         <input type="radio" id="apply_inlandBKT" name="applyScenarioWeights" value="inlandBKT"/>
                                         <label for="apply_inlandBKT">Inland BKT</label>
@@ -459,6 +462,7 @@ The unique ContentPane id makes all the element ids unique and prevents duplicat
                                         <label for="apply_alewife">Alewife</label>
                                         <input type="radio" id="apply_shadBBH" name="applyScenarioWeights" value="shadBBH"/>
                                         <label for="apply_shadBBH">Shad/ BBH</label>            
+                                    </div>
                                     </div>
                                     
                                     <div class="bp_flexColHCenter" id="customWeightsDiv" >

@@ -39,7 +39,8 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
             this.exploreTabCounter = 0;
             this.selectSeverityCounter = 0;
             this.zoomCounter=0;
-            this.explorePane = "assess"
+            this.explorePane = "assess";
+            this.viewMilesOpened = 0;
             
             ga('send', 'event', {
                 eventCategory:this.config.analyticsEventTrackingCategory,        
@@ -508,6 +509,21 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 var activeWeightsIndex = this.config.scenarioWeights.findIndex(x =>x[scenName]);
                 var scenWeights = this.config.scenarioWeights[activeWeightsIndex];
                 lang.hitch(this, this.applyWeights(scenWeights));
+                console.log(scenName)
+                if (scenName === "coastalAnad"){
+                    console.log("coastal anad")
+                    $("#" + this.id + "filterBarriers1").trigger("click");
+                    $("#" + this.id + "userFilter").val("CoastalStreams = 1 AND Tidal <> 1");
+                     
+                }
+                if (scenName === "inlandBKT"){
+                    $("#" + this.id + "filterBarriers1").prop("checked", true);
+                    $("#" + this.id + "userFilter").val("CoastalStreams = 0");
+                }
+                if (scenName === "alewife"){
+                    $("#" + this.id + "filterBarriers1").prop("checked", true);
+                    $("#" + this.id + "userFilter").val("usAlewifeAcres >0");
+                }
              }));
 
 
@@ -904,6 +920,25 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                     filterTimeExtent.startTime = new Date(String(startValString) + " UTC" );
                     filterTimeExtent.endTime = new Date(String(endValString) + " UTC");
                     lang.hitch(this, this.sumMiles(filterTimeExtent));
+                    var ref = this;
+                    var okButton = "<table class=\"noPrint\" align=\"center\">" +"<tr align=\"center\">" +"<td align=\"center\" colspan=\"2\">" +"<button class=\"button button-primary\" id=\"dialogOK\">OK</button></td></tr></table>" ;
+                    if (this.viewMilesOpened ===0){
+                        var scenPrettyName = "Track Projects Over Time";
+
+                        //If there's no scenario for this extent (e.g. alewife for the upper St John) add a note saying so
+                        var notes = ref.config.ProjectTrackingNotes;
+
+                        var content = "<h4 style=\"padding:10px\">" +scenPrettyName+"</h4>"+"<hr><p style=\"padding:10px\">" +notes+"</p><hr>"+okButton;
+      
+                        ref.scenarioDialog.set("content", content);
+                        ref.scenarioDialog.show();
+                        $("#dialogOK").on("click", lang.hitch(ref, function(e){
+                            dijit.byId('scenarioDialog').hide(); 
+                         }));
+
+                         this.viewMilesOpened = 1;
+                        
+                    }
                 }));
                 
                 $('#' + this.id +'assessAccord').on('click', lang.hitch(this,function(e){
