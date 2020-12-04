@@ -512,17 +512,37 @@ function (declare, lang, Color, arrayUtils, PluginBase, ContentPane, dom, domSty
                 console.log(scenName)
                 if (scenName === "coastalAnad"){
                     console.log("coastal anad")
+                    var uFilt = $("#" + this.id + "userFilter").val();
                     $("#" + this.id + "filterBarriers1").trigger("click");
-                    $("#" + this.id + "userFilter").val("CoastalStreams = 1 AND Tidal <> 1");
+                    if (uFilt === ""){
+                        $("#" + this.id + "userFilter").val("CoastalStreams = 1 AND Tidal <> 1");
+                    }
+                    else{
+                        $("#" + this.id + "userFilter").val(uFilt + " AND CoastalStreams = 1 AND Tidal <> 1");
+                    }
+                    
                      
                 }
                 if (scenName === "inlandBKT"){
+                    var uFilt = $("#" + this.id + "userFilter").val();
                     $("#" + this.id + "filterBarriers1").prop("checked", true);
-                    $("#" + this.id + "userFilter").val("CoastalStreams = 0");
+                    
+                    if (uFilt === ""){
+                        $("#" + this.id + "userFilter").val("CoastalStreams = 0");
+                    }
+                    else{
+                        $("#" + this.id + "userFilter").val(uFilt + " AND CoastalStreams = 0");
+                    }
                 }
                 if (scenName === "alewife"){
+                    var uFilt = $("#" + this.id + "userFilter").val();
                     $("#" + this.id + "filterBarriers1").prop("checked", true);
-                    $("#" + this.id + "userFilter").val("usAlewifeAcres >0");
+                    if (uFilt === ""){
+                        $("#" + this.id + "userFilter").val("usAlewifeAcres >0");
+                    }
+                    else{
+                        $("#" + this.id + "userFilter").val(uFilt + " AND CoastalStreams = 1 AND Tidal <> 1");
+                    }
                 }
              }));
 
